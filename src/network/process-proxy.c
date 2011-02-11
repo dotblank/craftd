@@ -80,7 +80,7 @@ void process_proxypacket(struct PL_entry *player, uint8_t pkttype, void * packet
 	  LOG(LOG_CRIT,"Error getting server struct");
 	
 	if(server != NULL)
-	  player->sev = create_servercon(player,server);
+	  create_servercon(player,server);
 	
 	pthread_rwlock_unlock(&player->rwlock);
 	send_loginresp(player);
@@ -109,6 +109,7 @@ void process_proxypacket(struct PL_entry *player, uint8_t pkttype, void * packet
       if(cpacket->message->data[0] == '\\')
       {
 	bstring lcmd = bfromcstr("\\login");
+	bstring ccmd = bfromcstr("\\chunks");
 	if(binstrr(cpacket->message,lcmd->slen,lcmd) != BSTR_ERR)
  	{
 	  /* Don't do anything until properly tested
@@ -121,6 +122,10 @@ void process_proxypacket(struct PL_entry *player, uint8_t pkttype, void * packet
 	  pthread_rwlock_unlock(&player->rwlock);
 	  //sleep(2);
 	  //player->sev = create_servercon(player,NULL);*/
+	} else if(binstrr(cpacket->message,ccmd->slen,ccmd) != BSTR_ERR)
+	{
+	  send_directchat(player,bformat("Proxy server is tracking %d chunks",
+			  Set_length(player->loadedchunks)));
 	}
 	//send_directchat(player,bformat("You are on a proxy server"));
       }
@@ -133,6 +138,20 @@ void process_proxypacket(struct PL_entry *player, uint8_t pkttype, void * packet
     }
   }
   return;
+}
+void process_proxyloadchunk(struct PL_entry *player,int x, int z)
+{
+  chunk_coord *coord = Malloc(sizeof(chunk_coord));
+  coord->x = x;
+  coord->z = z;
+  Set_put(player->loadedchunks,coord);
+}
+void process_proxyunloadchunk(struct PL_entry *player,int x, int z)
+{
+  chunk_coord coord;
+  coord.x = x;
+  coord.z = z;
+  Set_remove(player->loadedchunks,&coord);
 }
 void process_proxyserverpacket(struct PL_entry *player, uint8_t pkttype, void * packet)
 {
@@ -157,6 +176,23 @@ void process_proxyserverpacket(struct PL_entry *player, uint8_t pkttype, void * 
     {
       return; // do nothing
     }
+    case PID_PRECHUNK:
+    { 
+      LOG(LOG_DEBUG, "processing prechunk");
+      struct packet_prechunk* pcpacket = (struct packet_prechunk*) packet;
+      int32_t n_x = ntohl(pcpacket->x);
+      int32_t n_z = ntohl(pcpacket->z);
+      if(pcpacket->mode)
+      {
+	process_proxyloadchunk(player,n_x,n_z);
+	send_prechunk(player,n_x,n_z,true);
+      }
+      else
+      {
+	process_proxyunloadchunk(player,n_x,n_z);
+	send_prechunk(player,n_x,n_z,false);
+      }
+    }
   }
 }
 
@@ -177,6 +213,7 @@ bool process_isproxyserverpassthrough(uint8_t pkttype)
   {
     case PID_LOGIN:
     case PID_HANDSHAKE:
+    case PID_PRECHUNK:
       return 0;
   }
   return 1;

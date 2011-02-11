@@ -322,22 +322,37 @@ packetdecoder(uint8_t pkttype, int pktlen, struct bufferevent *bev)
     {
         LOG(LOG_DEBUG, "recvd pickup spawn packet");
 	
-		struct packet_pickupspawn *ps = Malloc(sizeof(struct packet_pickupspawn));
-		memset(ps,0,sizeof(struct packet_pickupspawn));
+	struct packet_pickupspawn *ps = Malloc(sizeof(struct packet_pickupspawn));
+	memset(ps,0,sizeof(struct packet_pickupspawn));
+
+	evbuffer_drain(input, sizeof(ps->pid));
+	evbuffer_remove(input, &ps->eid, sizeof(MCint));
+	evbuffer_remove(input, &ps->item, sizeof(MCshort));
+	evbuffer_remove(input, &ps->count, sizeof(MCbyte));
+	evbuffer_remove(input, &ps->damage, sizeof(MCshort));
+	evbuffer_remove(input, &ps->x, sizeof(MCint));
+	evbuffer_remove(input, &ps->y, sizeof(MCint));
+	evbuffer_remove(input, &ps->z, sizeof(MCint));
+	evbuffer_remove(input, &ps->rotation, sizeof(MCbyte));
+	evbuffer_remove(input, &ps->pitch, sizeof(MCbyte));
+	evbuffer_remove(input, &ps->roll, sizeof(MCbyte));
 	
-		evbuffer_drain(input, sizeof(ps->pid));
-		evbuffer_remove(input, &ps->eid, sizeof(MCint));
-		evbuffer_remove(input, &ps->item, sizeof(MCshort));
-		evbuffer_remove(input, &ps->count, sizeof(MCbyte));
-		evbuffer_remove(input, &ps->damage, sizeof(MCshort));
-		evbuffer_remove(input, &ps->x, sizeof(MCint));
-		evbuffer_remove(input, &ps->y, sizeof(MCint));
-		evbuffer_remove(input, &ps->z, sizeof(MCint));
-		evbuffer_remove(input, &ps->rotation, sizeof(MCbyte));
-		evbuffer_remove(input, &ps->pitch, sizeof(MCbyte));
-		evbuffer_remove(input, &ps->roll, sizeof(MCbyte));
-		
-		return ps;
+	return ps;
+    }
+    case PID_PRECHUNK:
+    {
+      LOG(LOG_DEBUG, "recvd prechunk packet");
+      struct packet_prechunk *pc = Malloc(sizeof(struct packet_prechunk));
+      evbuffer_remove(input,&pc->pid,sizeof(MCbyte));
+      evbuffer_remove(input,&pc->x,sizeof(MCint));
+      evbuffer_remove(input,&pc->z,sizeof(MCint));
+      uint8_t mode;
+      evbuffer_remove(input,&mode,sizeof(MCbyte));
+      if(mode == 1)
+	pc->mode = true;
+      else
+	pc->mode = false;
+      return pc;
     }
     case PID_CLOSEWINDOW: // Close window packet 0x65
     {

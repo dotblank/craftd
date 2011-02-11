@@ -263,7 +263,7 @@ send_movelook(struct PL_entry *player, double x, double stance, double y,
 void
 send_namedentity(struct PL_entry *player, int32_t eid)
 {
-  struct evbuffer *output = bufferevent_get_output(player->bev);
+  //struct evbuffer *output = bufferevent_get_output(player->bev);
   struct evbuffer *tempbuf = evbuffer_new();
 
   /*
@@ -306,7 +306,7 @@ send_entityrelmove(struct PL_entry *player, int32_t eid)
 void
 send_kick(struct PL_entry *player, bstring dconmsg)
 {
-  struct evbuffer *output = bufferevent_get_output(player->bev);
+  //struct evbuffer *output = bufferevent_get_output(player->bev);
   struct evbuffer *tempbuf = evbuffer_new();
   
   uint8_t pid = PID_DISCONNECT;

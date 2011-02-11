@@ -250,7 +250,7 @@ do_accept(evutil_socket_t listener, short event, void *arg)
     player->username = NULL;
     player->eid = newEid();
     player->sev = NULL;
-    player->loadedchunks = NULL;
+    player->loadedchunks = Set_new(0, chunkcoordcmp, chunkcoordhash);
 
     evutil_inet_ntop(ss.ss_family, inaddr, player->ip, sizeof(player->ip));
 

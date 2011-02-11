@@ -48,6 +48,12 @@
 /**
  * Define MC data types 
  */
+typedef struct chunk_coord chunk_coord;
+struct chunk_coord
+{
+  int x;
+  int z;
+};
 typedef int8_t MCbyte;
 typedef int16_t MCshort;
 typedef int32_t MCint;
@@ -60,6 +66,9 @@ typedef struct MCitem
   MCbyte count;
   MCshort uses;
 } MCitem;
+
+int chunkcoordcmp(const void *a, const void *b);
+uint chunkcoordhash(const void *a);
 
 /**
  * Global logging and error handling macros

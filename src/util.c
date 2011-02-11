@@ -127,6 +127,33 @@ void log_console(int priority, const char *format, ...)
 }
 
 /**
+ * Check two chunk coordinate pairs for equality
+ * 
+ * @returns 0 if equal, 1 otherwise
+ */
+int chunkcoordcmp(const void *a, const void *b)
+{
+  chunk_coord coordA = *(chunk_coord *)a;
+  chunk_coord coordB = *(chunk_coord *)b;
+  
+  if ( coordA.x == coordB.x && coordA.z == coordB.z)
+    return 0;
+  
+  return 1;
+}
+
+/**
+ * Compute a hash function of a chunk coordinate pair
+ */
+uint chunkcoordhash(const void *T)
+{
+  const int HASHMULTIPLIER = 31;
+  chunk_coord coord = *(chunk_coord *)T;
+  
+  return coord.x * (HASHMULTIPLIER) * coord.z;
+}
+
+/**
  * A callback used by event_set_log_callback() to make libevent use our
  * logging functionality since we do not have stderr after daemonizing
  *
