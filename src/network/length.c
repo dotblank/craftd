@@ -223,6 +223,10 @@ len_statemachine(uint8_t pkttype, struct evbuffer* input)
     {
         return len_returncode(inlen, packet_holdchangesz);
     }
+    case PID_PACKET11: //unknown packet 0x11
+    {
+	return len_returncode(inlen, packet_11sz);
+    }
     case PID_ARMANIMATE: // Arm animate 0x12
     {
         return len_returncode(inlen, packet_armanimatesz);
@@ -309,6 +313,10 @@ len_statemachine(uint8_t pkttype, struct evbuffer* input)
 	
 	totalsize = packet_paintingsz.base + mlen;
 	return len_returncode(inlen, totalsize);
+    }
+    case PID_PACKET1B: //Unknown packet ox1B
+    {
+	return len_returncode(inlen,packet_1Bsz);
     }
     case PID_ENTITYVELOCITY: // 0x1C
     {
