@@ -40,7 +40,7 @@
 
 /**
  * This method sends a handshake to a connected server via proxy
- * The sever connection is handled with player->bev
+ * The sever connection is handled with player->sev
  * 
  * @remarks Scope: private
  * 
@@ -99,7 +99,7 @@ void send_proxylogin(struct PL_entry *player)
   struct evbuffer *tempbuf = evbuffer_new();
   
   uint8_t pid = PID_LOGIN;
-  int32_t entityid = htonl(8);
+  int32_t entityid = htonl(PROTOCOL_VERSION);
   int16_t l_su = htons(player->username->slen);
   int16_t unused2 = htons(0); // Future MOTD? mcstring.
   int64_t mapseed = 0;
