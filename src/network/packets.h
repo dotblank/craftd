@@ -61,6 +61,7 @@ enum packetid
   PID_PLAYERDIG         = 0x0E,
   PID_BLOCKPLACE        = 0x0F,
   PID_HOLDCHANGE        = 0x10,
+  PID_PACKET11		= 0x11,
   PID_ARMANIMATE        = 0x12,
   PID_ENTITYACTION	= 0x13,
   PID_NAMEDENTITYSPAWN  = 0x14,
@@ -69,6 +70,7 @@ enum packetid
   PID_SPAWNOBJECT       = 0x17,
   PID_SPAWNMOB          = 0x18,
   PID_PAINTING		= 0x19,
+  PID_PACKET1B		= 0x1B,
   PID_ENTITYVELOCITY    = 0x1C,
   PID_ENTITYDESTROY     = 0x1D,
   PID_ENTITYINIT        = 0x1E,
@@ -322,6 +324,18 @@ struct packet_holdchange
 };
 static const int packet_holdchangesz = sizeof(MCbyte) + sizeof(MCshort);
 
+/* pid 0x11 TODO: find function and usefullname */
+struct packet_11
+{
+  MCbyte pid;
+  MCint int1;
+  MCbyte b1;
+  MCint int2;
+  MCbyte b2;
+  MCint int3;
+};
+static const int packet_11sz = 3 * sizeof(MCbyte) + 3 * sizeof(MCint);
+
 /* pid 0x12 */
 struct packet_armanimate
 {
@@ -437,6 +451,19 @@ static const struct
   .base       = sizeof(MCbyte) + 5 * sizeof(MCint) + sizeof(MCshort),
   .str1offset = sizeof(MCbyte) +  sizeof(MCint)
 };
+
+/* pid 0x1b TODO: find purpose/rename*/
+struct packet_1B
+{
+  MCbyte pid;
+  MCfloat f1;
+  MCfloat f2;
+  MCfloat f3;
+  MCfloat f4;
+  bool    b1;
+  bool    b2;
+};
+static const int packet_1Bsz = 3 * sizeof(MCbyte) + 4 * sizeof(MCfloat);
 
 /* pid 0x1c */
 struct packet_entityvelocity
