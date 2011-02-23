@@ -92,7 +92,7 @@ struct PL_entry
     float pitch;
   } position;
   Set_T loadedchunks; // The working set of chunks that we have sent
-  
+    
   SLIST_ENTRY(PL_entry) PL_entries; // Pointer to the next player entry
 };
 

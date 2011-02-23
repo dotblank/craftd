@@ -34,37 +34,37 @@
 
 /**
  * The free packet memory method destroys a packet struct
- * 
+ *
  * @param pkttype packet type header enum
  * @param packet pointer to packet struct
  */
 void packetfree(uint8_t pkttype, void * packet)
 {
-	switch(pkttype)
-	{
-		case PID_LOGIN:
-		{
-			bstrFree(((struct packet_login*) packet)->username);
-			bstrFree(((struct packet_login*) packet)->password);
-			break;
-		}
-		case PID_HANDSHAKE:
-		{
-			bstrFree(((struct packet_handshake*) packet)->username);
-			break;
-		}
-		case PID_CHAT:
-		{
-			bstrFree(((struct packet_chat*) packet)->message);
-			break;
-		}
-		case PID_DISCONNECT:
-		{
-			bstrFree(((struct packet_disconnect*) packet)->reason);
-			break;
-		}
-	}
-	free(packet);
+  switch(pkttype)
+  {
+  case PID_LOGIN:
+  {
+    bstrFree(((struct packet_login*) packet)->username);
+    bstrFree(((struct packet_login*) packet)->password);
+    break;
+  }
+  case PID_HANDSHAKE:
+  {
+    bstrFree(((struct packet_handshake*) packet)->username);
+    break;
+  }
+  case PID_CHAT:
+  {
+    bstrFree(((struct packet_chat*) packet)->message);
+    break;
+  }
+  case PID_DISCONNECT:
+  {
+    bstrFree(((struct packet_disconnect*) packet)->reason);
+    break;
+  }
+  }
+  free(packet);
 }
 
 /**
@@ -72,9 +72,9 @@ void packetfree(uint8_t pkttype, void * packet)
  * with native data types.  Smaller packets are also handled here.
  * If the operation populated no structs then packetdecoder returns a NULL pointer
  * All returned structs must be at some point freed via packetfree()
- * 
+ *
  * @remarks Invariant: packet is of correct length from len state machine
- * 
+ *
  * @param pkttype packet type header enum
  * @param pktlen length of entire packet
  * @param bev buffer event
@@ -397,6 +397,5 @@ packetdecoder(uint8_t pkttype, int pktlen, struct bufferevent *bev)
         return 0;
     }
     }
-
-    return 0;
+  return 0;
 }
