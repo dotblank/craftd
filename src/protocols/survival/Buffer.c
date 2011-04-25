@@ -358,6 +358,10 @@ SV_BufferRemoveString16 (CDBuffer* self)
         }
     }
 
+    // A lot of code relys on the base string being null terminated.
+    string = CD_realloc(string, size+1);
+    string[size] = '\0';
+
     result           = CD_CreateStringFromBuffer(string, size);
     result->external = false;
 
