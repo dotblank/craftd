@@ -36,10 +36,6 @@ static struct {
     pthread_mutex_t login;
 } _lock;
 
-static struct {
-    const char* command;
-} _config;
-
 #include "callbacks.c"
 
 static
@@ -184,12 +180,6 @@ CD_PluginInitialize (CDPlugin* self)
 {
     self->description = CD_CreateStringFromCString("Minecraft Beta 1.4");
 
-    DO { // Initiailize config cache
-        _config.command = "/";
-
-        C_SAVE(C_PATH(self->config, "command"), C_STRING, _config.command);
-    }
-
     CD_InitializeSurvivalProtocol(self->server);
 
     pthread_mutex_init(&_lock.login, NULL);
@@ -210,8 +200,7 @@ CD_PluginInitialize (CDPlugin* self)
     CD_EventRegister(self->server, "Client.connect", cdsurvival_ClientConnect);
     CD_EventRegister(self->server, "Client.process", cdsurvival_ClientProcess);
     CD_EventRegister(self->server, "Client.processed", cdsurvival_ClientProcessed);
-    CD_EventRegister(self->server, "Player.command", cdsurvival_PlayerCommand);
-    CD_EventRegister(self->server, "Player.chat", cdsurvival_PlayerChat);
+    CD_EventRegister(self->server, "Player.login", cdsurvival_PlayerLogin);
     CD_EventRegister(self->server, "Player.logout", cdsurvival_PlayerLogout);
     CD_EventRegister(self->server, "Player.destroy", cdsurvival_PlayerDestroy);
     CD_EventRegister(self->server, "Client.kick", cdsurvival_ClientKick);
@@ -219,6 +208,8 @@ CD_PluginInitialize (CDPlugin* self)
 
     CD_EventProvides(self->server, "Player.login", CD_CreateEventParameters("SVPlayer", "bool", NULL));
     CD_EventProvides(self->server, "Player.logout", CD_CreateEventParameters("SVPlayer", "bool", NULL));
+    CD_EventProvides(self->server, "Player.chat", CD_CreateEventParameters("SVPlayer", "CDString", NULL));
+
 
     return true;
 }
@@ -243,8 +234,7 @@ CD_PluginFinalize (CDPlugin* self)
     CD_EventUnregister(self->server, "Client.connect", cdsurvival_ClientConnect);
     CD_EventUnregister(self->server, "Client.process", cdsurvival_ClientProcess);
     CD_EventUnregister(self->server, "Client.processed", cdsurvival_ClientProcessed);
-    CD_EventUnregister(self->server, "Player.command", cdsurvival_PlayerCommand);
-    CD_EventUnregister(self->server, "Player.chat", cdsurvival_PlayerChat);
+    CD_EventUnregister(self->server, "Player.login", cdsurvival_PlayerLogin);
     CD_EventUnregister(self->server, "Player.logout", cdsurvival_PlayerLogout);
     CD_EventUnregister(self->server, "Player.destroy", cdsurvival_PlayerDestroy);
     CD_EventUnregister(self->server, "Client.kick", cdsurvival_ClientKick);
