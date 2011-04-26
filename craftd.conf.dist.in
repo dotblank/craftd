@@ -65,10 +65,8 @@ server: {
                 };
             },
 
-            { name: "survival.base";
-                command: "/";
-            },
-            
+            { name: "survival.base";},
+            { name: "survival.chat"; },
             { name : "survival.mapgen.classic"; },
 
             { name: "survival.persistence.nbt";

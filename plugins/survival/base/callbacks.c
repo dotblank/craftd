@@ -568,18 +568,9 @@ cdsurvival_ClientProcess (CDServer* server, CDClient* client, SVPacket* packet)
         case SVChat: {
             SVPacketChat* data = (SVPacketChat*) packet->data;
 
-            if (CD_StringEmpty(player->username)) {
-                break;
-            }
+            // The chat plugin will handle.
+            CD_EventDispatch(server, "Player.chat", player, data->request.message);
 
-            if (CD_StringStartWith(data->request.message, _config.command)) {
-                CDString* commandString = CD_CreateStringFromOffset(data->request.message, 1, 0);
-                CD_EventDispatch(server, "Player.command", player, commandString);
-                SV_DestroyString(commandString);
-            }
-            else {
-                CD_EventDispatch(server, "Player.chat", player, data->request.message);
-            }
         } break;
 
         case SVOnGround: {
@@ -791,34 +782,6 @@ cdsurvival_ClientKick (CDServer* server, CDClient* client, CDString* reason)
 
         CD_DestroyBuffer(buffer);
     }
-
-    return true;
-}
-
-static
-bool
-cdsurvival_PlayerCommand (CDServer* server, SVPlayer* player, CDString* command)
-{
-    CDRegexpMatches* matches = CD_RegexpMatchString("^(\\w+)(?:\\s+(.*?))?$", CDRegexpNone, command);
-
-    if (matches) {
-        SV_PlayerSendMessage(player, SV_StringColor(CD_CreateStringFromFormat("%s: unknown command",
-            CD_StringContent(matches->item[1])), SVColorRed));
-    }
-
-    return false;
-}
-
-static
-bool
-cdsurvival_PlayerChat (CDServer* server, SVPlayer* player, CDString* message)
-{
-    SLOG(server, LOG_NOTICE, "<%s> %s", CD_StringContent(player->username),
-            CD_StringContent(message));
-
-    CD_ServerBroadcast(server, CD_CreateStringFromFormat("<%s> %s",
-        CD_StringContent(player->username),
-        CD_StringContent(message)));
 
     return true;
 }
