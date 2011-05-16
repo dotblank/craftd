@@ -128,10 +128,9 @@ SV_BufferAddString16 (CDBuffer* self, CDString* data)
 
     evbuffer_add(self->raw, &size, SVShortSize);
 
-    size_t   len  = CD_StringLength(sanitized);
-    int16_t* ucs2 = CD_alloc(len * sizeof(int16_t));
+    int16_t* ucs2 = CD_alloc(CD_StringLength(sanitized) * sizeof(int16_t));
 
-    for (size_t i = 0; i < len; i++) {
+    for (size_t i = 0; i < CD_StringLength(sanitized); i++) {
         CDString*   ch    = CD_CharAt(sanitized, i);
         const char* input = CD_StringContent(ch);
         short       uch   = 0;
@@ -164,7 +163,7 @@ SV_BufferAddString16 (CDBuffer* self, CDString* data)
         ucs2[i] = htons(uch);
     }
 
-    evbuffer_add(self->raw, ucs2, len * sizeof(int16_t));
+    evbuffer_add(self->raw, ucs2, CD_StringLength(sanitized) * sizeof(int16_t));
 
     CD_free(ucs2);
     CD_DestroyString(sanitized);
