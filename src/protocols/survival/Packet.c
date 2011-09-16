@@ -120,7 +120,7 @@ SV_DestroyPacketData (SVPacket* self)
                 case SVLogin: {
                     SVPacketLogin* packet = (SVPacketLogin*) self->data;
 
-                    SV_DestroyString(packet->response.serverName);
+                    SV_DestroyString(packet->response.u1);
                 } break;
 
                 case SVHandshake: {
@@ -211,7 +211,7 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
 
     switch (self->type) {
         case SVKeepAlive: {
-        	SVPacketKeepAlive* packet = (SVPacketKeepAlive) CD_malloc(sizeof(SVPacketKeepAlive));
+        	SVPacketKeepAlive* packet = (SVPacketKeepAlive*) CD_malloc(sizeof(SVPacketKeepAlive));
 
         	packet->keepAliveID = SV_BufferRemoveInteger(input);
 
