@@ -41,7 +41,7 @@
 bool SV_PacketParsable (CDBuffers* buffers);
 
 static const size_t SVPacketLength[] = {
-/* 0x00 */  1,      // Keep Alive
+/* 0x00 */  5,      // Keep Alive
 /* 0x01 */  15,     // Login
 /* 0x02 */  3,      // Handshake
 /* 0x03 */  3,      // Chat

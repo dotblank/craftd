@@ -96,8 +96,8 @@ typedef struct _SVPacket {
     CDPointer     data;
 } SVPacket;
 
-typedef union _SVPacketKeepAlive {
-    char empty;
+typedef struct _SVPacketKeepAlive {
+    SVInteger keepAliveID;
 } SVPacketKeepAlive;
 
 typedef union _SVPacketLogin {
