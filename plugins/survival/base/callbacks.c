@@ -650,9 +650,10 @@ cdsurvival_ClientProcess (CDServer* server, CDClient* client, SVPacket* packet)
         
         case SVListPing:
         {
+        	//TODO: need to add in some way to get the maximum slots the server can have (eg 20)
             SVPacketDisconnect pkt = {
                 .ping = {
-                   .description = CD_CreateStringFromCString("Craftd Test Server")
+                   .description = CD_CreateStringFromCString("Craftd Server\u00A70\u00A70")
                 }
             };
             SVPacket  packet = { SVPing, SVDisconnect, (CDPointer) &pkt };
