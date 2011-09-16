@@ -219,7 +219,8 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
 {
     assert(self);
     assert(input);
-
+    DEBUG("Recieved packet type %x",self->type);
+    
     switch (self->type) {
         case SVKeepAlive: {
         	SVPacketKeepAlive* packet = (SVPacketKeepAlive*) CD_malloc(sizeof(SVPacketKeepAlive));
@@ -236,7 +237,7 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
         case SVLogin: {
             SVPacketLogin* packet = (SVPacketLogin*) CD_malloc(sizeof(SVPacketLogin));
 
-            SV_BufferRemoveFormat(input, "iUlibbb",
+            SV_BufferRemoveFormat(input, "iUlibbbb",
                 &packet->request.version,
                 &packet->request.username,
 		&packet->request.u1,
@@ -535,6 +536,7 @@ SV_PacketToBuffer (SVPacket* self)
                         packet->response.id,
                         packet->response.u1,
                         packet->response.mapSeed,
+                        packet->response.serverMode,
                         packet->response.dimension,
                         packet->response.u2,
                         packet->response.worldHeight,
