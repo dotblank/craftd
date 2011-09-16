@@ -211,7 +211,11 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
 
     switch (self->type) {
         case SVKeepAlive: {
-            return (CDPointer) CD_malloc(sizeof(SVPacketKeepAlive));
+        	SVPacketKeepAlive* packet = (SVPacketKeepAlive) CD_malloc(sizeof(SVPacketKeepAlive));
+
+        	packet->keepAliveID = SV_BufferRemoveInteger(input);
+
+        	return (CDPointer) packet;
         }
         
 	case SVListPing: {
@@ -495,6 +499,11 @@ SV_PacketToBuffer (SVPacket* self)
 
         case SVResponse: {
             switch (self->type) {
+            	case SVKeepAlive: {
+            		SVPacketKeepAlive* packet = (SVPacketKeepAlive*) self->data;
+
+            		SV_BufferAddInteger(data, packet->keepAliveID);
+            	} break;
                 case SVLogin: {
                     SVPacketLogin* packet = (SVPacketLogin*) self->data;
 
