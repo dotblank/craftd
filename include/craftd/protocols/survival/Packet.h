@@ -32,7 +32,8 @@
 
 typedef enum _SVPacketChain {
     SVRequest,
-    SVResponse
+    SVResponse,
+    SVPing
 } SVPacketChain;
 
 typedef enum _SVPacketType {
@@ -698,8 +699,11 @@ typedef union _SVPacketDisconnect {
     struct {
         SVString reason;
     } response;
+    
+    struct {
+        SVString description;
+    } ping;
 } SVPacketDisconnect;
-
 /**
  * Create a Packet from a Buffers object
  *

@@ -114,6 +114,17 @@ SV_DestroyPacketData (SVPacket* self)
                 default: break;
             }
         } break;
+        
+        case SVPing: {
+            switch(self->type) {
+                case SVDisconnect: {
+                        SVPacketDisconnect* packet = (SVPacketDisconnect*) self->data;
+
+                        SV_DestroyString(packet->ping.description);
+                } break;
+                default: break;
+            }
+        }break;
 
         case SVResponse: {
             switch (self->type) {
@@ -496,6 +507,19 @@ SV_PacketToBuffer (SVPacket* self)
                 default: break;
             }
         } break;
+        
+        case SVPing: {
+            switch(self->type) {
+                case SVDisconnect:
+                {
+                    SVPacketDisconnect* packet = (SVPacketDisconnect*) self->data;
+
+                    SV_BufferAddString16(data, packet->ping.description);
+                } break;
+                
+                default: break;
+            }
+            } break;
 
         case SVResponse: {
             switch (self->type) {

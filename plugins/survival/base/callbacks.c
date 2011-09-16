@@ -647,6 +647,19 @@ cdsurvival_ClientProcess (CDServer* server, CDClient* client, SVPacket* packet)
 
             CD_ServerKick(server, client, CD_CloneString(data->request.reason));
         } break;
+        
+        case SVListPing:
+        {
+            SVPacketDisconnect pkt = {
+                .ping = {
+                   .description = CD_CreateStringFromCString("Craftd Test Server")
+                }
+            };
+            SVPacket  packet = { SVPing, SVDisconnect, (CDPointer) &pkt };
+            CDBuffer* data = SV_PacketToBuffer(&packet);
+            CD_ClientSendBuffer(client, data);
+            CD_DestroyBuffer(data);
+        } break;
 
         default: {
             if (player) {
@@ -758,6 +771,11 @@ cdsurvival_ClientDisconnect (CDServer* server, CDClient* client, bool status)
     assert(client);
 
     SVPlayer* player = (SVPlayer*) CD_DynamicGet(client, "Client.player");
+    
+    if(!player)
+    {
+        return true;
+    }
 
     if (player->world) {
         CD_EventDispatch(server, "Player.logout", player, status);
