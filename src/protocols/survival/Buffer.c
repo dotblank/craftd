@@ -35,6 +35,7 @@ SV_BufferAddFormat (CDBuffer* self, const char* format, ...)
     while (*format != '\0') {
         switch (*format) {
             case 'b': SV_BufferAddByte(self,    va_arg(ap, int));  break;
+            case 'c': SV_BufferAddByte(self,    va_arg(ap, uint));  break;
             case 's': SV_BufferAddShort(self,   va_arg(ap, int));  break;
             case 'i': SV_BufferAddInteger(self, va_arg(ap, int));  break;
             case 'l': SV_BufferAddLong(self,    va_arg(ap, long)); break;

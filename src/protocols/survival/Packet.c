@@ -531,7 +531,7 @@ SV_PacketToBuffer (SVPacket* self)
                 case SVLogin: {
                     SVPacketLogin* packet = (SVPacketLogin*) self->data;
 
-                    SV_BufferAddFormat(data, "iUlibbb",
+                    SV_BufferAddFormat(data, "iUlibbbb",
                         packet->response.id,
                         packet->response.u1,
                         packet->response.mapSeed,

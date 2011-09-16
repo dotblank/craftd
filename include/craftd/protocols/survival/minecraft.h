@@ -32,6 +32,7 @@ typedef int8_t    SVBoolean;
 typedef SVBoolean SVBool;
 
 typedef int8_t SVByte;
+typedef uint8_t SVUByte;
 
 typedef int16_t SVShort;
 

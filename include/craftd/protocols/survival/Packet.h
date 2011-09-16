@@ -127,8 +127,8 @@ typedef union _SVPacketLogin {
 	SVInteger serverMode;
         SVByte dimension;
 	SVByte u2;
-	SVByte worldHeight;
-	SVByte maxPlayers;
+	SVUByte worldHeight;
+	SVUByte maxPlayers;
     } response;
 } SVPacketLogin;
 
