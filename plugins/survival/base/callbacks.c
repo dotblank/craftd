@@ -477,6 +477,7 @@ cdsurvival_ClientProcess (CDServer* server, CDClient* client, SVPacket* packet)
                         .id         = player->entity.id,
                         .u1 = CD_CreateStringFromCString(""),
                         .mapSeed    = 971768181197178410,
+                        .serverMode = 1,
                         .dimension  = 0,
                         .u2         = 1,
                         .worldHeight = 128,
