@@ -28,11 +28,12 @@
 
 #include <craftd/protocols/survival/common.h>
 
-#define CRAFTD_PROTOCOL_VERSION (11)
+#define CRAFTD_PROTOCOL_VERSION (17)
 
 typedef enum _SVPacketChain {
     SVRequest,
-    SVResponse
+    SVResponse,
+    SVPing
 } SVPacketChain;
 
 typedef enum _SVPacketType {
@@ -87,6 +88,7 @@ typedef enum _SVPacketType {
     SVTransaction          = 0x6A,
     SVUpdateSign           = 0x82,
     SVIncrementStatistic   = 0xC8,
+    SVListPing             = 0xFE,
     SVDisconnect           = 0xFF
 } SVPacketType;
 
@@ -96,8 +98,13 @@ typedef struct _SVPacket {
     CDPointer     data;
 } SVPacket;
 
-typedef union _SVPacketKeepAlive {
+
+typedef struct _SVPacketListPing {
     char empty;
+} SVPacketListPing;
+
+typedef struct _SVPacketKeepAlive {
+    SVInteger keepAliveID;
 } SVPacketKeepAlive;
 
 typedef union _SVPacketLogin {
@@ -105,18 +112,23 @@ typedef union _SVPacketLogin {
         SVInteger version;
 
         SVString username;
-
-        SVLong mapSeed;
-        SVByte dimension;
+	SVLong u1;
+	SVInteger u2;
+	SVByte u3;
+	SVByte u4;
+	SVByte u5;
+	SVByte u6;
     } request;
 
     struct {
         SVInteger id;
-
-        SVString serverName;
-
+        SVString u1;
         SVLong mapSeed;
+	SVInteger serverMode;
         SVByte dimension;
+	SVByte u2;
+	SVUByte worldHeight;
+	SVUByte maxPlayers;
     } response;
 } SVPacketLogin;
 
@@ -286,14 +298,22 @@ typedef union _SVPacketUseBed {
 } SVPacketUseBed;
 
 typedef enum _SVAnimationType {
-    SVNoAnimation,
-    SVSwingArm,
-
+    SVNoAnimation = 0,
+    SVSwingArm = 1,
+    SVDamage = 2,
+    SVLeaveBed = 3,
     SVUnknownAnimation = 102,
-
     SVCrouchAnimation = 104,
-    SVUncrouchAnimation
+    SVUncrouchAnimation = 105
 } SVAnimationType;
+
+typedef enum _SVActionType {
+	SVCrouchAction = 1,
+	SVUncrouchAction = 2,
+	SVLeaveBed = 3,
+	SVStartSprint = 4,
+	SVStopSprint = 5
+} SVActionType;
 
 typedef union _SVPacketAnimation {
     struct {
@@ -313,10 +333,7 @@ typedef union _SVPacketEntityAction {
     struct {
         SVEntity entity;
 
-        enum {
-            SVCrouchAction = 1,
-            SVUncrouchAction
-        } action;
+        SVActionType action;
     } request;
 } SVPacketEntityAction;
 
@@ -687,8 +704,11 @@ typedef union _SVPacketDisconnect {
     struct {
         SVString reason;
     } response;
+    
+    struct {
+        SVString description;
+    } ping;
 } SVPacketDisconnect;
-
 /**
  * Create a Packet from a Buffers object
  *

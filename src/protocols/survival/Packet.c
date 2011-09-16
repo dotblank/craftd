@@ -114,13 +114,24 @@ SV_DestroyPacketData (SVPacket* self)
                 default: break;
             }
         } break;
+        
+        case SVPing: {
+            switch(self->type) {
+                case SVDisconnect: {
+                        SVPacketDisconnect* packet = (SVPacketDisconnect*) self->data;
+
+                        SV_DestroyString(packet->ping.description);
+                } break;
+                default: break;
+            }
+        }break;
 
         case SVResponse: {
             switch (self->type) {
                 case SVLogin: {
                     SVPacketLogin* packet = (SVPacketLogin*) self->data;
 
-                    SV_DestroyString(packet->response.serverName);
+                    SV_DestroyString(packet->response.u1);
                 } break;
 
                 case SVHandshake: {
@@ -208,20 +219,33 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
 {
     assert(self);
     assert(input);
-
+    DEBUG("Recieved packet type %x",self->type);
+    
     switch (self->type) {
         case SVKeepAlive: {
-            return (CDPointer) CD_malloc(sizeof(SVPacketKeepAlive));
+        	SVPacketKeepAlive* packet = (SVPacketKeepAlive*) CD_malloc(sizeof(SVPacketKeepAlive));
+
+        	packet->keepAliveID = SV_BufferRemoveInteger(input);
+
+        	return (CDPointer) packet;
         }
+        
+	case SVListPing: {
+	    return (CDPointer) CD_malloc(sizeof(SVPacketListPing));
+	}
 
         case SVLogin: {
             SVPacketLogin* packet = (SVPacketLogin*) CD_malloc(sizeof(SVPacketLogin));
 
-            SV_BufferRemoveFormat(input, "iUlb",
+            SV_BufferRemoveFormat(input, "iUlibbbb",
                 &packet->request.version,
                 &packet->request.username,
-                &packet->request.mapSeed,
-                &packet->request.dimension
+		&packet->request.u1,
+		&packet->request.u2,
+		&packet->request.u3,
+		&packet->request.u4,
+                &packet->request.u5,
+                &packet->request.u6
             );
 
             return (CDPointer) packet;
@@ -484,17 +508,39 @@ SV_PacketToBuffer (SVPacket* self)
                 default: break;
             }
         } break;
+        
+        case SVPing: {
+            switch(self->type) {
+                case SVDisconnect:
+                {
+                    SVPacketDisconnect* packet = (SVPacketDisconnect*) self->data;
+
+                    SV_BufferAddString16(data, packet->ping.description);
+                } break;
+                
+                default: break;
+            }
+            } break;
 
         case SVResponse: {
             switch (self->type) {
+            	case SVKeepAlive: {
+            		SVPacketKeepAlive* packet = (SVPacketKeepAlive*) self->data;
+
+            		SV_BufferAddInteger(data, packet->keepAliveID);
+            	} break;
                 case SVLogin: {
                     SVPacketLogin* packet = (SVPacketLogin*) self->data;
 
-                    SV_BufferAddFormat(data, "iUlb",
+                    SV_BufferAddFormat(data, "iUlibbbb",
                         packet->response.id,
-                        packet->response.serverName,
+                        packet->response.u1,
                         packet->response.mapSeed,
-                        packet->response.dimension
+                        packet->response.serverMode,
+                        packet->response.dimension,
+                        packet->response.u2,
+                        packet->response.worldHeight,
+                        packet->response.maxPlayers
                     );
                 } break;
 

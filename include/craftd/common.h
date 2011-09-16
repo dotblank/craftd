@@ -78,6 +78,7 @@
 
 #define CDNull (0)
 
+#include <craftd/lock.h>
 #include <craftd/utils.h>
 #include <craftd/memory.h>
 #include <craftd/extras.h>
