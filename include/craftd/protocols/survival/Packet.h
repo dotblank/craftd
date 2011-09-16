@@ -299,9 +299,9 @@ typedef union _SVPacketUseBed {
 
 typedef enum _SVAnimationType {
     SVNoAnimation = 0,
-    SVSwingArm = 1,
-    SVDamage = 2,
-    SVLeaveBed = 3,
+    SVSwingArmAnimation = 1,
+    SVDamageAnimation = 2,
+    SVLeaveBedAnimation = 3,
     SVUnknownAnimation = 102,
     SVCrouchAnimation = 104,
     SVUncrouchAnimation = 105
@@ -310,9 +310,9 @@ typedef enum _SVAnimationType {
 typedef enum _SVActionType {
 	SVCrouchAction = 1,
 	SVUncrouchAction = 2,
-	SVLeaveBed = 3,
-	SVStartSprint = 4,
-	SVStopSprint = 5
+	SVLeaveBedAction = 3,
+	SVStartSprintAction = 4,
+	SVStopSprintAction = 5
 } SVActionType;
 
 typedef union _SVPacketAnimation {
