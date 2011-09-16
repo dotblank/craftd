@@ -67,42 +67,42 @@ static const size_t SVPacketLength[] = {
 /* 0x17 */  18,     // Add Object/Vehicle
 /* 0x18 */  21,     // Mob Spawn
 /* 0x19 */  23,     // Painting
-/* 0x1A */  CDNull,
-/* 0x1B */  19,     // ???
-/* 0x1C */  11,     // Entity Velocity
-/* 0x1D */  5,      // Destroy Entity
-/* 0x1E */  5,      // Entity
-/* 0x1F */  8,      // Entity Relative Move
-/* 0x20 */  7,      // Entity Look
-/* 0x21 */  10,     // Entity Look & Relative Move
-/* 0x22 */  19,     // Entity Teleport
+/* 0x1A */  CDNull,	// Experience Orb
+/* 0x1B */  19,		// Stance Update (?)
+/* 0x1C */  11,		// Entity Velocity
+/* 0x1D */  5,		// Destroy Entity
+/* 0x1E */  5,		// Entity
+/* 0x1F */  8,		// Entity Relative Move
+/* 0x20 */  7,		// Entity Look
+/* 0x21 */  10,		// Entity Look & Relative Move
+/* 0x22 */  19,		// Entity Teleport
 /* 0x23 */  CDNull,
 /* 0x24 */  CDNull,
 /* 0x25 */  CDNull,
-/* 0x26 */  6,      // Entity Status
-/* 0x27 */  9,      // Attach Entity
-/* 0x28 */  6,      // Entity Metadata
-/* 0x29 */  CDNull,
-/* 0x2A */  CDNull,
-/* 0x2B */  CDNull,
+/* 0x26 */  6,		// Entity Status
+/* 0x27 */  9,		// Attach Entity
+/* 0x28 */  6,		// Entity Metadata
+/* 0x29 */  CDNull,	// Entity Effect
+/* 0x2A */  CDNull,	// Remove Entity Effect
+/* 0x2B */  CDNull,	// Experience
 /* 0x2C */  CDNull,
 /* 0x2D */  CDNull,
 /* 0x2E */  CDNull,
 /* 0x2F */  CDNull,
 /* 0x30 */  CDNull,
 /* 0x31 */  CDNull,
-/* 0x32 */  10,     // Pre-Chunk
-/* 0x33 */  18,     // Map Chunk
-/* 0x34 */  11,     // Multi Block Change
-/* 0x35 */  12,     // Block Change
-/* 0x36 */  13,     // Play Note Block
+/* 0x32 */  10,		// Pre-Chunk
+/* 0x33 */  18,		// Map Chunk
+/* 0x34 */  11,		// Multi Block Change
+/* 0x35 */  12,		// Block Change
+/* 0x36 */  13,		// Block Action
 /* 0x37 */  CDNull,
 /* 0x38 */  CDNull,
 /* 0x39 */  CDNull,
 /* 0x3A */  CDNull,
 /* 0x3B */  CDNull,
-/* 0x3C */  33,      // Explosion
-/* 0x3D */  CDNull,
+/* 0x3C */  33,		// Explosion
+/* 0x3D */  CDNull,	// Sound Effect
 /* 0x3E */  CDNull,
 /* 0x3F */  CDNull,
 /* 0x40 */  CDNull,
@@ -111,8 +111,8 @@ static const size_t SVPacketLength[] = {
 /* 0x43 */  CDNull,
 /* 0x44 */  CDNull,
 /* 0x45 */  CDNull,
-/* 0x46 */  CDNull,
-/* 0x47 */  CDNull,
+/* 0x46 */  CDNull,	// New/Invalid State
+/* 0x47 */  CDNull,	// Thunderbolt
 /* 0x48 */  CDNull,
 /* 0x49 */  CDNull,
 /* 0x4A */  CDNull,
@@ -141,14 +141,14 @@ static const size_t SVPacketLength[] = {
 /* 0x61 */  CDNull,
 /* 0x62 */  CDNull,
 /* 0x63 */  CDNull,
-/* 0x64 */  6,      // Open Window
-/* 0x65 */  2,      // Close Window
-/* 0x66 */  9,      // Window Click
-/* 0x67 */  6,      // Set Slot
-/* 0x68 */  4,      // Window Items
-/* 0x69 */  6,      // Update Progress Bar
-/* 0x6A */  5,      // Transaction
-/* 0x6B */  CDNull,
+/* 0x64 */  6,		// Open Window
+/* 0x65 */  2,		// Close Window
+/* 0x66 */  9,		// Window Click
+/* 0x67 */  6,		// Set Slot
+/* 0x68 */  4,		// Window Items
+/* 0x69 */  6,		// Update Progress Bar
+/* 0x6A */  5,		// Transaction
+/* 0x6B */  CDNull,	// Creative Inventory Action
 /* 0x6C */  CDNull,
 /* 0x6D */  CDNull,
 /* 0x6E */  CDNull,
@@ -171,8 +171,8 @@ static const size_t SVPacketLength[] = {
 /* 0x7F */  CDNull,
 /* 0x80 */  CDNull,
 /* 0x81 */  CDNull,
-/* 0x82 */  19,     // Update Sign
-/* 0x83 */  CDNull,
+/* 0x82 */  19,		// Update Sign
+/* 0x83 */  CDNull,	// Item Data
 /* 0x84 */  CDNull,
 /* 0x85 */  CDNull,
 /* 0x86 */  CDNull,
@@ -241,8 +241,8 @@ static const size_t SVPacketLength[] = {
 /* 0xC5 */  CDNull,
 /* 0xC6 */  CDNull,
 /* 0xC7 */  CDNull,
-/* 0xC8 */  6,
-/* 0xC9 */  CDNull,
+/* 0xC8 */  6,		// Increment Statistic
+/* 0xC9 */  CDNull,	// Player List Item
 /* 0xCA */  CDNull,
 /* 0xCB */  CDNull,
 /* 0xCC */  CDNull,
@@ -295,8 +295,8 @@ static const size_t SVPacketLength[] = {
 /* 0xFB */  CDNull,
 /* 0xFC */  CDNull,
 /* 0xFD */  CDNull,
-/* 0xFE */  1,
-/* 0xFF */  3       // Disconnect
+/* 0xFE */  1,		// Server List Ping
+/* 0xFF */  3		// Disconnect/Kick
 };
 
 #endif
