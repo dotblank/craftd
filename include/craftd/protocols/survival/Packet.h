@@ -298,14 +298,22 @@ typedef union _SVPacketUseBed {
 } SVPacketUseBed;
 
 typedef enum _SVAnimationType {
-    SVNoAnimation,
-    SVSwingArm,
-
+    SVNoAnimation = 0,
+    SVSwingArm = 1,
+    SVDamage = 2,
+    SVLeaveBed = 3,
     SVUnknownAnimation = 102,
-
     SVCrouchAnimation = 104,
-    SVUncrouchAnimation
+    SVUncrouchAnimation = 105
 } SVAnimationType;
+
+typedef enum _SVActionType {
+	SVCrouchAction = 1,
+	SVUncrouchAction = 2,
+	SVLeaveBed = 3,
+	SVStartSprint = 4,
+	SVStopSprint = 5
+} SVActionType;
 
 typedef union _SVPacketAnimation {
     struct {
@@ -325,10 +333,7 @@ typedef union _SVPacketEntityAction {
     struct {
         SVEntity entity;
 
-        enum {
-            SVCrouchAction = 1,
-            SVUncrouchAction
-        } action;
+        SVActionType action;
     } request;
 } SVPacketEntityAction;
 
