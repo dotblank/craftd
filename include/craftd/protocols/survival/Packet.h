@@ -37,59 +37,60 @@ typedef enum _SVPacketChain {
 } SVPacketChain;
 
 typedef enum _SVPacketType {
-    SVKeepAlive            = 0x00,
-    SVLogin                = 0x01,
-    SVHandshake            = 0x02,
-    SVChat                 = 0x03,
-    SVTimeUpdate           = 0x04,
-    SVEntityEquipment      = 0x05,
-    SVSpawnPosition        = 0x06,
-    SVUseEntity            = 0x07,
-    SVUpdateHealth         = 0x08,
-    SVRespawn              = 0x09,
-    SVOnGround             = 0x0A,
-    SVPlayerPosition       = 0x0B,
-    SVPlayerLook           = 0x0C,
-    SVPlayerMoveLook       = 0x0D,
-    SVPlayerDigging        = 0x0E,
-    SVPlayerBlockPlacement = 0x0F,
-    SVHoldChange           = 0x10,
-    SVUseBed               = 0x11,
-    SVAnimation            = 0x12,
-    SVEntityAction         = 0x13,
-    SVNamedEntitySpawn     = 0x14,
-    SVPickupSpawn          = 0x15,
-    SVCollectItem          = 0x16,
-    SVSpawnObject          = 0x17,
-    SVSpawnMob             = 0x18,
-    SVPainting             = 0x19,
-    SVEntityVelocity       = 0x1C,
-    SVEntityDestroy        = 0x1D,
-    SVEntityCreate         = 0x1E,
-    SVEntityRelativeMove   = 0x1F,
-    SVEntityLook           = 0x20,
-    SVEntityLookMove       = 0x21,
-    SVEntityTeleport       = 0x22,
-    SVEntityStatus         = 0x26,
-    SVEntityAttach         = 0x27,
-    SVEntityMetadata       = 0x28,
-    SVPreChunk             = 0x32,
-    SVMapChunk             = 0x33,
-    SVMultiBlockChange     = 0x34,
-    SVBlockChange          = 0x35,
-    SVPlayNoteBlock        = 0x36,
-    SVExplosion            = 0x3C,
-    SVOpenWindow           = 0x64,
-    SVCloseWindow          = 0x65,
-    SVWindowClick          = 0x66,
-    SVSetSlot              = 0x67,
-    SVWindowItems          = 0x68,
-    SVUpdateProgressBar    = 0x69,
-    SVTransaction          = 0x6A,
-    SVUpdateSign           = 0x82,
-    SVIncrementStatistic   = 0xC8,
-    SVListPing             = 0xFE,
-    SVDisconnect           = 0xFF
+    SVKeepAlive               = 0x00,
+    SVLogin                   = 0x01,
+    SVHandshake               = 0x02,
+    SVChat                    = 0x03,
+    SVTimeUpdate              = 0x04,
+    SVEntityEquipment         = 0x05,
+    SVSpawnPosition           = 0x06,
+    SVUseEntity               = 0x07,
+    SVUpdateHealth            = 0x08,
+    SVRespawn                 = 0x09,
+    SVOnGround                = 0x0A,
+    SVPlayerPosition          = 0x0B,
+    SVPlayerLook              = 0x0C,
+    SVPlayerMoveLook          = 0x0D,
+    SVPlayerDigging           = 0x0E,
+    SVPlayerBlockPlacement    = 0x0F,
+    SVHoldChange              = 0x10,
+    SVUseBed                  = 0x11,
+    SVAnimation               = 0x12,
+    SVEntityAction            = 0x13,
+    SVNamedEntitySpawn        = 0x14,
+    SVPickupSpawn             = 0x15,
+    SVCollectItem             = 0x16,
+    SVSpawnObject             = 0x17,
+    SVSpawnMob                = 0x18,
+    SVPainting                = 0x19,
+    SVEntityVelocity          = 0x1C,
+    SVEntityDestroy           = 0x1D,
+    SVEntityCreate            = 0x1E,
+    SVEntityRelativeMove      = 0x1F,
+    SVEntityLook              = 0x20,
+    SVEntityLookMove          = 0x21,
+    SVEntityTeleport          = 0x22,
+    SVEntityStatus            = 0x26,
+    SVEntityAttach            = 0x27,
+    SVEntityMetadata          = 0x28,
+    SVPreChunk                = 0x32,
+    SVMapChunk                = 0x33,
+    SVMultiBlockChange        = 0x34,
+    SVBlockChange             = 0x35,
+    SVPlayNoteBlock           = 0x36,
+    SVExplosion               = 0x3C,
+    SVOpenWindow              = 0x64,
+    SVCloseWindow             = 0x65,
+    SVWindowClick             = 0x66,
+    SVSetSlot                 = 0x67,
+    SVWindowItems             = 0x68,
+    SVUpdateProgressBar       = 0x69,
+    SVTransaction             = 0x6A,
+    SVCreativeInventoryAction = 0x6B,
+    SVUpdateSign              = 0x82,
+    SVIncrementStatistic      = 0xC8,
+    SVListPing                = 0xFE,
+    SVDisconnect              = 0xFF
 } SVPacketType;
 
 typedef struct _SVPacket {
@@ -333,7 +334,7 @@ typedef union _SVPacketEntityAction {
     struct {
         SVEntity entity;
 
-        SVActionType action;
+        SVActionType type;
     } request;
 } SVPacketEntityAction;
 
@@ -668,6 +669,22 @@ typedef union _SVPacketTransaction {
         SVBoolean accepted;
     } response;
 } SVPacketTransaction;
+
+typedef union _SVPacketCreativeInventoryAction {
+	struct {
+		SVShort slot;
+		SVShort itemId;
+		SVShort quantity;
+		SVShort damage;
+	} request;
+
+	struct {
+			SVShort slot;
+			SVShort itemId;
+			SVShort quantity;
+			SVShort damage;
+		} response;
+} SVPacketCreativeInventoryAction;
 
 typedef union _SVPacketUpdateSign {
     struct {

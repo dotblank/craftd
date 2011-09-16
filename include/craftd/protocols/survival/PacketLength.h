@@ -148,7 +148,7 @@ static const size_t SVPacketLength[] = {
 /* 0x68 */  4,		// Window Items
 /* 0x69 */  6,		// Update Progress Bar
 /* 0x6A */  5,		// Transaction
-/* 0x6B */  CDNull,	// Creative Inventory Action
+/* 0x6B */  9,      // Creative Inventory Action
 /* 0x6C */  CDNull,
 /* 0x6D */  CDNull,
 /* 0x6E */  CDNull,

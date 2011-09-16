@@ -393,8 +393,10 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
         case SVEntityAction: {
             SVPacketEntityAction* packet = (SVPacketEntityAction*) CD_malloc(sizeof(SVPacketEntityAction));
 
-            packet->request.entity.id = SV_BufferRemoveInteger(input);
-            packet->request.action    = SV_BufferRemoveByte(input);
+            SV_BufferRemoveFormat(input, "ib",
+            	&packet->request.entity.id,
+            	&packet->request.type
+            );
 
             return (CDPointer) packet;
         }
@@ -449,6 +451,19 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
             );
 
             return (CDPointer) packet;
+        }
+
+        case SVCreativeInventoryAction: {
+        	SVPacketCreativeInventoryAction* packet = (SVPacketCreativeInventoryAction*) CD_malloc(sizeof(SVPacketCreativeInventoryAction));
+
+        	SV_BufferRemoveFormat(input, "ssss",
+        		&packet->request.slot,
+        		&packet->request.itemId,
+        		&packet->request.quantity,
+        		&packet->request.damage
+        	);
+
+        	return (CDPointer) packet;
         }
 
         case SVUpdateSign: {
@@ -958,6 +973,17 @@ SV_PacketToBuffer (SVPacket* self)
                         packet->response.id,
                         packet->response.action,
                         packet->response.accepted
+                    );
+                } break;
+
+                case SVCreativeInventoryAction: {
+                    SVPacketCreativeInventoryAction* packet = (SVPacketCreativeInventoryAction*) self->data;
+
+                    SV_BufferAddFormat(data, "ssss",
+                        packet->request.slot,
+                        packet->request.itemId,
+                        packet->request.quantity,
+                        packet->request.damage
                     );
                 } break;
 
