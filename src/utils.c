@@ -28,207 +28,207 @@
 void
 CD_abort (const char* error, ...)
 {
-    va_list ap;
-    
-    va_start(ap, error);
-    vfprintf(stderr, error, ap);
-    va_end(ap);
+	va_list ap;
+	
+	va_start(ap, error);
+	vfprintf(stderr, error, ap);
+	va_end(ap);
 
-    abort();
+	abort();
 }
 
 int
 CD_mkdir (const char* path, mode_t mode)
 {
-    size_t length = strlen(path);
-    char   tmp[length + 1];
+	size_t length = strlen(path);
+	char   tmp[length + 1];
 
-    for (size_t i = 0; i < length; i++) {
-        if (path[i] == '/' || path[i] == '\\') {
-            tmp[i] = '\0';
+	for (size_t i = 0; i < length; i++) {
+		if (path[i] == '/' || path[i] == '\\') {
+			tmp[i] = '\0';
 
-            if (mkdir(tmp, mode) < 0) {
-                if (errno != EEXIST) {
-                    return -1;
-                }
-            }
-        }
+			if (mkdir(tmp, mode) < 0) {
+				if (errno != EEXIST) {
+					return -1;
+				}
+			}
+		}
 
-        tmp[i] = path[i];
-    }
+		tmp[i] = path[i];
+	}
 
-    return 0;
+	return 0;
 }
 
 size_t
 CD_FileSize (const char* path)
 {
-    struct stat s;
+	struct stat s;
 
-    if (stat(path, &s) == 0) {
-        return s.st_size;
-    }
-    
-    return 0;
+	if (stat(path, &s) == 0) {
+		return s.st_size;
+	}
+	
+	return 0;
 }
 
 bool
 CD_IsFile (const char* path)
 {
-    struct stat s;
+	struct stat s;
 
-    if (stat(path, &s) == 0) {
-        if (S_ISREG(s.st_mode)) {
-            return true;
-        }
-    }
+	if (stat(path, &s) == 0) {
+		if (S_ISREG(s.st_mode)) {
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 bool
 CD_IsDirectory (const char* path)
 {
-    struct stat s;
+	struct stat s;
 
-    if (stat(path, &s) == 0) {
-        if (S_ISDIR(s.st_mode)) {
-            return true;
-        }
-    }
+	if (stat(path, &s) == 0) {
+		if (S_ISDIR(s.st_mode)) {
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 bool
 CD_IsSymlink (const char* path)
 {
-    struct stat s;
+	struct stat s;
 
-    if (stat(path, &s) == 0) {
-        if (S_ISLNK(s.st_mode)) {
-            return true;
-        }
-    }
+	if (stat(path, &s) == 0) {
+		if (S_ISLNK(s.st_mode)) {
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 bool
 CD_PathExists (const char* path)
 {
-    struct stat s;
+	struct stat s;
 
-    if (stat(path, &s) < 0) {
-        return false;
-    }
-    else {
-        return true;
-    }
+	if (stat(path, &s) < 0) {
+		return false;
+	}
+	else {
+		return true;
+	}
 }
 
 bool
 CD_IsReadable (const char* path)
 {
-    struct stat s;
+	struct stat s;
 
-    if (stat(path, &s) < 0) {
-        return false;
-    }
-    else {
-        DO {
-            uid_t uid = geteuid();
+	if (stat(path, &s) < 0) {
+		return false;
+	}
+	else {
+		DO {
+			uid_t uid = geteuid();
 
-            if (s.st_uid == uid && s.st_mode & S_IRUSR) {
-                return true;
-            }
-        }
+			if (s.st_uid == uid && s.st_mode & S_IRUSR) {
+				return true;
+			}
+		}
 
-        DO {
-            gid_t gid = getegid();
+		DO {
+			gid_t gid = getegid();
 
-            if (s.st_gid == gid && s.st_mode & S_IRGRP) {
-                return true;
-            }
-        }
+			if (s.st_gid == gid && s.st_mode & S_IRGRP) {
+				return true;
+			}
+		}
 
-        if (s.st_mode & S_IROTH) {
-            return true;
-        }
-    }
+		if (s.st_mode & S_IROTH) {
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 bool
 CD_IsWriteable (const char* path)
 {
-    struct stat s;
+	struct stat s;
 
-    if (stat(path, &s) < 0) {
-        CDString* tmp = CD_CreateStringFromCString(path);
-        CDString* dir = CD_StringDirname(tmp);
+	if (stat(path, &s) < 0) {
+		CDString* tmp = CD_CreateStringFromCString(path);
+		CDString* dir = CD_StringDirname(tmp);
 
-        if (CD_IsDirectory(CD_StringContent(dir)) && CD_IsReadable(CD_StringContent(dir)) && CD_IsExecutable(CD_StringContent(dir))) {
-            return true;
-        }
+		if (CD_IsDirectory(CD_StringContent(dir)) && CD_IsReadable(CD_StringContent(dir)) && CD_IsExecutable(CD_StringContent(dir))) {
+			return true;
+		}
 
-        return false;
-    }
-    else {
-        DO {
-            uid_t uid = geteuid();
+		return false;
+	}
+	else {
+		DO {
+			uid_t uid = geteuid();
 
-            if (s.st_uid == uid && s.st_mode & S_IWUSR) {
-                return true;
-            }
-        }
+			if (s.st_uid == uid && s.st_mode & S_IWUSR) {
+				return true;
+			}
+		}
 
-        DO {
-            gid_t gid = getegid();
+		DO {
+			gid_t gid = getegid();
 
-            if (s.st_gid == gid && s.st_mode & S_IWGRP) {
-                return true;
-            }
-        }
+			if (s.st_gid == gid && s.st_mode & S_IWGRP) {
+				return true;
+			}
+		}
 
-        if (s.st_mode & S_IWOTH) {
-            return true;
-        }
-    }
+		if (s.st_mode & S_IWOTH) {
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 bool
 CD_IsExecutable (const char* path)
 {
-    struct stat s;
+	struct stat s;
 
-    if (stat(path, &s) < 0) {
-        return false;
-    }
-    else {
-        DO {
-            uid_t uid = geteuid();
+	if (stat(path, &s) < 0) {
+		return false;
+	}
+	else {
+		DO {
+			uid_t uid = geteuid();
 
-            if (s.st_uid == uid && s.st_mode & S_IXUSR) {
-                return true;
-            }
-        }
+			if (s.st_uid == uid && s.st_mode & S_IXUSR) {
+				return true;
+			}
+		}
 
-        DO {
-            gid_t gid = getegid();
+		DO {
+			gid_t gid = getegid();
 
-            if (s.st_gid == gid && s.st_mode & S_IXGRP) {
-                return true;
-            }
-        }
+			if (s.st_gid == gid && s.st_mode & S_IXGRP) {
+				return true;
+			}
+		}
 
-        if (s.st_mode & S_IXOTH) {
-            return true;
-        }
-    }
+		if (s.st_mode & S_IXOTH) {
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }

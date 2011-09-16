@@ -29,21 +29,21 @@
 #include <craftd/String.h>
 
 const char* CDConsoleColors[] = {
-    "\e[1;30m", // black
-    "\e[34m",   // dark blue
-    "\e[32m",   // dark green
-    "\e[36m",   // dark cyan
-    "\e[31m",   // dark red
-    "\e[35m",   // dark magenta
-    "\e[33m",   // dark orange
-    "\e[1;37m", // gray
-    "\e[37m",   // dark gray
-    "\e[1;34m", // blue
-    "\e[1;32m", // green
-    "\e[1;36m", // cyan
-    "\e[1;31m", // red
-    "\e[1;35m", // magenta
-    "\e[1;33m"  // yellow
+	"\e[1;30m", // black
+	"\e[34m",   // dark blue
+	"\e[32m",   // dark green
+	"\e[36m",   // dark cyan
+	"\e[31m",   // dark red
+	"\e[35m",   // dark magenta
+	"\e[33m",   // dark orange
+	"\e[1;37m", // gray
+	"\e[37m",   // dark gray
+	"\e[1;34m", // blue
+	"\e[1;32m", // green
+	"\e[1;36m", // cyan
+	"\e[1;31m", // red
+	"\e[1;35m", // magenta
+	"\e[1;33m"  // yellow
 };
 
 CDString* CD_ConvertStringColorForConsole (CDString* self);

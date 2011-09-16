@@ -14,402 +14,402 @@ static
 bool
 cmpAtom (CDSet* self, CDPointer a, CDPointer b)
 {
-    assert(self);
+	assert(self);
 
-    return a == b;
+	return a == b;
 }
 
 static
 unsigned int
 hashAtom (CDSet* self, CDPointer pointer)
 {
-    assert(self);
+	assert(self);
 
-    return (unsigned long) pointer >> 2;
+	return (unsigned long) pointer >> 2;
 }
 
 CDSet*
 CD_CreateSet (void)
 {
-    return CD_CreateSetWith(4000, NULL, NULL);
+	return CD_CreateSetWith(4000, NULL, NULL);
 }
 
 CDSet*
 CD_CreateSetWith (int hint, CDSetCompare cmp, CDSetHash hash)
 {
-    CDSet*     self;
-    static int primes[] = { 509, 1021, 2053, 4093, 8191, 16381, 32771, 65521, INT_MAX };
-    size_t     i;
+	CDSet*     self;
+	static int primes[] = { 509, 1021, 2053, 4093, 8191, 16381, 32771, 65521, INT_MAX };
+	size_t     i;
 
-    assert(hint >= 0);
+	assert(hint >= 0);
 
-    for (i = 1; primes[i] < hint; i++) {
-        continue;
-    }
+	for (i = 1; primes[i] < hint; i++) {
+		continue;
+	}
 
-    self = CD_malloc(sizeof(CDSet) + primes[i - 1] * sizeof(self->buckets[0]));
+	self = CD_malloc(sizeof(CDSet) + primes[i - 1] * sizeof(self->buckets[0]));
 
-    self->size    = primes[i - 1];
-    self->cmp     = cmp  ? cmp  : cmpAtom;
-    self->hash    = hash ? hash : hashAtom;
-    self->buckets = (CDSetMember**) (self + 1);
+	self->size    = primes[i - 1];
+	self->cmp     = cmp  ? cmp  : cmpAtom;
+	self->hash    = hash ? hash : hashAtom;
+	self->buckets = (CDSetMember**) (self + 1);
 
-    for (size_t i = 0; i < self->size; i++) {
-        self->buckets[i] = NULL;
-    }
+	for (size_t i = 0; i < self->size; i++) {
+		self->buckets[i] = NULL;
+	}
 
-    self->length    = 0;
-    self->timestamp = 0;
+	self->length    = 0;
+	self->timestamp = 0;
 
-    return self;
+	return self;
 }
 
 CDSet*
 CD_CloneSet (CDSet* self, int hint)
 {
-    CDSet* cloned = CD_CreateSetWith(hint, self->cmp, self->hash);
+	CDSet* cloned = CD_CreateSetWith(hint, self->cmp, self->hash);
 
-    assert(self);
-    assert(cloned);
+	assert(self);
+	assert(cloned);
 
-    DO {
-        CDSetMember* oldMember;
+	DO {
+		CDSetMember* oldMember;
 
-        for (size_t i = 0; i < self->size; i++) {
-            for (oldMember = self->buckets[i]; oldMember != NULL; oldMember = oldMember->next) {
-                CDSetMember* newMember = CD_malloc(sizeof(CDSetMember));
-                CDPointer    value     = oldMember->value;
-                int          index     = cloned->hash(cloned, value) % cloned->size;
+		for (size_t i = 0; i < self->size; i++) {
+			for (oldMember = self->buckets[i]; oldMember != NULL; oldMember = oldMember->next) {
+				CDSetMember* newMember = CD_malloc(sizeof(CDSetMember));
+				CDPointer    value     = oldMember->value;
+				int          index     = cloned->hash(cloned, value) % cloned->size;
 
-                assert(newMember);
+				assert(newMember);
 
-                newMember->value = value;
-                newMember->next  = cloned->buckets[index];
+				newMember->value = value;
+				newMember->next  = cloned->buckets[index];
 
-                cloned->buckets[i] = newMember;
-                cloned->length++;
-            }
-        }
-    }
+				cloned->buckets[i] = newMember;
+				cloned->length++;
+			}
+		}
+	}
 
-    return cloned;
+	return cloned;
 }
 
 void
 CD_DestroySet (CDSet* self)
 {
-    assert(self);
+	assert(self);
 
-    if (self->length > 0) {
-        CDSetMember* currentMember;
-        CDSetMember* nextMember;
+	if (self->length > 0) {
+		CDSetMember* currentMember;
+		CDSetMember* nextMember;
 
-        for (size_t i = 0; i < self->size; i++) {
-            for (currentMember = self->buckets[i]; currentMember != NULL; currentMember = nextMember) {
-                nextMember = currentMember->next;
+		for (size_t i = 0; i < self->size; i++) {
+			for (currentMember = self->buckets[i]; currentMember != NULL; currentMember = nextMember) {
+				nextMember = currentMember->next;
 
-                CD_free(currentMember);
-            }
-        }
-    }
+				CD_free(currentMember);
+			}
+		}
+	}
 
-    CD_free(self);
+	CD_free(self);
 }
 
 bool
 CD_SetHas (CDSet* self, CDPointer value)
 {
-    int          index;
-    CDSetMember* member;
+	int          index;
+	CDSetMember* member;
 
-    assert(self);
-    assert(value);
+	assert(self);
+	assert(value);
 
-    index = self->hash(self, value) % self->size;
+	index = self->hash(self, value) % self->size;
 
-    for (member = self->buckets[index]; member != NULL; member = member->next) {
-        if (self->cmp(self, value, member->value)) {
-            return true;
-        }
-    }
+	for (member = self->buckets[index]; member != NULL; member = member->next) {
+		if (self->cmp(self, value, member->value)) {
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 void
 CD_SetPut (CDSet* self, CDPointer value)
 {
-    int          index;
-    CDSetMember* member;
+	int          index;
+	CDSetMember* member;
 
-    assert(self);
-    assert(value);
+	assert(self);
+	assert(value);
 
-    index = self->hash(self, value) % self->size;
+	index = self->hash(self, value) % self->size;
 
-    for (member = self->buckets[index]; member != NULL; member = member->next) {
-        if (self->cmp(self, value, member->value)) {
-            break;
-        }
-    }
+	for (member = self->buckets[index]; member != NULL; member = member->next) {
+		if (self->cmp(self, value, member->value)) {
+			break;
+		}
+	}
 
-    if (member == NULL) {
-        member = CD_malloc(sizeof(CDSetMember));
+	if (member == NULL) {
+		member = CD_malloc(sizeof(CDSetMember));
 
-        assert(member);
+		assert(member);
 
-        member->value        = value;
-        member->next         = self->buckets[index];
-        self->buckets[index] = member;
-        self->length++;
-    }
-    else {
-        member->value = value;
-    }
+		member->value        = value;
+		member->next         = self->buckets[index];
+		self->buckets[index] = member;
+		self->length++;
+	}
+	else {
+		member->value = value;
+	}
 
-    self->timestamp++;
+	self->timestamp++;
 }
 
 CDPointer
 CD_SetDelete (CDSet* self, CDPointer value)
 {
-    int           index;
-    CDSetMember** members;
+	int           index;
+	CDSetMember** members;
 
-    assert(self);
-    assert(value);
+	assert(self);
+	assert(value);
 
-    self->timestamp++;
+	self->timestamp++;
 
-    index = self->hash(self, value) % self->size;
+	index = self->hash(self, value) % self->size;
 
-    for (members = &self->buckets[index]; *members != NULL; members = &(*members)->next) {
-        if (self->cmp(self, value, (*members)->value)) {
-            CDSetMember* member = *members;
-            *members            = member->next;
-            value               = member->value;
+	for (members = &self->buckets[index]; *members != NULL; members = &(*members)->next) {
+		if (self->cmp(self, value, (*members)->value)) {
+			CDSetMember* member = *members;
+			*members            = member->next;
+			value               = member->value;
 
-            CD_free(member);
+			CD_free(member);
 
-            self->length--;
+			self->length--;
 
-            return (CDPointer) value;
-        }
-    }
+			return (CDPointer) value;
+		}
+	}
 
-    return CDNull;
+	return CDNull;
 }
 
 int
 CD_SetLength (CDSet* self)
 {
-    assert(self);
+	assert(self);
 
-    return self->length;
+	return self->length;
 }
 
 void
 CD_SetMap (CDSet* self, CDSetApply apply, CDPointer context)
 {
-    unsigned int stamp;
-    CDSetMember* member;
+	unsigned int stamp;
+	CDSetMember* member;
 
-    assert(self);
-    assert(apply);
+	assert(self);
+	assert(apply);
 
-    stamp = self->timestamp;
+	stamp = self->timestamp;
 
-    for (size_t i = 0; i < self->size; i++) {
-        for (member = self->buckets[i]; member != NULL; member = member->next) {
-            apply(self, member->value, context);
+	for (size_t i = 0; i < self->size; i++) {
+		for (member = self->buckets[i]; member != NULL; member = member->next) {
+			apply(self, member->value, context);
 
-            assert(self->timestamp == stamp);
-        }
-    }
+			assert(self->timestamp == stamp);
+		}
+	}
 }
 
 CDPointer*
 CD_SetToArray (CDSet* self, CDPointer end)
 {
-    int          j = 0;
-    CDPointer*   array;
-    CDSetMember* member;
+	int          j = 0;
+	CDPointer*   array;
+	CDSetMember* member;
 
-    assert(self);
+	assert(self);
 
-    array = CD_malloc((self->length + 1) * sizeof(CDPointer));
+	array = CD_malloc((self->length + 1) * sizeof(CDPointer));
 
-    for (size_t i = 0; i < self->size; i++) {
-        for (member = self->buckets[i]; member != NULL; member = member->next) {
-            array[j++] = member->value;
-        }
-    }
+	for (size_t i = 0; i < self->size; i++) {
+		for (member = self->buckets[i]; member != NULL; member = member->next) {
+			array[j++] = member->value;
+		}
+	}
 
-    array[j] = end;
+	array[j] = end;
 
-    return array;
+	return array;
 }
 
 CDSet*
 CD_SetUnion (CDSet* a, CDSet* b)
 {
-    if (a == NULL) {
-        assert(b);
+	if (a == NULL) {
+		assert(b);
 
-        return CD_CloneSet(b, b->size);
-    }
+		return CD_CloneSet(b, b->size);
+	}
 
-    if (b == NULL) {
-        return CD_CloneSet(a, a->size);
-    }
+	if (b == NULL) {
+		return CD_CloneSet(a, a->size);
+	}
 
-    CDSet* result = CD_CloneSet(a, CD_Max(a->size, b->size));
+	CDSet* result = CD_CloneSet(a, CD_Max(a->size, b->size));
 
-    assert(a->cmp == b->cmp && a->hash == b->hash);
+	assert(a->cmp == b->cmp && a->hash == b->hash);
 
-    DO {
-        CDSetMember* member;
+	DO {
+		CDSetMember* member;
 
-        for (size_t i = 0; i < b->size; i++) {
-            for (member = b->buckets[i]; member != NULL; member = member->next) {
-                CD_SetPut(result, member->value);
-            }
-        }
-    }
+		for (size_t i = 0; i < b->size; i++) {
+			for (member = b->buckets[i]; member != NULL; member = member->next) {
+				CD_SetPut(result, member->value);
+			}
+		}
+	}
 
-    return result;
+	return result;
 }
 
 CDSet*
 CD_SetIntersect (CDSet* a, CDSet* b)
 {
-    if (a == NULL) {
-        assert(b);
+	if (a == NULL) {
+		assert(b);
 
-        return CD_CreateSetWith(b->size, b->cmp, b->hash);
-    }
+		return CD_CreateSetWith(b->size, b->cmp, b->hash);
+	}
 
-    if (b == NULL) {
-        return CD_CreateSetWith(a->size, a->cmp, a->hash);
-    }
+	if (b == NULL) {
+		return CD_CreateSetWith(a->size, a->cmp, a->hash);
+	}
 
-    if (a->length < b->length) {
-        return CD_SetIntersect(b, a);
-    }
+	if (a->length < b->length) {
+		return CD_SetIntersect(b, a);
+	}
 
-    CDSet* result = CD_CreateSetWith(CD_Min(a->size, b->size), a->cmp, a->hash);
+	CDSet* result = CD_CreateSetWith(CD_Min(a->size, b->size), a->cmp, a->hash);
 
-    assert(a->cmp == b->cmp && a->hash == b->hash);
+	assert(a->cmp == b->cmp && a->hash == b->hash);
 
-    DO {
-        CDSetMember* member;
+	DO {
+		CDSetMember* member;
 
-        for (size_t i = 0; i < b->size; i++) {
-            for (member = b->buckets[i]; member != NULL; member = member->next) {
-                if (CD_SetHas(a, member->value)) {
-                    CDSetMember* current = CD_malloc(sizeof(CDSetMember));
-                    CDPointer    value   = member->value;
-                    int          index   = result->hash(result, value) % result->size;
+		for (size_t i = 0; i < b->size; i++) {
+			for (member = b->buckets[i]; member != NULL; member = member->next) {
+				if (CD_SetHas(a, member->value)) {
+					CDSetMember* current = CD_malloc(sizeof(CDSetMember));
+					CDPointer    value   = member->value;
+					int          index   = result->hash(result, value) % result->size;
 
-                    assert(current);
+					assert(current);
 
-                    current->value     = value;
-                    current->next      = result->buckets[index];
-                    result->buckets[i] = current;
-                    result->length++;
-                }
-            }
-        }
-    }
+					current->value     = value;
+					current->next      = result->buckets[index];
+					result->buckets[i] = current;
+					result->length++;
+				}
+			}
+		}
+	}
 
-    return result;
+	return result;
 }
 
 CDSet*
 CD_SetMinus (CDSet* a, CDSet* b)
 {
-    if (a == NULL) {
-        assert(b);
+	if (a == NULL) {
+		assert(b);
 
-        return CD_CreateSetWith(b->size, b->cmp, b->hash);
-    }
+		return CD_CreateSetWith(b->size, b->cmp, b->hash);
+	}
 
-    if (b == NULL) {
-        return CD_CloneSet(a, a->size);
-    }
+	if (b == NULL) {
+		return CD_CloneSet(a, a->size);
+	}
 
-    CDSet* result = CD_CreateSetWith(CD_Min(a->size, b->size), a->cmp, a->hash);
+	CDSet* result = CD_CreateSetWith(CD_Min(a->size, b->size), a->cmp, a->hash);
 
-    assert(a->cmp == b->cmp && a->hash == b->hash);
+	assert(a->cmp == b->cmp && a->hash == b->hash);
 
-    DO {
-        CDSetMember* member;
+	DO {
+		CDSetMember* member;
 
-        for (size_t i = 0; i < a->size; i++) {
-            for (member = a->buckets[i]; member != NULL; member = member->next) {
-                if (!CD_SetHas(b, member->value)) {
-                    CDSetMember* current = CD_malloc(sizeof(CDSetMember));
-                    CDPointer    value   = member->value;
-                    int          index   = result->hash(result, value) % result->size;
+		for (size_t i = 0; i < a->size; i++) {
+			for (member = a->buckets[i]; member != NULL; member = member->next) {
+				if (!CD_SetHas(b, member->value)) {
+					CDSetMember* current = CD_malloc(sizeof(CDSetMember));
+					CDPointer    value   = member->value;
+					int          index   = result->hash(result, value) % result->size;
 
-                    assert(current);
+					assert(current);
 
-                    current->value     = value;
-                    current->next      = result->buckets[index];
-                    result->buckets[i] = current;
-                    result->length++;
-                }
-            }
-        }
-    }
+					current->value     = value;
+					current->next      = result->buckets[index];
+					result->buckets[i] = current;
+					result->length++;
+				}
+			}
+		}
+	}
 
-    return result;
+	return result;
 }
 
 CDSet*
 CD_SetDifference (CDSet* a, CDSet* b)
 {
-    if (a == NULL) {
-        assert(b);
+	if (a == NULL) {
+		assert(b);
 
-        return CD_CloneSet(b, b->size);
-    }
+		return CD_CloneSet(b, b->size);
+	}
 
-    if (b == NULL) {
-        return CD_CloneSet(a, a->size);
-    }
+	if (b == NULL) {
+		return CD_CloneSet(a, a->size);
+	}
 
-    CDSet* result = CD_CreateSetWith(CD_Min(a->size, b->size), a->cmp, a->hash);
+	CDSet* result = CD_CreateSetWith(CD_Min(a->size, b->size), a->cmp, a->hash);
 
-    assert(a->cmp == b->cmp && a->hash == b->hash);
+	assert(a->cmp == b->cmp && a->hash == b->hash);
 
-    CDSet* sets[] = { a, b, b, a };
+	CDSet* sets[] = { a, b, b, a };
 
-    for (size_t i = 0; i < 4; i += 2) {
-        a = sets[i];
-        b = sets[i + 1];
+	for (size_t i = 0; i < 4; i += 2) {
+		a = sets[i];
+		b = sets[i + 1];
 
-        DO {
-            CDSetMember* member;
+		DO {
+			CDSetMember* member;
 
-            for (size_t i = 0; i < b->size; i++) {
-                for (member = b->buckets[i]; member != NULL; member = member->next) {
-                    if (!CD_SetHas(a, member->value)) {
-                        CDSetMember* current = CD_malloc(sizeof(CDSetMember));
-                        CDPointer    value   = member->value;
-                        int          index   = result->hash(result, value) % result->size;
+			for (size_t i = 0; i < b->size; i++) {
+				for (member = b->buckets[i]; member != NULL; member = member->next) {
+					if (!CD_SetHas(a, member->value)) {
+						CDSetMember* current = CD_malloc(sizeof(CDSetMember));
+						CDPointer    value   = member->value;
+						int          index   = result->hash(result, value) % result->size;
 
-                        assert(current);
+						assert(current);
 
-                        current->value     = value;
-                        current->next      = result->buckets[index];
-                        result->buckets[i] = current;
-                        result->length++;
-                    }
-                }
-            }
-        }
-    }
+						current->value     = value;
+						current->next      = result->buckets[index];
+						result->buckets[i] = current;
+						result->length++;
+					}
+				}
+			}
+		}
+	}
 
-    return result;
+	return result;
 }

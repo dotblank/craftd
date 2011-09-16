@@ -31,9 +31,9 @@
 #include "common.h"
 
 typedef struct _CDLogger {
-    void (*log)        (int, const char*, ...);
-    int  (*setlogmask) (int);
-    void (*closelog)   (void);
+	void (*log)        (int, const char*, ...);
+	int  (*setlogmask) (int);
+	void (*closelog)   (void);
 } CDLogger;
 
 #ifndef CRAFTD_LOGGER_IGNORE_EXTERN
@@ -43,9 +43,9 @@ extern CDLogger CDDefaultLogger;
 #endif
 
 #define LOG(priority, format, ...) \
-    ((CDMainServer != NULL) \
-        ? CDMainServer->logger.log(priority, "%s> " format, CD_ServerToString(CDMainServer), ##__VA_ARGS__) \
-        : CDDefaultLogger.log(priority, format, ##__VA_ARGS__))
+	((CDMainServer != NULL) \
+		? CDMainServer->logger.log(priority, "%s> " format, CD_ServerToString(CDMainServer), ##__VA_ARGS__) \
+		: CDDefaultLogger.log(priority, format, ##__VA_ARGS__))
 
 #define DEBUG(format, ...) LOG(LOG_DEBUG, format, ##__VA_ARGS__)
 
@@ -54,8 +54,8 @@ extern CDLogger CDDefaultLogger;
 #define WARN(format, ...) LOG(LOG_WARNING, format, ##__VA_ARGS__)
 
 #define LOG_CLOSE() do { \
-    if (CDMainServer) CDMainServer->logger.closelog(); \
-    CDDefaultLogger.closelog(); \
+	if (CDMainServer) CDMainServer->logger.closelog(); \
+	CDDefaultLogger.closelog(); \
 } while (0)
 
 #define CLOG(priority, format, ...) CDConsoleLogger.log(priority, format, ##__VA_ARGS__)
@@ -67,7 +67,7 @@ extern CDLogger CDDefaultLogger;
 #define CWARN(format, ...) CLOG(LOG_WARNING, format, ##__VA_ARGS__)
 
 #define SLOG(server, priority, format, ...) \
-    server->logger.log(priority, "%s> " format, CD_ServerToString(server), ##__VA_ARGS__)
+	server->logger.log(priority, "%s> " format, CD_ServerToString(server), ##__VA_ARGS__)
 
 #define SDEBUG(server, format, ...) SLOG(server, LOG_DEBUG, format, ##__VA_ARGS__)
 

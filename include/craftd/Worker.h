@@ -33,16 +33,16 @@ struct _CDWorkers;
 struct _CDServer;
 
 typedef struct _CDWorker {
-    struct _CDServer* server;
+	struct _CDServer* server;
 
-    int       id;
-    pthread_t thread;
+	int       id;
+	pthread_t thread;
 
-    struct _CDWorkers* workers;
+	struct _CDWorkers* workers;
 
-    CDJob* job;
-    bool   working;
-    bool   stopped;
+	CDJob* job;
+	bool   working;
+	bool   stopped;
 } CDWorker;
 
 /**

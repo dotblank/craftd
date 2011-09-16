@@ -29,91 +29,91 @@
 CDScriptingEngine*
 CD_CreateScriptingEngine (CDServer* server, const char* name)
 {
-    CDScriptingEngine* self = CD_alloc(sizeof(CDScriptingEngine));
+	CDScriptingEngine* self = CD_alloc(sizeof(CDScriptingEngine));
 
-    self->server = server;
+	self->server = server;
 
-    self->name        = CD_CreateStringFromCString(name);
-    self->description = NULL;
+	self->name        = CD_CreateStringFromCString(name);
+	self->description = NULL;
 
-    self->handle = lt_dlopenadvise(name, server->scriptingEngines->advise);
+	self->handle = lt_dlopenadvise(name, server->scriptingEngines->advise);
 
-    if (!self->handle) {
-        CDString* tmp = CD_CreateStringFromFormat("lib%s", name);
-        self->handle = lt_dlopenext(CD_StringContent(tmp));
-        CD_DestroyString(tmp);
-    }
+	if (!self->handle) {
+		CDString* tmp = CD_CreateStringFromFormat("lib%s", name);
+		self->handle = lt_dlopenext(CD_StringContent(tmp));
+		CD_DestroyString(tmp);
+	}
 
-    if (!self->handle) {
-        CDString* tmp = CD_CreateStringFromFormat("libcd%s", name);
-        self->handle = lt_dlopenext(CD_StringContent(tmp));
-        CD_DestroyString(tmp);
-    }
+	if (!self->handle) {
+		CDString* tmp = CD_CreateStringFromFormat("libcd%s", name);
+		self->handle = lt_dlopenext(CD_StringContent(tmp));
+		CD_DestroyString(tmp);
+	}
 
-    if (!self->handle) {
-        CD_DestroyScriptingEngine(self);
+	if (!self->handle) {
+		CD_DestroyScriptingEngine(self);
 
-        SERR(server, "Couldn't load scripting engine %s", name);
+		SERR(server, "Couldn't load scripting engine %s", name);
 
-        errno = ENOENT;
+		errno = ENOENT;
 
-        return NULL;
-    }
+		return NULL;
+	}
 
-    self->initialize = lt_dlsym(self->handle, "CD_ScriptingEngineInitialize");
-    self->finalize   = lt_dlsym(self->handle, "CD_ScriptingEngineFinalize");
+	self->initialize = lt_dlsym(self->handle, "CD_ScriptingEngineInitialize");
+	self->finalize   = lt_dlsym(self->handle, "CD_ScriptingEngineFinalize");
 
-    DYNAMIC(self) = CD_CreateDynamic();
-    ERROR(self)   = CDNull;
+	DYNAMIC(self) = CD_CreateDynamic();
+	ERROR(self)   = CDNull;
 
-    C_FOREACH(engine, C_PATH(server->config, "server.scripting.engines")) {
-        if (CD_CStringIsEqual(name, C_TO_STRING(C_GET(engine, "name")))) {
-            self->config = CD_malloc(sizeof(config_t));
-            config_export(engine, self->config);
-            break;
-        }
-    }
+	C_FOREACH(engine, C_PATH(server->config, "server.scripting.engines")) {
+		if (CD_CStringIsEqual(name, C_TO_STRING(C_GET(engine, "name")))) {
+			self->config = CD_malloc(sizeof(config_t));
+			config_export(engine, self->config);
+			break;
+		}
+	}
 
-    if (self->initialize) {
-        self->initialize(self);
-    }
+	if (self->initialize) {
+		self->initialize(self);
+	}
 
-    if (self->description) {
-        SLOG(server, LOG_NOTICE, "Loaded scripting engine %s - %s", name, CD_StringContent(self->description));
-    }
-    else {
-        SLOG(server, LOG_NOTICE, "Loaded scripting engine %s", name);
-    }
+	if (self->description) {
+		SLOG(server, LOG_NOTICE, "Loaded scripting engine %s - %s", name, CD_StringContent(self->description));
+	}
+	else {
+		SLOG(server, LOG_NOTICE, "Loaded scripting engine %s", name);
+	}
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyScriptingEngine (CDScriptingEngine* self)
 {
-    if (self->finalize) {
-        self->finalize(self);
-    }
+	if (self->finalize) {
+		self->finalize(self);
+	}
 
-    if (self->handle) {
-        lt_dlclose(self->handle);
-    }
+	if (self->handle) {
+		lt_dlclose(self->handle);
+	}
 
-    CD_DestroyString(self->name);
+	CD_DestroyString(self->name);
 
-    if (self->description) {
-        CD_DestroyString(self->description);
-    }
+	if (self->description) {
+		CD_DestroyString(self->description);
+	}
 
-    if (DYNAMIC(self)) {
-        CD_DestroyDynamic(DYNAMIC(self));
-    }
+	if (DYNAMIC(self)) {
+		CD_DestroyDynamic(DYNAMIC(self));
+	}
 
-    if (self->config) {
-        config_unexport(self->config);
+	if (self->config) {
+		config_unexport(self->config);
 
-        CD_free(self->config);
-    }
+		CD_free(self->config);
+	}
 
-    CD_free(self);
+	CD_free(self);
 }

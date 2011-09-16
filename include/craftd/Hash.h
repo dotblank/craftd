@@ -35,17 +35,17 @@ KHASH_MAP_INIT_STR(cdHash, CDPointer);
  * The Hash class
  */
 typedef struct _CDHash {
-    khash_t(cdHash)* raw;
+	khash_t(cdHash)* raw;
 
-    pthread_rwlock_t lock;
+	pthread_rwlock_t lock;
 } CDHash;
 
 /**
  * The Hash iterator type
  */
 typedef struct _CDHashIterator {
-    khiter_t raw;
-    CDHash*  parent;
+	khiter_t raw;
+	CDHash*  parent;
 } CDHashIterator;
 
 /**
@@ -209,14 +209,14 @@ bool CD_HashStopIterating (CDHash* self, bool stop);
  * @parameter it The name of the iterator variable
  */
 #define CD_HASH_FOREACH(self, it)                                                   \
-    if (self && CD_HashLength(self) > 0 && CD_HashStartIterating(self))             \
-        for (CDHashIterator it = CD_HashBegin(self), __end__ = CD_HashEnd(self);    \
-                                                                                    \
-        CD_HashStopIterating(self, !CD_HashIteratorIsEqual(it, __end__));           \
-                                                                                    \
-        it = CD_HashNext(it))
+	if (self && CD_HashLength(self) > 0 && CD_HashStartIterating(self))             \
+		for (CDHashIterator it = CD_HashBegin(self), __end__ = CD_HashEnd(self);    \
+									                                                \
+		CD_HashStopIterating(self, !CD_HashIteratorIsEqual(it, __end__));           \
+									                                                \
+		it = CD_HashNext(it))
 
 #define CD_HASH_BREAK(self) \
-    CD_HashStopIterating(self, false); break
+	CD_HashStopIterating(self, false); break
 
 #endif

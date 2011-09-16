@@ -29,192 +29,192 @@
 CDWorkers*
 CD_CreateWorkers (CDServer* server)
 {
-    CDWorkers* self = CD_malloc(sizeof(CDWorkers));
+	CDWorkers* self = CD_malloc(sizeof(CDWorkers));
 
-    assert(self);
+	assert(self);
 
-    self->server = server;
-    self->last   = 0;
-    self->length = 0;
-    self->item   = NULL;
+	self->server = server;
+	self->last   = 0;
+	self->length = 0;
+	self->item   = NULL;
 
-    self->jobs = CD_CreateList();
+	self->jobs = CD_CreateList();
 
-    if (pthread_attr_init(&self->attributes) != 0) {
-        CD_abort("pthread attribute failed to initialize");
-    }
+	if (pthread_attr_init(&self->attributes) != 0) {
+		CD_abort("pthread attribute failed to initialize");
+	}
 
-    if (pthread_attr_setdetachstate(&self->attributes, PTHREAD_CREATE_DETACHED) != 0) {
-        CD_abort("pthread attribute failed to set in detach state");
-    }
+	if (pthread_attr_setdetachstate(&self->attributes, PTHREAD_CREATE_DETACHED) != 0) {
+		CD_abort("pthread attribute failed to set in detach state");
+	}
 
-    if (pthread_attr_setstacksize(&self->attributes, CD_THREAD_STACK) != 0) {
-        CD_abort("pthread attribute failed to set stack size");
-    }
+	if (pthread_attr_setstacksize(&self->attributes, CD_THREAD_STACK) != 0) {
+		CD_abort("pthread attribute failed to set stack size");
+	}
 
-    if (pthread_mutex_init(&self->lock.mutex, NULL) != 0) {
-        CD_abort("pthread mutex failed to initialize");
-    }
+	if (pthread_mutex_init(&self->lock.mutex, NULL) != 0) {
+		CD_abort("pthread mutex failed to initialize");
+	}
 
-    if (pthread_cond_init(&self->lock.condition, NULL) != 0) {
-        CD_abort("pthread cond failed to initialize");
-    }
+	if (pthread_cond_init(&self->lock.condition, NULL) != 0) {
+		CD_abort("pthread cond failed to initialize");
+	}
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyWorkers (CDWorkers* self)
 {
-    assert(self);
+	assert(self);
 
-    CD_StopWorkers(self);
+	CD_StopWorkers(self);
 
-    CD_DestroyList(self->jobs);
+	CD_DestroyList(self->jobs);
 
-    pthread_mutex_destroy(&self->lock.mutex);
-    pthread_cond_destroy(&self->lock.condition);
+	pthread_mutex_destroy(&self->lock.mutex);
+	pthread_cond_destroy(&self->lock.condition);
 
-    CD_free(self);
+	CD_free(self);
 }
 
 void
 CD_StopWorkers (CDWorkers* self)
 {
-    for (size_t i = 0; i < self->length; i++) {
-        CD_StopWorker(self->item[i]);
-    }
+	for (size_t i = 0; i < self->length; i++) {
+		CD_StopWorker(self->item[i]);
+	}
 
-    for (size_t i = 0; i < self->length; i++) {
-        CD_DestroyWorker(self->item[i]);
-    }
+	for (size_t i = 0; i < self->length; i++) {
+		CD_DestroyWorker(self->item[i]);
+	}
 
-    CD_free(self->item);
+	CD_free(self->item);
 
-    self->length = 0;
-    self->item   = NULL;
+	self->length = 0;
+	self->item   = NULL;
 }
 
 CDWorker**
 CD_SpawnWorkers (CDWorkers* self, size_t number)
 {
-    CDWorker** result = CD_malloc(sizeof(CDWorker*) * (number + 1));
+	CDWorker** result = CD_malloc(sizeof(CDWorker*) * (number + 1));
 
-    for (size_t i = 0; i < number; i++) {
-        result[i]          = CD_CreateWorker(self->server);
-        result[i]->id      = ++self->last;
-        result[i]->working = true;
-        result[i]->workers = self;
+	for (size_t i = 0; i < number; i++) {
+		result[i]          = CD_CreateWorker(self->server);
+		result[i]->id      = ++self->last;
+		result[i]->working = true;
+		result[i]->workers = self;
 
-        if (pthread_create(&result[i]->thread, &self->attributes, (void *(*)(void *)) CD_RunWorker, result[i]) != 0) {
-            SERR(self->server, "worker pool startup failed!");
-        }
-    }
+		if (pthread_create(&result[i]->thread, &self->attributes, (void *(*)(void *)) CD_RunWorker, result[i]) != 0) {
+			SERR(self->server, "worker pool startup failed!");
+		}
+	}
 
-    result[number] = NULL;
+	result[number] = NULL;
 
-    CD_ConcatWorkers(self, result, number);
+	CD_ConcatWorkers(self, result, number);
 
-    return result;
+	return result;
 }
 
 void
 CD_KillWorkers (CDWorkers* self, size_t number)
 {
-    assert(self);
+	assert(self);
 
-    if (number >= self->length) {
-        number = self->length - 1;
-    }
+	if (number >= self->length) {
+		number = self->length - 1;
+	}
 
-    for (size_t i = self->length - 1; (self->length - i) < self->length; i--) {
-        CD_StopWorker(self->item[i]);
-    }
+	for (size_t i = self->length - 1; (self->length - i) < self->length; i--) {
+		CD_StopWorker(self->item[i]);
+	}
 
-    pthread_mutex_lock(&self->lock.mutex);
-    pthread_cond_broadcast(&self->lock.condition);
-    pthread_mutex_unlock(&self->lock.mutex);
+	pthread_mutex_lock(&self->lock.mutex);
+	pthread_cond_broadcast(&self->lock.condition);
+	pthread_mutex_unlock(&self->lock.mutex);
 
-    for (size_t i = self->length - 1; (self->length - i) < self->length; i--) {
-        CD_DestroyWorker(self->item[i]);
-    }
+	for (size_t i = self->length - 1; (self->length - i) < self->length; i--) {
+		CD_DestroyWorker(self->item[i]);
+	}
 
-    self->length -= number;
-    self->item    = CD_realloc(self->item, self->length * sizeof(CDWorker*));
+	self->length -= number;
+	self->item    = CD_realloc(self->item, self->length * sizeof(CDWorker*));
 }
 
 void
 CD_KillWorkersAvoid (CDWorkers* self, size_t number, CDWorker* worker)
 {
-    assert(self);
-    assert(worker);
+	assert(self);
+	assert(worker);
 
-    if (number >= self->length) {
-        number = self->length - 1;
-    }
+	if (number >= self->length) {
+		number = self->length - 1;
+	}
 
-    for (size_t i = self->length - 1; (self->length - i) < self->length; i--) {
-        if (self->item[i] == worker) {
-            worker = self->item[0];
-            self->item[0] = self->item[i];
-            self->item[i] = worker;
-        }
+	for (size_t i = self->length - 1; (self->length - i) < self->length; i--) {
+		if (self->item[i] == worker) {
+			worker = self->item[0];
+			self->item[0] = self->item[i];
+			self->item[i] = worker;
+		}
 
-        CD_StopWorker(self->item[i]);
-    }
+		CD_StopWorker(self->item[i]);
+	}
 
-    pthread_mutex_lock(&self->lock.mutex);
-    pthread_cond_broadcast(&self->lock.condition);
-    pthread_mutex_unlock(&self->lock.mutex);
+	pthread_mutex_lock(&self->lock.mutex);
+	pthread_cond_broadcast(&self->lock.condition);
+	pthread_mutex_unlock(&self->lock.mutex);
 
-    for (size_t i = self->length - 1; (self->length - i) < self->length; i--) {
-        CD_DestroyWorker(self->item[i]);
-    }
+	for (size_t i = self->length - 1; (self->length - i) < self->length; i--) {
+		CD_DestroyWorker(self->item[i]);
+	}
 
-    self->length -= number;
-    self->item    = CD_realloc(self->item, self->length * sizeof(CDWorker*));
+	self->length -= number;
+	self->item    = CD_realloc(self->item, self->length * sizeof(CDWorker*));
 }
 
 CDWorkers*
 CD_ConcatWorkers (CDWorkers* self, CDWorker** workers, size_t length)
 {
-    for (size_t i = 0; i < length; i++) {
-        CD_AppendWorker(self, workers[i]);
-    }
+	for (size_t i = 0; i < length; i++) {
+		CD_AppendWorker(self, workers[i]);
+	}
 
-    return self;
+	return self;
 }
 
 CDWorkers*
 CD_AppendWorker (CDWorkers* self, CDWorker* worker)
 {
-    self->item = CD_realloc(self->item, sizeof(CDWorker*) * ++self->length);
+	self->item = CD_realloc(self->item, sizeof(CDWorker*) * ++self->length);
 
-    self->item[self->length - 1] = worker;
+	self->item[self->length - 1] = worker;
 
-    return self;
+	return self;
 }
 
 bool
 CD_HasJobs (CDWorkers* self)
 {
-    return CD_ListLength(self->jobs) > 0;
+	return CD_ListLength(self->jobs) > 0;
 }
 
 void
 CD_AddJob (CDWorkers* self, CDJob* job)
 {
-    pthread_mutex_lock(&self->lock.mutex);
+	pthread_mutex_lock(&self->lock.mutex);
 
-    CD_ListPush(self->jobs, (CDPointer) job);
+	CD_ListPush(self->jobs, (CDPointer) job);
 
-    pthread_cond_signal(&self->lock.condition);
+	pthread_cond_signal(&self->lock.condition);
 
-    pthread_mutex_unlock(&self->lock.mutex);
+	pthread_mutex_unlock(&self->lock.mutex);
 }
 
 CDJob*
 CD_NextJob (CDWorkers* self)
 {
-    return (CDJob*) CD_ListShift(self->jobs);
+	return (CDJob*) CD_ListShift(self->jobs);
 }

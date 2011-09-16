@@ -14,8 +14,8 @@
 #include <craftd/common.h>
 
 typedef struct _CDSetMember {
-    struct _CDSetMember* next;
-    CDPointer            value;
+	struct _CDSetMember* next;
+	CDPointer            value;
 } CDSetMember;
 
 struct _CDSet;
@@ -24,15 +24,15 @@ typedef bool         (*CDSetCompare) (struct _CDSet* self, CDPointer a, CDPointe
 typedef unsigned int (*CDSetHash)    (struct _CDSet* self, CDPointer pointer);
 
 typedef struct _CDSet {
-    size_t       length;
-    unsigned int timestamp;
+	size_t       length;
+	unsigned int timestamp;
 
-    CDSetCompare cmp;
-    CDSetHash    hash;
+	CDSetCompare cmp;
+	CDSetHash    hash;
 
-    size_t size;
+	size_t size;
 
-    CDSetMember** buckets;
+	CDSetMember** buckets;
 } CDSet;
 
 typedef void (*CDSetApply) (CDSet* self, CDPointer value, CDPointer context);

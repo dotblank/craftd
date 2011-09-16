@@ -29,91 +29,91 @@
 CDPlugin*
 CD_CreatePlugin (CDServer* server, const char* name)
 {
-    CDPlugin* self = CD_alloc(sizeof(CDPlugin));
+	CDPlugin* self = CD_alloc(sizeof(CDPlugin));
 
-    self->server = server;
+	self->server = server;
 
-    self->name        = CD_CreateStringFromCString(name);
-    self->description = NULL;
+	self->name        = CD_CreateStringFromCString(name);
+	self->description = NULL;
 
-    self->handle = lt_dlopenadvise(name, server->plugins->advise);
+	self->handle = lt_dlopenadvise(name, server->plugins->advise);
 
-    if (!self->handle) {
-        CDString* tmp = CD_CreateStringFromFormat("lib%s", name);
-        self->handle = lt_dlopenext(CD_StringContent(tmp));
-        CD_DestroyString(tmp);
-    }
+	if (!self->handle) {
+		CDString* tmp = CD_CreateStringFromFormat("lib%s", name);
+		self->handle = lt_dlopenext(CD_StringContent(tmp));
+		CD_DestroyString(tmp);
+	}
 
-    if (!self->handle) {
-        CDString* tmp = CD_CreateStringFromFormat("libcd%s", name);
-        self->handle = lt_dlopenext(CD_StringContent(tmp));
-        CD_DestroyString(tmp);
-    }
+	if (!self->handle) {
+		CDString* tmp = CD_CreateStringFromFormat("libcd%s", name);
+		self->handle = lt_dlopenext(CD_StringContent(tmp));
+		CD_DestroyString(tmp);
+	}
 
-    if (!self->handle) {
-        CD_DestroyPlugin(self);
+	if (!self->handle) {
+		CD_DestroyPlugin(self);
 
-        SWARN(server, "Couldn't load plugin %s", name);
+		SWARN(server, "Couldn't load plugin %s", name);
 
-        errno = ENOENT;
+		errno = ENOENT;
 
-        return NULL;
-    }
+		return NULL;
+	}
 
-    self->initialize = lt_dlsym(self->handle, "CD_PluginInitialize");
-    self->finalize   = lt_dlsym(self->handle, "CD_PluginFinalize");
+	self->initialize = lt_dlsym(self->handle, "CD_PluginInitialize");
+	self->finalize   = lt_dlsym(self->handle, "CD_PluginFinalize");
 
-    DYNAMIC(self) = CD_CreateDynamic();
-    ERROR(self)   = CDNull;
+	DYNAMIC(self) = CD_CreateDynamic();
+	ERROR(self)   = CDNull;
 
-    C_FOREACH(plugin, C_PATH(self->server->config, "server.plugins.load")) {
-         if (CD_CStringIsEqual(name, C_TO_STRING(C_GET(plugin, "name")))) {
-            self->config = CD_malloc(sizeof(config_t));
-            config_export(plugin, self->config);
-            break;
-        }
-    }
+	C_FOREACH(plugin, C_PATH(self->server->config, "server.plugins.load")) {
+		 if (CD_CStringIsEqual(name, C_TO_STRING(C_GET(plugin, "name")))) {
+			self->config = CD_malloc(sizeof(config_t));
+			config_export(plugin, self->config);
+			break;
+		}
+	}
 
-    if (self->initialize) {
-        self->initialize(self);
-    }
+	if (self->initialize) {
+		self->initialize(self);
+	}
 
-    if (self->description) {
-        SLOG(server, LOG_NOTICE, "Loaded plugin %s - %s", name, CD_StringContent(self->description));
-    }
-    else {
-        SLOG(server, LOG_NOTICE, "Loaded plugin %s", name);
-    }
+	if (self->description) {
+		SLOG(server, LOG_NOTICE, "Loaded plugin %s - %s", name, CD_StringContent(self->description));
+	}
+	else {
+		SLOG(server, LOG_NOTICE, "Loaded plugin %s", name);
+	}
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyPlugin (CDPlugin* self)
 {
-    if (self->finalize) {
-        self->finalize(self);
-    }
+	if (self->finalize) {
+		self->finalize(self);
+	}
 
-    if (self->handle) {
-        lt_dlclose(self->handle);
-    }
+	if (self->handle) {
+		lt_dlclose(self->handle);
+	}
 
-    CD_DestroyString(self->name);
+	CD_DestroyString(self->name);
 
-    if (self->description) {
-        CD_DestroyString(self->description);
-    }
+	if (self->description) {
+		CD_DestroyString(self->description);
+	}
 
-    if (DYNAMIC(self)) {
-        CD_DestroyDynamic(DYNAMIC(self));
-    }
+	if (DYNAMIC(self)) {
+		CD_DestroyDynamic(DYNAMIC(self));
+	}
 
-    if (self->config) {
-        config_unexport(self->config);
+	if (self->config) {
+		config_unexport(self->config);
 
-        CD_free(self->config);
-    }
+		CD_free(self->config);
+	}
 
-    CD_free(self);
+	CD_free(self);
 }

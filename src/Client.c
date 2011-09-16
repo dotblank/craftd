@@ -29,58 +29,58 @@
 CDClient*
 CD_CreateClient (CDServer* server)
 {
-    CDClient* self = CD_malloc(sizeof(CDClient));
+	CDClient* self = CD_malloc(sizeof(CDClient));
 
-    if (pthread_rwlock_init(&self->lock.status, NULL) != 0) {
-        CD_abort("pthread rwlock failed to initialize");
-    }
+	if (pthread_rwlock_init(&self->lock.status, NULL) != 0) {
+		CD_abort("pthread rwlock failed to initialize");
+	}
 
-    self->server = server;
+	self->server = server;
 
-    self->status = CDClientConnect;
-    self->jobs   = 0;
+	self->status = CDClientConnect;
+	self->jobs   = 0;
 
-    self->buffers = NULL;
+	self->buffers = NULL;
 
-    DYNAMIC(self) = CD_CreateDynamic();
-    ERROR(self)   = CDNull;
+	DYNAMIC(self) = CD_CreateDynamic();
+	ERROR(self)   = CDNull;
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyClient (CDClient* self)
 {
-    assert(self);
+	assert(self);
 
-    CD_EventDispatch(self->server, "Client.destroy", self);
+	CD_EventDispatch(self->server, "Client.destroy", self);
 
-    if (self->buffers) {
-        bufferevent_flush(self->buffers->raw, EV_READ | EV_WRITE, BEV_FINISHED);
-        bufferevent_disable(self->buffers->raw, EV_READ | EV_WRITE);
-        bufferevent_free(self->buffers->raw);
+	if (self->buffers) {
+		bufferevent_flush(self->buffers->raw, EV_READ | EV_WRITE, BEV_FINISHED);
+		bufferevent_disable(self->buffers->raw, EV_READ | EV_WRITE);
+		bufferevent_free(self->buffers->raw);
 
-        CD_DestroyBuffers(self->buffers);
-    }
+		CD_DestroyBuffers(self->buffers);
+	}
 
-    CD_DestroyDynamic(DYNAMIC(self));
+	CD_DestroyDynamic(DYNAMIC(self));
 
-    pthread_rwlock_destroy(&self->lock.status);
+	pthread_rwlock_destroy(&self->lock.status);
 
-    CD_free(self);
+	CD_free(self);
 }
 
 void
 CD_ClientSendBuffer (CDClient* self, CDBuffer* buffer)
 {
-    assert(self);
-    assert(buffer);
+	assert(self);
+	assert(buffer);
 
-    if (!self->buffers) {
-        return;
-    }
+	if (!self->buffers) {
+		return;
+	}
 
-    CD_BufferAddBuffer(self->buffers->output, buffer);
+	CD_BufferAddBuffer(self->buffers->output, buffer);
 
-    CD_BuffersFlush(self->buffers);
+	CD_BuffersFlush(self->buffers);
 }

@@ -33,12 +33,12 @@
 typedef struct bufferevent* CDRawBuffers;
 
 typedef struct _CDBuffers {
-    CDRawBuffers raw;
+	CDRawBuffers raw;
 
-    CDBuffer* input;
-    CDBuffer* output;
+	CDBuffer* input;
+	CDBuffer* output;
 
-    bool external;
+	bool external;
 } CDBuffers;
 
 CDBuffers* CD_CreateBuffers (void);

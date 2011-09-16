@@ -31,52 +31,52 @@
 #include <craftd/protocols/survival/Player.h>
 
 typedef enum _SVWorldError {
-    SVWorldErrUnknown,
-    SVWorldErrUsernameTaken
+	SVWorldErrUnknown,
+	SVWorldErrUsernameTaken
 } SVWorldError;
 
 typedef enum _SVWorldDimension {
-    SVWorldNether = -1,
-    SVWorldNormal =  0
+	SVWorldNether = -1,
+	SVWorldNormal =  0
 } SVWorldDimension;
 
 typedef struct _SVWorld {
-    CDServer* server;
+	CDServer* server;
 
-    struct {
-        config_t data;
+	struct {
+		config_t data;
 
-        struct {
-            struct {
-                short sunrise;
-                short day;
-                short sunset;
-                short night;
-            } rate;
-        } cache;
-    } config;
+		struct {
+			struct {
+				short sunrise;
+				short day;
+				short sunset;
+				short night;
+			} rate;
+		} cache;
+	} config;
 
-    CDString*        name;
-    SVWorldDimension dimension;
-    uint16_t         time;
+	CDString*        name;
+	SVWorldDimension dimension;
+	uint16_t         time;
 
-    struct {
-        pthread_spinlock_t time;
-    } lock;
+	struct {
+		pthread_spinlock_t time;
+	} lock;
 
-    /// The currently connected players
-    CDHash* players;
+	/// The currently connected players
+	CDHash* players;
 
-    /// All world entities (including players)
-    CDMap*  entities;
+	/// All world entities (including players)
+	CDMap*  entities;
 
-    SVBlockPosition spawnPosition;
-    CDSet*          chunks;
+	SVBlockPosition spawnPosition;
+	CDSet*          chunks;
 
-    SVEntityId lastGeneratedEntityId;
+	SVEntityId lastGeneratedEntityId;
 
-    CD_DEFINE_DYNAMIC;
-    CD_DEFINE_ERROR;
+	CD_DEFINE_DYNAMIC;
+	CD_DEFINE_ERROR;
 } SVWorld;
 
 SVWorld* SV_CreateWorld (CDServer* server, const char* name);

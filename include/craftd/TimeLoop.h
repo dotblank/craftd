@@ -35,23 +35,23 @@ struct _CDServer;
  * The TimeLoop class.
  */
 typedef struct _CDTimeLoop {
-    struct _CDServer* server;
+	struct _CDServer* server;
 
-    pthread_t      thread;
-    pthread_attr_t attributes;
+	pthread_t      thread;
+	pthread_attr_t attributes;
 
-    bool running;
+	bool running;
 
-    int    last;
-    CDMap* callbacks;
+	int    last;
+	CDMap* callbacks;
 
-    struct {
-        struct event_base* base;
-    } event;
+	struct {
+		struct event_base* base;
+	} event;
 
-    struct {
-        pthread_spinlock_t last;
-    } lock;
+	struct {
+		pthread_spinlock_t last;
+	} lock;
 } CDTimeLoop;
 
 /**

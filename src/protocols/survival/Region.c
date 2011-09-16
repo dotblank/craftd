@@ -28,45 +28,45 @@
 bool
 SV_IsCoordInRadius (SVChunkPosition* coord, SVChunkPosition* centerCoord, int radius)
 {
-    return (coord->x >= centerCoord->x - radius &&
-            coord->x <= centerCoord->x + radius &&
-            coord->z >= centerCoord->z - radius &&
-            coord->z <= centerCoord->z + radius);
+	return (coord->x >= centerCoord->x - radius &&
+			coord->x <= centerCoord->x + radius &&
+			coord->z >= centerCoord->z - radius &&
+			coord->z <= centerCoord->z + radius);
 }
 
 bool
 SV_IsDistanceGreater (SVPrecisePosition a, SVPrecisePosition b, int maxDistance)
 {
-    return (abs( a.x - b.x ) > maxDistance ||
-            abs( a.y - b.y ) > maxDistance ||
-            abs( a.z - b.z ) > maxDistance);
+	return (abs( a.x - b.x ) > maxDistance ||
+			abs( a.y - b.y ) > maxDistance ||
+			abs( a.z - b.z ) > maxDistance);
 }
 
 SVRelativePosition
 SV_RelativeMove (SVPrecisePosition* a, SVPrecisePosition* b)
 {
-    SVAbsolutePosition absoluteA = SV_PrecisePositionToAbsolutePosition(*a);
-    SVAbsolutePosition absoluteB = SV_PrecisePositionToAbsolutePosition(*b);
+	SVAbsolutePosition absoluteA = SV_PrecisePositionToAbsolutePosition(*a);
+	SVAbsolutePosition absoluteB = SV_PrecisePositionToAbsolutePosition(*b);
 
-    return (SVRelativePosition) {
-        .x = absoluteA.x - absoluteB.x,
-        .y = absoluteA.y - absoluteB.y,
-        .z = absoluteA.z - absoluteB.z
-    };
+	return (SVRelativePosition) {
+		.x = absoluteA.x - absoluteB.x,
+		.y = absoluteA.y - absoluteB.y,
+		.z = absoluteA.z - absoluteB.z
+	};
 }
 
 void
 SV_RegionBroadcastPacket (SVPlayer* player, SVPacket* packet)
 {
-    CDList* seenPlayers = (CDList*) CD_DynamicGet(player, "Player.seenPlayers");
+	CDList* seenPlayers = (CDList*) CD_DynamicGet(player, "Player.seenPlayers");
 
-    CD_LIST_FOREACH(seenPlayers, it) {
-        if (player == (SVPlayer*) CD_ListIteratorValue(it)) {
-            continue;
-        }
+	CD_LIST_FOREACH(seenPlayers, it) {
+		if (player == (SVPlayer*) CD_ListIteratorValue(it)) {
+			continue;
+		}
 
-        SV_PlayerSendPacket((SVPlayer*) CD_ListIteratorValue(it), packet);
-    }
+		SV_PlayerSendPacket((SVPlayer*) CD_ListIteratorValue(it), packet);
+	}
 }
 
 

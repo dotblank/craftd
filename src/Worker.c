@@ -32,196 +32,196 @@
 CDWorker*
 CD_CreateWorker (CDServer* server)
 {
-    CDWorker* self = CD_malloc(sizeof(CDWorker));
+	CDWorker* self = CD_malloc(sizeof(CDWorker));
 
-    self->server  = server;
-    self->thread  = 0;
-    self->id      = 0;
-    self->working = false;
-    self->stopped = true;
-    self->job     = NULL;
+	self->server  = server;
+	self->thread  = 0;
+	self->id      = 0;
+	self->working = false;
+	self->stopped = true;
+	self->job     = NULL;
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyWorker (CDWorker* self)
 {
-    assert(self);
+	assert(self);
 
-    if (self->thread) {
-        self->working = false;
-        pthread_join(self->thread, NULL);
-    }
+	if (self->thread) {
+		self->working = false;
+		pthread_join(self->thread, NULL);
+	}
 
-    if (self->job) {
-        CD_DestroyJob(self->job);
-    }
+	if (self->job) {
+		CD_DestroyJob(self->job);
+	}
 
-    CD_free(self);
+	CD_free(self);
 }
 
 bool
 CD_RunWorker (CDWorker* self)
 {
-    assert(self);
+	assert(self);
 
-    self->stopped = false;
+	self->stopped = false;
 
-    CD_EventDispatch(self->server, "Worker.start!", self);
+	CD_EventDispatch(self->server, "Worker.start!", self);
 
-    SLOG(self->server, LOG_INFO, "worker %d started", self->id);
+	SLOG(self->server, LOG_INFO, "worker %d started", self->id);
 
-    while (self->working) {
-        self->job = NULL;
+	while (self->working) {
+		self->job = NULL;
 
-        if (!CD_HasJobs(self->workers)) {
-            pthread_mutex_lock(&self->workers->lock.mutex);
+		if (!CD_HasJobs(self->workers)) {
+			pthread_mutex_lock(&self->workers->lock.mutex);
 
-            SDEBUG(self->server, "worker %d ready", self->id);
+			SDEBUG(self->server, "worker %d ready", self->id);
 
-            pthread_cond_wait(&self->workers->lock.condition, &self->workers->lock.mutex);
+			pthread_cond_wait(&self->workers->lock.condition, &self->workers->lock.mutex);
 
-            pthread_mutex_unlock(&self->workers->lock.mutex);
-        }
+			pthread_mutex_unlock(&self->workers->lock.mutex);
+		}
 
-        if (!self->working) {
-            break;
-        }
+		if (!self->working) {
+			break;
+		}
 
-        self->job = CD_NextJob(self->workers);
+		self->job = CD_NextJob(self->workers);
 
-        if (!self->job) {
-            SDEBUG(self->server, "no jobs for %d :<", self->id);
-            continue;
-        }
+		if (!self->job) {
+			SDEBUG(self->server, "no jobs for %d :<", self->id);
+			continue;
+		}
 
-        SDEBUG(self->server, "worker %d running", self->id);
+		SDEBUG(self->server, "worker %d running", self->id);
 
-        if (self->job->type == CDCustomJob) {
-            CDCustomJobData* data = (CDCustomJobData*) self->job->data;
+		if (self->job->type == CDCustomJob) {
+			CDCustomJobData* data = (CDCustomJobData*) self->job->data;
 
-            data->callback(data->data);
+			data->callback(data->data);
 
-            CD_DestroyJob(self->job);
-        }
-        else if (CD_JOB_IS_PLAYER(self->job)) {
-            CDClient* client;
+			CD_DestroyJob(self->job);
+		}
+		else if (CD_JOB_IS_PLAYER(self->job)) {
+			CDClient* client;
 
-            if (self->job->type == CDClientProcessJob) {
-                client = ((CDClientProcessJobData*) self->job->data)->client;
-            }
-            else {
-                client = (CDClient*) self->job->data;
-            }
+			if (self->job->type == CDClientProcessJob) {
+				client = ((CDClientProcessJobData*) self->job->data)->client;
+			}
+			else {
+				client = (CDClient*) self->job->data;
+			}
 
-            if (!client) {
-                CD_DestroyJob(self->job);
-                continue;
-            }
+			if (!client) {
+				CD_DestroyJob(self->job);
+				continue;
+			}
 
-            pthread_rwlock_rdlock(&client->lock.status);
-            if (client->status == CDClientDisconnect) {
-                if (self->job->type != CDClientDisconnectJob) {
-                    CD_DestroyJob(self->job);
-                    self->job = NULL;
-                    client->jobs--;
-                }
-            }
-            pthread_rwlock_unlock(&client->lock.status);
+			pthread_rwlock_rdlock(&client->lock.status);
+			if (client->status == CDClientDisconnect) {
+				if (self->job->type != CDClientDisconnectJob) {
+					CD_DestroyJob(self->job);
+					self->job = NULL;
+					client->jobs--;
+				}
+			}
+			pthread_rwlock_unlock(&client->lock.status);
 
-            if (!self->job) {
-                continue;
-            }
+			if (!self->job) {
+				continue;
+			}
 
-            if (self->job->type == CDClientConnectJob) {
-                CD_EventDispatch(self->server, "Client.connect", client);
+			if (self->job->type == CDClientConnectJob) {
+				CD_EventDispatch(self->server, "Client.connect", client);
 
-                pthread_rwlock_wrlock(&client->lock.status);
-                if (client->status != CDClientDisconnect) {
-                    client->status = CDClientIdle;
-                }
-                pthread_rwlock_unlock(&client->lock.status);
+				pthread_rwlock_wrlock(&client->lock.status);
+				if (client->status != CDClientDisconnect) {
+					client->status = CDClientIdle;
+				}
+				pthread_rwlock_unlock(&client->lock.status);
 
-                CD_DestroyJob(self->job);
+				CD_DestroyJob(self->job);
 
-                if (CD_BufferLength(client->buffers->input) > 0) {
-                    CD_ReadFromClient(client);
-                }
-            }
-            else if (self->job->type == CDClientProcessJob) {
-                CD_EventDispatch(self->server, "Client.process", client,
-                    ((CDClientProcessJobData*) self->job->data)->packet);
+				if (CD_BufferLength(client->buffers->input) > 0) {
+					CD_ReadFromClient(client);
+				}
+			}
+			else if (self->job->type == CDClientProcessJob) {
+				CD_EventDispatch(self->server, "Client.process", client,
+					((CDClientProcessJobData*) self->job->data)->packet);
 
-                CD_EventDispatch(self->server, "Client.processed", client,
-                    ((CDClientProcessJobData*) self->job->data)->packet);
+				CD_EventDispatch(self->server, "Client.processed", client,
+					((CDClientProcessJobData*) self->job->data)->packet);
 
-                pthread_rwlock_wrlock(&client->lock.status);
-                if (client->status != CDClientDisconnect) {
-                    client->status = CDClientIdle;
-                }
+				pthread_rwlock_wrlock(&client->lock.status);
+				if (client->status != CDClientDisconnect) {
+					client->status = CDClientIdle;
+				}
 
-                client->jobs--;
-                pthread_rwlock_unlock(&client->lock.status);
+				client->jobs--;
+				pthread_rwlock_unlock(&client->lock.status);
 
-                CD_DestroyJob(self->job);
+				CD_DestroyJob(self->job);
 
-                if (CD_BufferLength(client->buffers->input) > 0) {
-                    CD_ReadFromClient(client);
-                }
-            }
-            else if (self->job->type == CDClientDisconnectJob) {
-                while (true) {
-                    pthread_rwlock_rdlock(&client->lock.status);
+				if (CD_BufferLength(client->buffers->input) > 0) {
+					CD_ReadFromClient(client);
+				}
+			}
+			else if (self->job->type == CDClientDisconnectJob) {
+				while (true) {
+					pthread_rwlock_rdlock(&client->lock.status);
 
-                    if (client->jobs < 1) {
-                        pthread_rwlock_unlock(&client->lock.status);
-                        break;
-                    }
+					if (client->jobs < 1) {
+						pthread_rwlock_unlock(&client->lock.status);
+						break;
+					}
 
-                    pthread_rwlock_unlock(&client->lock.status);
+					pthread_rwlock_unlock(&client->lock.status);
 
-                    usleep(1000);
-                }
+					usleep(1000);
+				}
 
-                CD_EventDispatch(self->server, "Client.disconnect", client, (bool) ERROR(client));
+				CD_EventDispatch(self->server, "Client.disconnect", client, (bool) ERROR(client));
 
-                CD_ListPush(self->server->disconnecting, (CDPointer) client);
+				CD_ListPush(self->server->disconnecting, (CDPointer) client);
 
-                CD_ServerFlush(client->server, false);
+				CD_ServerFlush(client->server, false);
 
-                CD_DestroyJob(self->job);
-            }
-        }
+				CD_DestroyJob(self->job);
+			}
+		}
 
-        self->job = NULL;
-    }
+		self->job = NULL;
+	}
 
-    CD_EventDispatch(self->server, "Worker.stopped", self);
+	CD_EventDispatch(self->server, "Worker.stopped", self);
 
-    self->stopped = true;
+	self->stopped = true;
 
-    return true;
+	return true;
 }
 
 bool
 CD_StopWorker (CDWorker* self)
 {
-    assert(self);
+	assert(self);
 
-    CD_EventDispatch(self->server, "Worker.stop!", self);
+	CD_EventDispatch(self->server, "Worker.stop!", self);
 
-    self->working = false;
+	self->working = false;
 
-    pthread_mutex_lock(&self->workers->lock.mutex);
-    pthread_cond_broadcast(&self->workers->lock.condition);
-    pthread_mutex_unlock(&self->workers->lock.mutex);
+	pthread_mutex_lock(&self->workers->lock.mutex);
+	pthread_cond_broadcast(&self->workers->lock.condition);
+	pthread_mutex_unlock(&self->workers->lock.mutex);
 
-    while (!self->stopped) {
-        usleep(1000);
+	while (!self->stopped) {
+		usleep(1000);
 
-        continue;
-    }
+		continue;
+	}
 
-    return true;
+	return true;
 }

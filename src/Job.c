@@ -28,69 +28,69 @@
 CDJob*
 CD_CreateJob (CDJobType type, CDPointer data)
 {
-    CDJob* self = CD_malloc(sizeof(CDJob));
+	CDJob* self = CD_malloc(sizeof(CDJob));
 
-    self->type     = type;
-    self->data     = data;
-    self->external = false;
+	self->type     = type;
+	self->data     = data;
+	self->external = false;
 
-    return self;
+	return self;
 }
 
 CDJob*
 CD_CreateExternalJob (CDJobType type, CDPointer data)
 {
-    CDJob* self = CD_malloc(sizeof(CDJob));
+	CDJob* self = CD_malloc(sizeof(CDJob));
 
-    self->type     = type;
-    self->data     = data;
-    self->external = true;
+	self->type     = type;
+	self->data     = data;
+	self->external = true;
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyJob (CDJob* self)
 {
-    assert(self);
+	assert(self);
 
-    if (!self->external && self->data) {
-        CD_free((void*) self->data);
-    }
+	if (!self->external && self->data) {
+		CD_free((void*) self->data);
+	}
 
-    CD_free(self);
+	CD_free(self);
 }
 
 CDPointer
 CD_DestroyJobKeepData (CDJob* self)
 {
-    assert(self);
+	assert(self);
 
-    CDPointer result = self->data;
+	CDPointer result = self->data;
 
-    CD_free(self);
+	CD_free(self);
 
-    return result;
+	return result;
 }
 
 CDCustomJobData*
 CD_CreateCustomJob (CDCustomJobCallback callback, CDPointer data)
 {
-    CDCustomJobData* self = CD_malloc(sizeof(CDCustomJobData));
+	CDCustomJobData* self = CD_malloc(sizeof(CDCustomJobData));
 
-    self->callback = callback;
-    self->data     = data;
+	self->callback = callback;
+	self->data     = data;
 
-    return self;
+	return self;
 }
 
 CDClientProcessJobData*
 CD_CreateClientProcessJob (CDClient* client, void* packet)
 {
-    CDClientProcessJobData* self = CD_malloc(sizeof(CDClientProcessJobData));
+	CDClientProcessJobData* self = CD_malloc(sizeof(CDClientProcessJobData));
 
-    self->client = client;
-    self->packet = packet;
+	self->client = client;
+	self->packet = packet;
 
-    return self;
+	return self;
 }

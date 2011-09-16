@@ -37,18 +37,18 @@ struct _SVWorld;
  * The Player class.
  */
 typedef struct _SVPlayer {
-    SVEntity entity;
+	SVEntity entity;
 
-    CDClient*        client;
-    struct _SVWorld* world;
+	CDClient*        client;
+	struct _SVWorld* world;
 
-    SVFloat yaw;
-    SVFloat pitch;
+	SVFloat yaw;
+	SVFloat pitch;
 
-    CDString* username;
+	CDString* username;
 
-    CD_DEFINE_DYNAMIC;
-    CD_DEFINE_ERROR;
+	CD_DEFINE_DYNAMIC;
+	CD_DEFINE_ERROR;
 } SVPlayer;
 
 /**

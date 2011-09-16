@@ -29,155 +29,155 @@
 CDRegexp*
 CD_CreateRegexp (char* string, int options)
 {
-    pcre*       pattern;
-    const char* error       = NULL;
-    int         errorOffset = 0;
+	pcre*       pattern;
+	const char* error       = NULL;
+	int         errorOffset = 0;
 
-    options |= PCRE_UTF8 | PCRE_EXTRA;
+	options |= PCRE_UTF8 | PCRE_EXTRA;
 
-    // If the pcre compilation fails
-    if ((pattern = pcre_compile(string, options, &error, &errorOffset, NULL)) == NULL) {
-        ERR("%s at %d", error, errorOffset);
+	// If the pcre compilation fails
+	if ((pattern = pcre_compile(string, options, &error, &errorOffset, NULL)) == NULL) {
+		ERR("%s at %d", error, errorOffset);
 
-        return NULL;
-    }
+		return NULL;
+	}
 
-    CDRegexp* self = CD_malloc(sizeof(CDRegexp));
+	CDRegexp* self = CD_malloc(sizeof(CDRegexp));
 
-    self->string  = string;
-    self->options = options;
-    self->pattern = pattern;
-    self->study   = pcre_study(pattern, 0, &error);
+	self->string  = string;
+	self->options = options;
+	self->pattern = pattern;
+	self->study   = pcre_study(pattern, 0, &error);
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyRegexp (CDRegexp* self)
 {
-    if (self->study) {
-        CD_free(self->study);
-    }
+	if (self->study) {
+		CD_free(self->study);
+	}
 
-    pcre_free(self->pattern);
+	pcre_free(self->pattern);
 
-    CD_free(self->string);
-    CD_free(self);
+	CD_free(self->string);
+	CD_free(self);
 }
 
 void
 CD_DestroyRegexpKeepString (CDRegexp* self)
 {
-    if (self->study) {
-        CD_free(self->study);
-    }
+	if (self->study) {
+		CD_free(self->study);
+	}
 
-    pcre_free(self->pattern);
+	pcre_free(self->pattern);
 
-    CD_free(self);
+	CD_free(self);
 }
 
 CDRegexpMatches*
 CD_CreateRegexpMatches (size_t length)
 {
-    CDRegexpMatches* self = CD_alloc(sizeof(CDRegexpMatches));
+	CDRegexpMatches* self = CD_alloc(sizeof(CDRegexpMatches));
 
-    self->length = length;
-    self->item   = CD_calloc(length, sizeof(CDString*));
+	self->length = length;
+	self->item   = CD_calloc(length, sizeof(CDString*));
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyRegexpMatches (CDRegexpMatches* self)
 {
-    for (size_t i = 0; i < self->length; i++) {
-        if (self->item[i] != NULL) {
-            CD_DestroyString(self->item[i]);
-        }
-    }
+	for (size_t i = 0; i < self->length; i++) {
+		if (self->item[i] != NULL) {
+			CD_DestroyString(self->item[i]);
+		}
+	}
 }
 
 CDRegexpMatches*
 CD_RegexpMatch (CDRegexp* self, CDString* string)
 {
-    CDRegexpMatches* matches;
+	CDRegexpMatches* matches;
 
-    int  length  = 0;
-    int  matched = 0;
-    int* substrings;
+	int  length  = 0;
+	int  matched = 0;
+	int* substrings;
 
-    assert(self);
-    assert(string);
+	assert(self);
+	assert(string);
 
-    pcre_fullinfo(self->pattern, self->study, PCRE_INFO_CAPTURECOUNT, &length);
-    substrings = CD_calloc((3 * (length + 1)), sizeof(int));
+	pcre_fullinfo(self->pattern, self->study, PCRE_INFO_CAPTURECOUNT, &length);
+	substrings = CD_calloc((3 * (length + 1)), sizeof(int));
 
-    matched = pcre_exec(self->pattern, self->study, CD_StringContent(string), CD_StringSize(string), 0, 0, substrings, (3 * (length + 1))) - 1;
+	matched = pcre_exec(self->pattern, self->study, CD_StringContent(string), CD_StringSize(string), 0, 0, substrings, (3 * (length + 1))) - 1;
 
-    if (matched < 0) {
-        CD_free(substrings);
+	if (matched < 0) {
+		CD_free(substrings);
 
-        return NULL;
-    }
+		return NULL;
+	}
 
-    matches          = CD_CreateRegexpMatches(length + 1);
-    matches->matched = matched;
+	matches          = CD_CreateRegexpMatches(length + 1);
+	matches->matched = matched;
 
-    for (size_t i = 0; i < matches->matched + 1; i++) {
-        const char* substrStart  = CD_StringContent(string) + substrings[2 * i];
-        int         substrLength = substrings[2 * i + 1] - substrings[2 * i];
+	for (size_t i = 0; i < matches->matched + 1; i++) {
+		const char* substrStart  = CD_StringContent(string) + substrings[2 * i];
+		int         substrLength = substrings[2 * i + 1] - substrings[2 * i];
 
-        matches->item[i] = CD_CreateStringFromBufferCopy(substrStart, substrLength);
-    }
+		matches->item[i] = CD_CreateStringFromBufferCopy(substrStart, substrLength);
+	}
 
-    CD_free(substrings);
+	CD_free(substrings);
 
-    return matches;
+	return matches;
 }
 
 CDRegexpMatches*
 CD_RegexpMatchString (char* regexp, int options, CDString* string)
 {
-    CDRegexp* self = CD_CreateRegexp(regexp, options);
+	CDRegexp* self = CD_CreateRegexp(regexp, options);
 
-    CDRegexpMatches* result = CD_RegexpMatch(self, string);
+	CDRegexpMatches* result = CD_RegexpMatch(self, string);
 
-    CD_DestroyRegexpKeepString(self);
+	CD_DestroyRegexpKeepString(self);
 
-    return result;
+	return result;
 }
 
 CDRegexpMatches*
 CD_RegexpMatchCString (char* regexp, int options, char* string)
 {
-    CDRegexp* self = CD_CreateRegexp(regexp, options);
+	CDRegexp* self = CD_CreateRegexp(regexp, options);
 
-    CDString*        str     = CD_CreateStringFromCString(string);
-    CDRegexpMatches* matches = CD_RegexpMatch(self, str);
+	CDString*        str     = CD_CreateStringFromCString(string);
+	CDRegexpMatches* matches = CD_RegexpMatch(self, str);
 
-    CD_DestroyRegexpKeepString(self);
-    CD_DestroyString(str);
+	CD_DestroyRegexpKeepString(self);
+	CD_DestroyString(str);
 
-    return matches;
+	return matches;
 }
 
 bool
 CD_RegexpTest (CDRegexp* self, CDString* string)
 {
-    size_t length = 0;
-    int*   substrings;
-    int    result;
+	size_t length = 0;
+	int*   substrings;
+	int    result;
 
-    assert(self);
-    assert(string);
+	assert(self);
+	assert(string);
 
-    pcre_fullinfo(self->pattern, self->study, PCRE_INFO_CAPTURECOUNT, &length);
-    substrings = CD_alloc((length * 3) * sizeof(int));
+	pcre_fullinfo(self->pattern, self->study, PCRE_INFO_CAPTURECOUNT, &length);
+	substrings = CD_alloc((length * 3) * sizeof(int));
 
-    result = pcre_exec(self->pattern, self->study, CD_StringContent(string), CD_StringSize(string), 0, 0, substrings, length);
+	result = pcre_exec(self->pattern, self->study, CD_StringContent(string), CD_StringSize(string), 0, 0, substrings, length);
 
-    CD_free(substrings);
+	CD_free(substrings);
 
-    return result >= 0;
+	return result >= 0;
 }

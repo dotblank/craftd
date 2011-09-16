@@ -36,11 +36,11 @@ struct _CDServer;
  * The ScriptingEngines class.
  */
 typedef struct _CDScriptingEngines {
-    struct _CDServer* server;
+	struct _CDServer* server;
 
-    CDHash* items;
+	CDHash* items;
 
-    lt_dladvise advise;
+	lt_dladvise advise;
 } CDScriptingEngines;
 
 /**

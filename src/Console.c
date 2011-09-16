@@ -28,27 +28,27 @@
 CDString*
 CD_ConvertStringColorForConsole (CDString* self)
 {
-    CDString* result = CD_CreateString();
+	CDString* result = CD_CreateString();
 
-    for (size_t i = 0, end = CD_StringLength(self); i < end; i++) {
-        CDString* ch = CD_CharAt(self, i);
+	for (size_t i = 0, end = CD_StringLength(self); i < end; i++) {
+		CDString* ch = CD_CharAt(self, i);
 
-        if (CD_StringIsEqual(ch, "§")) {
-            CD_DestroyString(ch);
-                 ch = CD_CharAt(self, i++);
-            char c  = CD_StringContent(ch)[0];
+		if (CD_StringIsEqual(ch, "§")) {
+			CD_DestroyString(ch);
+				 ch = CD_CharAt(self, i++);
+			char c  = CD_StringContent(ch)[0];
 
-            // use some math to get the array index
-            CD_AppendCString(result, CDConsoleColors[
-                ((c >= 97) ? (c - 0x57) : (c - 0x30))
-            ]);
-        }
-        else {
-            CD_AppendString(result, ch);
-        }
+			// use some math to get the array index
+			CD_AppendCString(result, CDConsoleColors[
+				((c >= 97) ? (c - 0x57) : (c - 0x30))
+			]);
+		}
+		else {
+			CD_AppendString(result, ch);
+		}
 
-        CD_DestroyString(ch);
-    }
+		CD_DestroyString(ch);
+	}
 
-    return result;
+	return result;
 }

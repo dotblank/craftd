@@ -28,56 +28,56 @@
 CDBuffers*
 CD_CreateBuffers (void)
 {
-    CDBuffers* self = CD_malloc(sizeof(CDBuffers));
+	CDBuffers* self = CD_malloc(sizeof(CDBuffers));
 
-    self->input  = CD_CreateBuffer();
-    self->output = CD_CreateBuffer();
+	self->input  = CD_CreateBuffer();
+	self->output = CD_CreateBuffer();
 
-    self->raw      = NULL;
-    self->external = false;
+	self->raw      = NULL;
+	self->external = false;
 
-    return self;
+	return self;
 }
 
 CDBuffers*
 CD_WrapBuffers (CDRawBuffers buffers)
 {
-    CDBuffers* self = CD_malloc(sizeof(CDBuffers));
+	CDBuffers* self = CD_malloc(sizeof(CDBuffers));
 
-    self->input  = CD_WrapBuffer(bufferevent_get_input(buffers));
-    self->output = CD_WrapBuffer(bufferevent_get_output(buffers));
+	self->input  = CD_WrapBuffer(bufferevent_get_input(buffers));
+	self->output = CD_WrapBuffer(bufferevent_get_output(buffers));
 
-    self->raw      = buffers;
-    self->external = true;
+	self->raw      = buffers;
+	self->external = true;
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyBuffers (CDBuffers* self)
 {
-    assert(self);
+	assert(self);
 
-    CD_DestroyBuffer(self->input);
-    CD_DestroyBuffer(self->output);
+	CD_DestroyBuffer(self->input);
+	CD_DestroyBuffer(self->output);
 
-    CD_free(self);
+	CD_free(self);
 }
 
 void
 CD_BufferReadIn (CDBuffers* self, size_t low, size_t high)
 {
-    assert(self);
+	assert(self);
 
-    if (high == 0) {
-        high = CD_DEFAULT_HIGH_WATERMARK;
-    }
+	if (high == 0) {
+		high = CD_DEFAULT_HIGH_WATERMARK;
+	}
 
-    bufferevent_setwatermark(self->raw, EV_READ, low, high);
+	bufferevent_setwatermark(self->raw, EV_READ, low, high);
 }
 
 void
 CD_BuffersFlush (CDBuffers* self)
 {
-    bufferevent_flush(self->raw, EV_READ | EV_WRITE, BEV_FLUSH);
+	bufferevent_flush(self->raw, EV_READ | EV_WRITE, BEV_FLUSH);
 }

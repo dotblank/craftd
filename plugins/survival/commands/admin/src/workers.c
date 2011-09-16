@@ -24,38 +24,38 @@
  */
 
 if (CD_StringIsEqual(matches->item[1], "workers")) {
-    if (!cdadmin_AuthLevelIsEnoughWithMessage(player, CDLevelAdmin)) {
-        goto done;
-    }
+	if (!cdadmin_AuthLevelIsEnoughWithMessage(player, CDLevelAdmin)) {
+		goto done;
+	}
 
-    if (!matches->item[2]) {
-        cdadmin_SendResponse(player, CD_CreateStringFromFormat("There are %d workers running.",
-            server->workers->length));
-    }
-    else {
-        int workers = atoi(CD_StringContent(matches->item[2]));
+	if (!matches->item[2]) {
+		cdadmin_SendResponse(player, CD_CreateStringFromFormat("There are %d workers running.",
+			server->workers->length));
+	}
+	else {
+		int workers = atoi(CD_StringContent(matches->item[2]));
 
-        if (workers <= 0) {
-            cdadmin_SendFailure(player, CD_CreateStringFromCString("You can have 1 worker at minimum"));
-            goto done;
-        }
+		if (workers <= 0) {
+			cdadmin_SendFailure(player, CD_CreateStringFromCString("You can have 1 worker at minimum"));
+			goto done;
+		}
 
-        if (workers > server->workers->length) {
-            CD_free(CD_SpawnWorkers(server->workers, workers - server->workers->length));
-        }
-        else if (workers < server->workers->length) {
-            for (size_t i = 0; i < server->workers->length; i++) {
-                if (!server->workers->item[i]->job || server->workers->item[i]->job->type != CDClientProcessJob) {
-                    continue;
-                }
+		if (workers > server->workers->length) {
+			CD_free(CD_SpawnWorkers(server->workers, workers - server->workers->length));
+		}
+		else if (workers < server->workers->length) {
+			for (size_t i = 0; i < server->workers->length; i++) {
+				if (!server->workers->item[i]->job || server->workers->item[i]->job->type != CDClientProcessJob) {
+					continue;
+				}
 
-                if (((CDClientProcessJobData*) server->workers->item[i]->job->data)->client == player->client) {
-                    CD_KillWorkersAvoid(server->workers, server->workers->length - workers, server->workers->item[i]);
-                    break;
-                }
-            }
-        }
-    }
+				if (((CDClientProcessJobData*) server->workers->item[i]->job->data)->client == player->client) {
+					CD_KillWorkersAvoid(server->workers, server->workers->length - workers, server->workers->item[i]);
+					break;
+				}
+			}
+		}
+	}
 
-    goto done;
+	goto done;
 }

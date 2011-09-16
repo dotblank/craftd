@@ -28,19 +28,19 @@
 CDProtocol*
 CD_InitializeSurvivalProtocol (CDServer* server)
 {
-    server->protocol = CD_CreateProtocol("survival", SV_PacketParsable, (CDProtocolPacketParse) SV_PacketFromBuffers);
+	server->protocol = CD_CreateProtocol("survival", SV_PacketParsable, (CDProtocolPacketParse) SV_PacketFromBuffers);
 
-    CD_EventProvides(server, "Client.process",   CD_CreateEventParameters("CDClient", "SVPacket", NULL));
-    CD_EventProvides(server, "Client.processed", CD_CreateEventParameters("CDClient", "SVPacket", NULL));
+	CD_EventProvides(server, "Client.process",   CD_CreateEventParameters("CDClient", "SVPacket", NULL));
+	CD_EventProvides(server, "Client.processed", CD_CreateEventParameters("CDClient", "SVPacket", NULL));
 
-    CD_EventProvides(server, "Player.destroy", CD_CreateEventParameters("SVPlayer", NULL));
+	CD_EventProvides(server, "Player.destroy", CD_CreateEventParameters("SVPlayer", NULL));
 
-    CD_EventProvides(server, "World.create",  CD_CreateEventParameters("SVWorld", NULL));
-    CD_EventProvides(server, "World.save",    CD_CreateEventParameters("SVWorld", NULL));
-    CD_EventProvides(server, "World.chunk",   CD_CreateEventParameters("SVWorld", "int", "int", "SVChunk", NULL));
-    CD_EventProvides(server, "World.chunk=",  CD_CreateEventParameters("SVWorld", "int", "int", "SVChunk", NULL));
-    CD_EventProvides(server, "World.destroy", CD_CreateEventParameters("SVWorld", NULL));
+	CD_EventProvides(server, "World.create",  CD_CreateEventParameters("SVWorld", NULL));
+	CD_EventProvides(server, "World.save",    CD_CreateEventParameters("SVWorld", NULL));
+	CD_EventProvides(server, "World.chunk",   CD_CreateEventParameters("SVWorld", "int", "int", "SVChunk", NULL));
+	CD_EventProvides(server, "World.chunk=",  CD_CreateEventParameters("SVWorld", "int", "int", "SVChunk", NULL));
+	CD_EventProvides(server, "World.destroy", CD_CreateEventParameters("SVWorld", NULL));
 
-    return server->protocol;
+	return server->protocol;
 }
 

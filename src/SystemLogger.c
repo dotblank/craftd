@@ -29,7 +29,7 @@
 #undef CRAFTD_LOGGER_IGNORE_EXTERN
 
 CDLogger CDSystemLogger = {
-    .log        = syslog,
-    .setlogmask = setlogmask,
-    .closelog   = closelog,
+	.log        = syslog,
+	.setlogmask = setlogmask,
+	.closelog   = closelog,
 };

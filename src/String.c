@@ -31,508 +31,508 @@ static inline
 void
 cd_MakeStringInternal (CDString* self)
 {
-    if (!self->external) {
-        return;
-    }
+	if (!self->external) {
+		return;
+	}
 
-    bstring data = bstrcpy(self->raw);
+	bstring data = bstrcpy(self->raw);
 
-    CD_free(self->raw);
-    self->raw      = data;
-    self->external = false;
+	CD_free(self->raw);
+	self->raw      = data;
+	self->external = false;
 }
 
 static inline
 size_t
 cd_UTF8_nextCharLength (char data)
 {
-    if ((data & 0x80) == 0x00) {
-        return 1;
-    }
-    
-    if ((data & 0xE0) == 0xC0) {
-        return 2;
-    }
-    
-    if ((data & 0xF0) == 0xE0) {
-        return 3;
-    }
-    
-    if ((data & 0xF8) == 0xF0) {
-        return 4;
-    }
-    
-    return 0;
+	if ((data & 0x80) == 0x00) {
+		return 1;
+	}
+	
+	if ((data & 0xE0) == 0xC0) {
+		return 2;
+	}
+	
+	if ((data & 0xF0) == 0xE0) {
+		return 3;
+	}
+	
+	if ((data & 0xF8) == 0xF0) {
+		return 4;
+	}
+	
+	return 0;
 }
 
 size_t
 CD_UTF8_strlen (const char* data)
 {
-    size_t result  = 0;
-    size_t i       = 0;
+	size_t result  = 0;
+	size_t i       = 0;
 
-    while (data[i] != '\0') {
-        i += cd_UTF8_nextCharLength(data[i]);
-        result++;
-    }
+	while (data[i] != '\0') {
+		i += cd_UTF8_nextCharLength(data[i]);
+		result++;
+	}
 
-    return result;
+	return result;
 }
 
 size_t
 CD_UTF8_strnlen (const char* data, size_t limit)
 {
-    size_t result  = 0;
-    size_t i       = 0;
+	size_t result  = 0;
+	size_t i       = 0;
 
-    while (data[i] != '\0' && i < limit) {
-        i += cd_UTF8_nextCharLength(data[i]);
-        result++;
-    }
+	while (data[i] != '\0' && i < limit) {
+		i += cd_UTF8_nextCharLength(data[i]);
+		result++;
+	}
 
-    return result;
+	return result;
 }
 
 size_t
 CD_UTF8_offset (const char* data, size_t offset)
 {
-    size_t result = 0;
+	size_t result = 0;
 
-    for (size_t i = 0; i < offset; i++) {
-        result += cd_UTF8_nextCharLength(data[result]);
-    }
+	for (size_t i = 0; i < offset; i++) {
+		result += cd_UTF8_nextCharLength(data[result]);
+	}
 
-    return result;
+	return result;
 }
 
 static
 void
 cd_UpdateLength (CDString* self)
 {
-    assert(self);
+	assert(self);
 
-    self->length = CD_UTF8_strnlen(CD_StringContent(self), self->raw->slen);
+	self->length = CD_UTF8_strnlen(CD_StringContent(self), self->raw->slen);
 }
 
 CDString*
 CD_CreateString (void)
 {
-    CDString* self = CD_malloc(sizeof(CDString));
+	CDString* self = CD_malloc(sizeof(CDString));
 
-    self->raw      = bfromcstr("");
-    self->length   = 0;
-    self->external = false;
+	self->raw      = bfromcstr("");
+	self->length   = 0;
+	self->external = false;
 
-    assert(self->raw);
+	assert(self->raw);
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_CreateStringFromCString (const char* string)
 {
-    CDString* self = CD_malloc(sizeof(CDString));
+	CDString* self = CD_malloc(sizeof(CDString));
 
-    self->raw = CD_malloc(sizeof(*self->raw));
+	self->raw = CD_malloc(sizeof(*self->raw));
 
-    if (string == NULL) {
-        self->raw->data = (unsigned char*) "";
-    }
-    else {
-        self->raw->data = (unsigned char*) string;
-    }
+	if (string == NULL) {
+		self->raw->data = (unsigned char*) "";
+	}
+	else {
+		self->raw->data = (unsigned char*) string;
+	}
 
-    self->raw->slen = strlen((const char*) self->raw->data);
-    self->raw->mlen = self->raw->slen;
+	self->raw->slen = strlen((const char*) self->raw->data);
+	self->raw->mlen = self->raw->slen;
 
-    self->external = true;
+	self->external = true;
 
-    cd_UpdateLength(self);
+	cd_UpdateLength(self);
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_CreateStringFromCStringCopy (const char* string)
 {
-    CDString* self = CD_malloc(sizeof(CDString));
+	CDString* self = CD_malloc(sizeof(CDString));
 
-    self->raw      = bfromcstr(string);
-    self->external = false;
+	self->raw      = bfromcstr(string);
+	self->external = false;
 
-    assert(self->raw);
+	assert(self->raw);
 
-    cd_UpdateLength(self);
+	cd_UpdateLength(self);
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_CreateStringFromBuffer (const char* buffer, size_t size)
 {
-    CDString* self = CD_malloc(sizeof(CDString));
+	CDString* self = CD_malloc(sizeof(CDString));
 
-    self->raw      = CD_malloc(sizeof(*self->raw));
-    self->external = true;
+	self->raw      = CD_malloc(sizeof(*self->raw));
+	self->external = true;
 
-    assert(self->raw);
+	assert(self->raw);
 
-    self->raw->data = (unsigned char*) buffer;
-    self->raw->mlen = size;
-    self->raw->slen = size;
+	self->raw->data = (unsigned char*) buffer;
+	self->raw->mlen = size;
+	self->raw->slen = size;
 
-    cd_UpdateLength(self);
+	cd_UpdateLength(self);
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_CreateStringFromBufferCopy (const char* buffer, size_t length)
 {
-    CDString* self = CD_malloc(sizeof(CDString));
+	CDString* self = CD_malloc(sizeof(CDString));
 
-    self->raw      = blk2bstr(buffer, length);
-    self->external = false;
+	self->raw      = blk2bstr(buffer, length);
+	self->external = false;
 
-    assert(self->raw);
+	assert(self->raw);
 
-    cd_UpdateLength(self);
+	cd_UpdateLength(self);
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_CreateStringFromFormat (const char* format, ...)
 {
-    va_list ap;
-    va_start(ap, format);
+	va_list ap;
+	va_start(ap, format);
 
-    CDString* self = CD_CreateStringFromFormatList(format, ap);
+	CDString* self = CD_CreateStringFromFormatList(format, ap);
 
-    va_end(ap);
+	va_end(ap);
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_CreateStringFromFormatList (const char* format, va_list ap)
 {
-    CDString* self = CD_CreateString();
+	CDString* self = CD_CreateString();
 
-    bvcformata(self->raw, 9001, format, ap);
+	bvcformata(self->raw, 9001, format, ap);
 
-    cd_UpdateLength(self);
+	cd_UpdateLength(self);
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_CreateStringFromOffset (CDString* string, size_t offset, size_t limit)
 {
-    const char* data;
+	const char* data;
 
-    assert(string);
+	assert(string);
 
-    if (offset > CD_StringLength(string)) {
-        return NULL;
-    }
+	if (offset > CD_StringLength(string)) {
+		return NULL;
+	}
 
-    data = CD_StringContent(string) + CD_UTF8_offset(CD_StringContent(string), offset);
+	data = CD_StringContent(string) + CD_UTF8_offset(CD_StringContent(string), offset);
 
-    if (limit == 0) {
-        limit = strlen(data);
-    }
-    else {
-        limit = CD_UTF8_offset(data, limit);
-    }
+	if (limit == 0) {
+		limit = strlen(data);
+	}
+	else {
+		limit = CD_UTF8_offset(data, limit);
+	}
 
-    return CD_CreateStringFromBufferCopy(data, limit);
+	return CD_CreateStringFromBufferCopy(data, limit);
 }
 
 CDString*
 CD_CloneString (CDString* self)
 {
-    CDString* cloned = CD_CreateString();
+	CDString* cloned = CD_CreateString();
 
-    bdestroy(cloned->raw);
-    cloned->raw = (CDRawString) bstrcpy(self->raw);
+	bdestroy(cloned->raw);
+	cloned->raw = (CDRawString) bstrcpy(self->raw);
 
-    assert(cloned->raw);
+	assert(cloned->raw);
 
-    cd_UpdateLength(cloned);
+	cd_UpdateLength(cloned);
 
-    return cloned;
+	return cloned;
 }
 
 void
 CD_DestroyString (CDString* self)
 {
-    assert(self);
+	assert(self);
 
-    if (self->external) {
-        CD_free(self->raw);
-    }
-    else {
-        bdestroy(self->raw);
-    }
+	if (self->external) {
+		CD_free(self->raw);
+	}
+	else {
+		bdestroy(self->raw);
+	}
 
-    CD_free(self);
+	CD_free(self);
 }
 
 CDRawString
 CD_DestroyStringKeepData (CDString* self)
 {
-    CDRawString result = self->raw;
+	CDRawString result = self->raw;
 
-    CD_free(self);
+	CD_free(self);
 
-    return result;
+	return result;
 }
 
 inline
 CDString*
 CD_CharAt (CDString* self, size_t index)
 {
-    assert(self);
+	assert(self);
 
-    return CD_CreateStringFromOffset(self, index, 1);
+	return CD_CreateStringFromOffset(self, index, 1);
 }
 
 CDString*
 CD_CharAtSet (CDString* self, size_t index, CDString* set)
 {
-    assert(self);
+	assert(self);
 
-    cd_MakeStringInternal(self);
+	cd_MakeStringInternal(self);
 
-    size_t offset = CD_UTF8_offset((const char*) self->raw->data, index);
+	size_t offset = CD_UTF8_offset((const char*) self->raw->data, index);
 
-    if (breplace(self->raw, offset, cd_UTF8_nextCharLength(self->raw->data[offset]), set->raw, '\0') == BSTR_OK) {
-        cd_UpdateLength(self);
-    }
-    else {
-        self = NULL;
-    }
+	if (breplace(self->raw, offset, cd_UTF8_nextCharLength(self->raw->data[offset]), set->raw, '\0') == BSTR_OK) {
+		cd_UpdateLength(self);
+	}
+	else {
+		self = NULL;
+	}
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_InsertString (CDString* self, CDString* insert, size_t position)
 {
-    assert(self);
-    assert(insert);
+	assert(self);
+	assert(insert);
 
-    cd_MakeStringInternal(self);
+	cd_MakeStringInternal(self);
 
-    if (binsert(self->raw, CD_UTF8_offset(CD_StringContent(self), position), insert->raw, '\0') == BSTR_OK) {
-        cd_UpdateLength(self);
-    }
-    else {
-        self = NULL;
-    }
+	if (binsert(self->raw, CD_UTF8_offset(CD_StringContent(self), position), insert->raw, '\0') == BSTR_OK) {
+		cd_UpdateLength(self);
+	}
+	else {
+		self = NULL;
+	}
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_AppendString (CDString* self, CDString* append)
 {
-    assert(self);
-    assert(append);
+	assert(self);
+	assert(append);
 
-    cd_MakeStringInternal(self);
+	cd_MakeStringInternal(self);
 
-    if (binsert(self->raw, self->raw->slen, append->raw, '\0') == BSTR_OK) {
-        cd_UpdateLength(self);
-    }
-    else {
-        self = NULL;
-    }
+	if (binsert(self->raw, self->raw->slen, append->raw, '\0') == BSTR_OK) {
+		cd_UpdateLength(self);
+	}
+	else {
+		self = NULL;
+	}
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_AppendStringAndClean (CDString* self, CDString* append)
 {
-    assert(self);
-    assert(append);
+	assert(self);
+	assert(append);
 
-    cd_MakeStringInternal(self);
+	cd_MakeStringInternal(self);
 
-    if (binsert(self->raw, self->raw->slen, append->raw, '\0') == BSTR_OK) {
-        cd_UpdateLength(self);
-    }
-    else {
-        self = NULL;
-    }
+	if (binsert(self->raw, self->raw->slen, append->raw, '\0') == BSTR_OK) {
+		cd_UpdateLength(self);
+	}
+	else {
+		self = NULL;
+	}
 
-    CD_DestroyString(append);
+	CD_DestroyString(append);
 
-    return self;
+	return self;
 }
 
 
 CDString*
 CD_AppendCString (CDString* self, const char* append)
 {
-    assert(self);
-    assert(append);
+	assert(self);
+	assert(append);
 
-    cd_MakeStringInternal(self);
+	cd_MakeStringInternal(self);
 
-    CDString* tmp = CD_CreateStringFromCString(append);
+	CDString* tmp = CD_CreateStringFromCString(append);
 
-    if (!CD_AppendStringAndClean(self, tmp)) {
-        self = NULL;
-    }
+	if (!CD_AppendStringAndClean(self, tmp)) {
+		self = NULL;
+	}
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_PrependString (CDString* self, CDString* append)
 {
-    assert(self);
-    assert(append);
+	assert(self);
+	assert(append);
 
-    cd_MakeStringInternal(self);
+	cd_MakeStringInternal(self);
 
-    if (binsert(self->raw, 0, append->raw, '\0') == BSTR_OK) {
-        cd_UpdateLength(self);
-    }
-    else {
-        self = NULL;
-    }
+	if (binsert(self->raw, 0, append->raw, '\0') == BSTR_OK) {
+		cd_UpdateLength(self);
+	}
+	else {
+		self = NULL;
+	}
 
-    return self;
+	return self;
 }
 
 CDString*
 CD_PrependCString (CDString* self, const char* append)
 {
-    assert(self);
-    assert(append);
+	assert(self);
+	assert(append);
 
-    cd_MakeStringInternal(self);
+	cd_MakeStringInternal(self);
 
-    CDString* tmp = CD_CreateStringFromCString(append);
+	CDString* tmp = CD_CreateStringFromCString(append);
 
-    if (!CD_PrependString(self, tmp)) {
-        self = NULL;
-    }
+	if (!CD_PrependString(self, tmp)) {
+		self = NULL;
+	}
 
-    CD_DestroyString(tmp);
+	CD_DestroyString(tmp);
 
-    return self;
+	return self;
 }
 
 inline
 const char*
 CD_StringContent (CDString* self)
 {
-    if (!self) {
-        return NULL;
-    }
-    else {
-        return (const char*) self->raw->data;
-    }
+	if (!self) {
+		return NULL;
+	}
+	else {
+		return (const char*) self->raw->data;
+	}
 }
 
 inline
 size_t
 CD_StringLength (CDString* self)
 {
-    if (!self) {
-        return 0;
-    }
-    else {
-        return self->length;
-    }
+	if (!self) {
+		return 0;
+	}
+	else {
+		return self->length;
+	}
 }
 
 inline
 size_t
 CD_StringSize (CDString* self)
 {
-    if (!self) {
-        return 0;
-    }
-    else {
-        return self->raw->slen;
-    }
+	if (!self) {
+		return 0;
+	}
+	else {
+		return self->raw->slen;
+	}
 }
 
 inline
 bool
 CD_StringEmpty (CDString* self)
 {
-    return (self == NULL || self->raw == NULL || CD_StringLength(self) == 0);
+	return (self == NULL || self->raw == NULL || CD_StringLength(self) == 0);
 }
 
 bool
 CD_StringBlank (CDString* self)
 {
-    for (int i = 0; i < self->raw->slen; i++) {
-        if (!isspace(self->raw->data[i])) {
-            return false;
-        }
-    }
+	for (int i = 0; i < self->raw->slen; i++) {
+		if (!isspace(self->raw->data[i])) {
+			return false;
+		}
+	}
 
-    return true;
+	return true;
 }
 
 inline
 bool
 CD_StringStartWith (CDString* self, const char* check)
 {
-    return strncmp(CD_StringContent(self), check, strlen(check)) == 0;
+	return strncmp(CD_StringContent(self), check, strlen(check)) == 0;
 }
 
 inline
 bool
 CD_StringEndWith (CDString* self, const char* check)
 {
-    size_t length = strlen(check);
+	size_t length = strlen(check);
 
-    return strncmp(CD_StringContent(self) + CD_StringSize(self) - length, check, length) == 0;
+	return strncmp(CD_StringContent(self) + CD_StringSize(self) - length, check, length) == 0;
 }
 
 inline
 bool
 CD_StringIsEqual (CDString* a, const char* b)
 {
-    return strcmp(CD_StringContent(a), b) == 0;
+	return strcmp(CD_StringContent(a), b) == 0;
 }
 
 inline
 bool
 CD_CStringIsEqual (const char* a, const char* b)
 {
-    return strcmp(a, b) == 0;
+	return strcmp(a, b) == 0;
 }
 
 CDString*
 CD_StringDirname (CDString* self)
 {
-    char*     path      = strdup(CD_StringContent(self));
-    char*     directory = dirname(path);
-    CDString* result    = CD_CreateStringFromCStringCopy(directory);
+	char*     path      = strdup(CD_StringContent(self));
+	char*     directory = dirname(path);
+	CDString* result    = CD_CreateStringFromCStringCopy(directory);
 
-    free(path);
+	free(path);
 
-    return result;
+	return result;
 }
 
 CDString*
 CD_StringBasename (CDString* self)
 {
-    char*     path   = strdup(CD_StringContent(self));
-    char*     file   = basename(path);
-    CDString* result = CD_CreateStringFromCStringCopy(file);
+	char*     path   = strdup(CD_StringContent(self));
+	char*     file   = basename(path);
+	CDString* result = CD_CreateStringFromCStringCopy(file);
 
-    free(path);
+	free(path);
 
-    return result;
+	return result;
 }

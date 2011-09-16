@@ -31,139 +31,139 @@
 bool
 SV_PacketParsable (CDBuffers* buffers)
 {
-    size_t       length   = evbuffer_get_length(buffers->input->raw);
-    SVPacketType type     = 0;
-    size_t       variable = 0;
-    size_t       offset   = SVByteSize;
-                 errno    = 0;
+	size_t       length   = evbuffer_get_length(buffers->input->raw);
+	SVPacketType type     = 0;
+	size_t       variable = 0;
+	size_t       offset   = SVByteSize;
+				 errno    = 0;
 
-    if (length < 1) {
-        goto error;
-    }
+	if (length < 1) {
+		goto error;
+	}
 
-    evbuffer_copyout(buffers->input->raw, &type, 1);
+	evbuffer_copyout(buffers->input->raw, &type, 1);
 
-    if (length < SVPacketLength[type]) {
-        goto error;
-    }
+	if (length < SVPacketLength[type]) {
+		goto error;
+	}
 
-    unsigned char* data = evbuffer_pullup(buffers->input->raw, -1);
+	unsigned char* data = evbuffer_pullup(buffers->input->raw, -1);
 
-    switch (type) {
-        case SVLogin: {
-            variable += ntohs(*((SVShort*) (data + (offset += SVIntegerSize)))) * 2;
+	switch (type) {
+		case SVLogin: {
+			variable += ntohs(*((SVShort*) (data + (offset += SVIntegerSize)))) * 2;
 
-            goto check;
-        }
+			goto check;
+		}
 
-        case SVHandshake: {
-            variable += ntohs(*((SVShort*) (data + offset))) * 2;
+		case SVHandshake: {
+			variable += ntohs(*((SVShort*) (data + offset))) * 2;
 
-            goto check;
-        }
+			goto check;
+		}
 
-        case SVChat: {
-            variable += ntohs(*((SVShort*) (data + offset))) * 2;
+		case SVChat: {
+			variable += ntohs(*((SVShort*) (data + offset))) * 2;
 
-            goto check;
-        }
+			goto check;
+		}
 
-        case SVPlayerBlockPlacement: {
-            offset += SVIntegerSize + SVByteSize + SVIntegerSize + SVByteSize;
+		case SVPlayerBlockPlacement: {
+			offset += SVIntegerSize + SVByteSize + SVIntegerSize + SVByteSize;
 
-            if (ntohs(*((SVShort*) (data + offset))) != -1) {
-                variable += 3;
-            }
+			if (ntohs(*((SVShort*) (data + offset))) != -1) {
+				variable += 3;
+			}
 
-            goto check;
-        }
+			goto check;
+		}
 
-        case SVEntityMetadata: {
-            offset += SVIntegerSize;
+		case SVEntityMetadata: {
+			offset += SVIntegerSize;
 
-            while (length > offset && *((SVByte*) data + offset) != 127) {
-                switch (*((SVByte*) (data + offset)) >> 5) {
-                    case SVTypeByte:           offset += SVByteSize;                                break;
-                    case SVTypeShort:          offset += SVShortSize;                               break;
-                    case SVTypeInteger:        offset += SVIntegerSize;                             break;
-                    case SVTypeFloat:          offset += SVFloatSize;                               break;
-                    case SVTypeString:         offset += *((SVShort*) (data + offset)) + SVShortSize; break;
-                    case SVTypeShortByteShort: offset += SVByteSize + SVShortSize + SVByteSize;     break;
-                }
-            }
+			while (length > offset && *((SVByte*) data + offset) != 127) {
+				switch (*((SVByte*) (data + offset)) >> 5) {
+					case SVTypeByte:           offset += SVByteSize;                                break;
+					case SVTypeShort:          offset += SVShortSize;                               break;
+					case SVTypeInteger:        offset += SVIntegerSize;                             break;
+					case SVTypeFloat:          offset += SVFloatSize;                               break;
+					case SVTypeString:         offset += *((SVShort*) (data + offset)) + SVShortSize; break;
+					case SVTypeShortByteShort: offset += SVByteSize + SVShortSize + SVByteSize;     break;
+				}
+			}
 
-            if (length >= offset) {
-                goto done;
-            }
-            else {
-                goto error;
-            }
-        }
+			if (length >= offset) {
+				goto done;
+			}
+			else {
+				goto error;
+			}
+		}
 
-        case SVWindowClick: {
-            offset += SVByteSize + SVShortSize + SVByteSize + SVShortSize;
+		case SVWindowClick: {
+			offset += SVByteSize + SVShortSize + SVByteSize + SVShortSize;
 
-            if (ntohs(*((SVShort*) (data + offset))) != -1) {
-                variable += 3;
-            }
+			if (ntohs(*((SVShort*) (data + offset))) != -1) {
+				variable += 3;
+			}
 
-            goto check;
-        }
+			goto check;
+		}
 
-        case SVUpdateSign: {
-            offset += SVIntegerSize + SVShortSize + SVIntegerSize;
+		case SVUpdateSign: {
+			offset += SVIntegerSize + SVShortSize + SVIntegerSize;
 
-            variable += ntohs(*((SVShort*) (data + offset))) * 2;
+			variable += ntohs(*((SVShort*) (data + offset))) * 2;
 
-            if (CHECK) {
-                goto error;
-            }
+			if (CHECK) {
+				goto error;
+			}
 
-            variable += ntohs(*((SVShort*) (data + (offset += SVShortSize + variable)))) * 2;
+			variable += ntohs(*((SVShort*) (data + (offset += SVShortSize + variable)))) * 2;
 
-            if (CHECK) {
-                goto error;
-            }
+			if (CHECK) {
+				goto error;
+			}
 
-            variable += ntohs(*((SVShort*) (data + (offset += SVShortSize + variable)))) * 2;
+			variable += ntohs(*((SVShort*) (data + (offset += SVShortSize + variable)))) * 2;
 
-            if (CHECK) {
-                goto error;
-            }
+			if (CHECK) {
+				goto error;
+			}
 
-            variable += ntohs(*((SVShort*) (data + (offset += SVShortSize + variable)))) * 2;
+			variable += ntohs(*((SVShort*) (data + (offset += SVShortSize + variable)))) * 2;
 
-            goto check;
-        }
+			goto check;
+		}
 
-        case SVDisconnect: {
-            variable += ntohs(*((SVShort*) (data + offset))) * 2;
+		case SVDisconnect: {
+			variable += ntohs(*((SVShort*) (data + offset))) * 2;
 
-            goto check;
-        }
+			goto check;
+		}
 
-        default: {
-            goto done;
-        }
-    }
+		default: {
+			goto done;
+		}
+	}
 
-    check: {
-        if (CHECK) {
-            goto error;
-        }
-    }
+	check: {
+		if (CHECK) {
+			goto error;
+		}
+	}
 
-    done: {
-        return true;
-    }
+	done: {
+		return true;
+	}
 
-    error: {
-        if (errno != EILSEQ) {
-            errno = EAGAIN;
+	error: {
+		if (errno != EILSEQ) {
+			errno = EAGAIN;
 
-            CD_BufferReadIn(buffers, SVPacketLength[type] + variable, CDNull);
-        }
+			CD_BufferReadIn(buffers, SVPacketLength[type] + variable, CDNull);
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

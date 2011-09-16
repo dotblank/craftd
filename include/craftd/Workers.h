@@ -34,21 +34,21 @@
 struct _CDServer;
 
 typedef struct _CDWorkers {
-    struct _CDServer* server;
+	struct _CDServer* server;
 
-    int64_t last;
+	int64_t last;
 
-    size_t     length;
-    CDWorker** item;
+	size_t     length;
+	CDWorker** item;
 
-    CDList* jobs;
+	CDList* jobs;
 
-    pthread_attr_t attributes;
+	pthread_attr_t attributes;
 
-    struct {
-        pthread_cond_t  condition;
-        pthread_mutex_t mutex;
-    } lock;
+	struct {
+		pthread_cond_t  condition;
+		pthread_mutex_t mutex;
+	} lock;
 } CDWorkers;
 
 CDWorkers* CD_CreateWorkers (struct _CDServer* server);

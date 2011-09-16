@@ -53,29 +53,29 @@ static const CDContentType CDContentTypes[] = {
 };
 
 typedef struct _CDHTTPd {
-    CDServer* server;
+	CDServer* server;
 
-    struct {
-        struct event_base*          base;
-        struct evhttp*              httpd;
-        struct evhttp_bound_socket* handle;
-    } event;
+	struct {
+		struct event_base*          base;
+		struct evhttp*              httpd;
+		struct evhttp_bound_socket* handle;
+	} event;
 
-    struct {
-        struct {
-            struct {
-                const char* ipv4;
-                const char* ipv6;
-            } bind;
+	struct {
+		struct {
+			struct {
+				const char* ipv4;
+				const char* ipv6;
+			} bind;
 
-            uint16_t port;
-        } connection;
+			uint16_t port;
+		} connection;
 
-        const char* root;
-    } config;
+		const char* root;
+	} config;
 
-    pthread_t      thread;
-    pthread_attr_t attributes;
+	pthread_t      thread;
+	pthread_attr_t attributes;
 } CDHTTPd;
 
 CDHTTPd* CD_CreateHTTPd (CDPlugin* plugin);

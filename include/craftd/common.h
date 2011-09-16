@@ -46,7 +46,7 @@
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(*array))
 
 #define DO \
-    for (char __cddo_tmp__ = 0; __cddo_tmp__ == 0; __cddo_tmp__++)
+	for (char __cddo_tmp__ = 0; __cddo_tmp__ == 0; __cddo_tmp__++)
 
 #include <event2/event.h>
 #include <event2/buffer.h>
@@ -65,9 +65,9 @@
 #endif
 
 #if SIZEOF_FUNCTION_POINTER == 4 && SIZEOF_POINTER == 4
-    typedef int32_t CDPointer;
+	typedef int32_t CDPointer;
 #else
-    typedef int64_t CDPointer;
+	typedef int64_t CDPointer;
 #endif
 
 #ifdef __cplusplus

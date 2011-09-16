@@ -28,17 +28,17 @@
 CDProtocol*
 CD_CreateProtocol (const char* name, CDProtocolPacketParsable parsable, CDProtocolPacketParse parse)
 {
-    CDProtocol* self = CD_malloc(sizeof(CDProtocol));
+	CDProtocol* self = CD_malloc(sizeof(CDProtocol));
 
-    assert(name);
-    assert(parsable);
-    assert(parse);
+	assert(name);
+	assert(parsable);
+	assert(parse);
 
-    self->name     = CD_CreateStringFromCStringCopy(name);
-    self->parsable = parsable;
-    self->parse    = parse;
+	self->name     = CD_CreateStringFromCStringCopy(name);
+	self->parsable = parsable;
+	self->parse    = parse;
 
-    return self;
+	return self;
 }
 
 void CD_DestroyProtocol (CDProtocol* self);

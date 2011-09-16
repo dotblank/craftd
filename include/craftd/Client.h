@@ -31,28 +31,28 @@
 struct _CDServer;
 
 typedef enum _CDClientStatus {
-    CDClientConnect,
-    CDClientIdle,
-    CDClientProcess,
-    CDClientDisconnect
+	CDClientConnect,
+	CDClientIdle,
+	CDClientProcess,
+	CDClientDisconnect
 } CDClientStatus;
 
 typedef struct _CDClient {
-    struct _CDServer* server;
+	struct _CDServer* server;
 
-    char            ip[128];
-    evutil_socket_t socket;
-    CDBuffers*      buffers;
+	char            ip[128];
+	evutil_socket_t socket;
+	CDBuffers*      buffers;
 
-    CDClientStatus status;
-    uint8_t        jobs;
+	CDClientStatus status;
+	uint8_t        jobs;
 
-    struct {
-        pthread_rwlock_t status;
-    } lock;
+	struct {
+		pthread_rwlock_t status;
+	} lock;
 
-    CD_DEFINE_DYNAMIC;
-    CD_DEFINE_ERROR;
+	CD_DEFINE_DYNAMIC;
+	CD_DEFINE_ERROR;
 } CDClient;
 
 /**

@@ -37,9 +37,9 @@ typedef bstring CDRawString;
  * The String class.
  */
 typedef struct _CDString {
-    CDRawString raw;
-    size_t      length;
-    bool        external;
+	CDRawString raw;
+	size_t      length;
+	bool        external;
 } CDString;
 
 /**

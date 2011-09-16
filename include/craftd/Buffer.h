@@ -37,9 +37,9 @@
 typedef struct evbuffer* CDRawBuffer;
 
 typedef struct _CDBuffer {
-    CDRawBuffer raw;
+	CDRawBuffer raw;
 
-    bool external;
+	bool external;
 } CDBuffer;
 
 /**

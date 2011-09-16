@@ -29,7 +29,7 @@
 #include <craftd/Logger.h>
 
 #define WLOG(world, priority, format, ...) \
-    server->logger.log(priority, "%s[%s]> " format, CD_ServerToString(world->server), CD_StringContent(world->name), ##__VA_ARGS__)
+	server->logger.log(priority, "%s[%s]> " format, CD_ServerToString(world->server), CD_StringContent(world->name), ##__VA_ARGS__)
 
 #define WDEBUG(world, format, ...) WLOG(world, LOG_DEBUG, format, ##__VA_ARGS__)
 

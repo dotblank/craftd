@@ -29,33 +29,33 @@
 #include <craftd/common.h>
 
 typedef struct _CDListItem {
-    struct _CDListItem* next;
-    struct _CDListItem* prev;
+	struct _CDListItem* next;
+	struct _CDListItem* prev;
 
-    CDPointer value;
+	CDPointer value;
 } CDListItem;
 
 /**
  * The List class.
  */
 typedef struct _CDList {
-    CDListItem* head;
-    CDListItem* tail;
+	CDListItem* head;
+	CDListItem* tail;
 
-    size_t length;
-    bool   changed;
+	size_t length;
+	bool   changed;
 
-    pthread_rwlock_t lock;
+	pthread_rwlock_t lock;
 } CDList;
 
 typedef struct _CDListIterator {
-    CDListItem* raw;
-    CDList*     parent;
+	CDListItem* raw;
+	CDList*     parent;
 } CDListIterator;
 
 /* Sorting the list */
 typedef enum _CDListSortAlgorithm {
-    CDSortInsert
+	CDSortInsert
 } CDListSortAlgorithm;
 
 typedef int8_t (*CDListCompareCallback) (CDPointer a, CDPointer b);
@@ -240,14 +240,14 @@ bool CD_ListStopIterating (CDList* self, bool stop);
  * @parameter it The name of the iterator variable
  */
 #define CD_LIST_FOREACH(self, it)                                                   \
-    if (self && CD_ListLength(self) > 0 && CD_ListStartIterating(self))             \
-        for (CDListIterator it = CD_ListBegin(self), __end__ = CD_ListEnd(self);    \
-                                                                                    \
-        CD_ListStopIterating(self, !CD_ListIteratorIsEqual(it, __end__) && it.raw); \
-                                                                                    \
-        it = CD_ListNext(it))
+	if (self && CD_ListLength(self) > 0 && CD_ListStartIterating(self))             \
+		for (CDListIterator it = CD_ListBegin(self), __end__ = CD_ListEnd(self);    \
+									                                                \
+		CD_ListStopIterating(self, !CD_ListIteratorIsEqual(it, __end__) && it.raw); \
+									                                                \
+		it = CD_ListNext(it))
 
 #define CD_LIST_BREAK(self) \
-    CD_ListStopIterating(self, false); break
+	CD_ListStopIterating(self, false); break
 
 #endif

@@ -29,7 +29,7 @@
 #include <craftd/protocols/survival.h>
 
 static struct {
-    const char* seed;
+	const char* seed;
 } _config;
 
 #include "helpers.c"
@@ -38,67 +38,67 @@ static
 bool
 cdclassic_GenerateLevel (CDServer* server, SVWorld* world, const char* seed)
 {
-    if (seed == NULL) {
-        seed = _config.seed;
-    }
+	if (seed == NULL) {
+		seed = _config.seed;
+	}
 
-    world->spawnPosition = (SVBlockPosition) {
-        .x = 0,
-        .y = 120,
-        .z = 0
-    };
+	world->spawnPosition = (SVBlockPosition) {
+		.x = 0,
+		.y = 120,
+		.z = 0
+	};
 
-    return true;
+	return true;
 }
 
 static
 bool
 cdclassic_GenerateChunk (CDServer* server, SVWorld* world, int x, int z, SVChunk* data, const char* seed)
 {
-    memset(data, 0, sizeof(*data));
+	memset(data, 0, sizeof(*data));
 
-    if (seed == NULL) {
-        seed = _config.seed;
-    }
+	if (seed == NULL) {
+		seed = _config.seed;
+	}
 
-    cdclassic_GenerateHeightMap(data, x, z);
-    cdclassic_GenerateFilledChunk(data, x, z, SVStone);
-    cdclassic_DigCaves(data, x, z);
-    cdclassic_ErodeLandscape(data, x, z);
-    cdclassic_AddMinerals(data, x, z);
-    cdclassic_AddSediments(data, x, z);
-    cdclassic_FloodWithWater(data, x, z, 64);
-    cdclassic_BedrockGround(data, x, z);
-    cdclassic_GenerateSkyLight(data, x, z);
+	cdclassic_GenerateHeightMap(data, x, z);
+	cdclassic_GenerateFilledChunk(data, x, z, SVStone);
+	cdclassic_DigCaves(data, x, z);
+	cdclassic_ErodeLandscape(data, x, z);
+	cdclassic_AddMinerals(data, x, z);
+	cdclassic_AddSediments(data, x, z);
+	cdclassic_FloodWithWater(data, x, z, 64);
+	cdclassic_BedrockGround(data, x, z);
+	cdclassic_GenerateSkyLight(data, x, z);
 
-    return true;
+	return true;
 }
 
 extern
 bool
 CD_PluginInitialize (CDPlugin* self)
 {
-    self->description = CD_CreateStringFromCString("Classic Mapgen");
+	self->description = CD_CreateStringFromCString("Classic Mapgen");
 
-    DO { // Initiailize config cache
-        _config.seed = "^_^";
+	DO { // Initiailize config cache
+		_config.seed = "^_^";
 
-        C_SAVE(C_PATH(self->config, "seed"), C_STRING, _config.seed);
-    }
+		C_SAVE(C_PATH(self->config, "seed"), C_STRING, _config.seed);
+	}
 
 
-    CD_EventRegister(self->server, "Mapgen.level", cdclassic_GenerateLevel);
-    CD_EventRegister(self->server, "Mapgen.chunk", cdclassic_GenerateChunk);
+	CD_EventRegister(self->server, "Mapgen.level", cdclassic_GenerateLevel);
+	CD_EventRegister(self->server, "Mapgen.chunk", cdclassic_GenerateChunk);
 
-    return true;
+	return true;
 }
 
 extern
 bool
 CD_PluginFinalize (CDPlugin* self)
 {
-    CD_EventUnregister(self->server, "Mapgen.level", cdclassic_GenerateLevel);
-    CD_EventUnregister(self->server, "Mapgen.chunk", cdclassic_GenerateChunk);
+	CD_EventUnregister(self->server, "Mapgen.level", cdclassic_GenerateLevel);
+	CD_EventUnregister(self->server, "Mapgen.chunk", cdclassic_GenerateChunk);
 
-    return true;
+	return true;
 }

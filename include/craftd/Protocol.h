@@ -32,10 +32,10 @@ typedef bool  (*CDProtocolPacketParsable) (CDBuffers* buffers);
 typedef void* (*CDProtocolPacketParse)    (CDBuffers* buffers);
 
 typedef struct _CDProtocol {
-    CDString* name;
+	CDString* name;
 
-    CDProtocolPacketParsable parsable;
-    CDProtocolPacketParse    parse;
+	CDProtocolPacketParsable parsable;
+	CDProtocolPacketParse    parse;
 } CDProtocol;
 
 CDProtocol* CD_CreateProtocol (const char* name, CDProtocolPacketParsable parsable, CDProtocolPacketParse parse);

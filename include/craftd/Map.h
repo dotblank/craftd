@@ -37,17 +37,17 @@ typedef int64_t CDMapId;
  * The Map class
  */
 typedef struct _CDMap {
-    khash_t(cdMap)* raw;
+	khash_t(cdMap)* raw;
 
-    pthread_rwlock_t lock;
+	pthread_rwlock_t lock;
 } CDMap;
 
 /**
  * The Map iterator type
  */
 typedef struct _CDMapIterator {
-    khiter_t raw;
-    CDMap*   parent;
+	khiter_t raw;
+	CDMap*   parent;
 } CDMapIterator;
 
 /**
@@ -211,14 +211,14 @@ bool CD_MapStopIterating (CDMap* self, bool stop);
  * @parameter it The id of the iterator variable
  */
 #define CD_MAP_FOREACH(self, it)                                                \
-    if (self && CD_MapLength(self) > 0 && CD_MapStartIterating(self))           \
-        for (CDMapIterator it = CD_MapBegin(self), __end__ = CD_MapEnd(self);   \
-                                                                                \
-        CD_MapStopIterating(self, !CD_MapIteratorIsEqual(it, __end__));         \
-                                                                                \
-        it = CD_MapNext(it))
+	if (self && CD_MapLength(self) > 0 && CD_MapStartIterating(self))           \
+		for (CDMapIterator it = CD_MapBegin(self), __end__ = CD_MapEnd(self);   \
+									                                            \
+		CD_MapStopIterating(self, !CD_MapIteratorIsEqual(it, __end__));         \
+									                                            \
+		it = CD_MapNext(it))
 
 #define CD_MAP_BREAK(self) \
-    CD_MapStopIterating(self, false); break
+	CD_MapStopIterating(self, false); break
 
 #endif

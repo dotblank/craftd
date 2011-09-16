@@ -30,527 +30,527 @@ static
 int8_t
 cd_ListCompare (CDPointer a, CDPointer b)
 {
-    if (a > b) {
-        return 1;
-    }
-    else if (a < b) {
-        return -1;
-    }
-    else {
-        return 0;
-    }
+	if (a > b) {
+		return 1;
+	}
+	else if (a < b) {
+		return -1;
+	}
+	else {
+		return 0;
+	}
 }
 
 static
 CDListItem*
 cd_ListCreateItem (CDPointer data)
 {
-    CDListItem* item = (CDListItem*) CD_malloc(sizeof(CDListItem));
+	CDListItem* item = (CDListItem*) CD_malloc(sizeof(CDListItem));
 
-    item->next  = NULL;
-    item->prev  = NULL;
-    item->value = data;
+	item->next  = NULL;
+	item->prev  = NULL;
+	item->value = data;
 
-    return item;
+	return item;
 }
 
 static
 void
 cd_ListInsertSorted (CDList* self, CDPointer data, CDListCompareCallback callback)
 {
-    CDListItem* item = cd_ListCreateItem(data);
+	CDListItem* item = cd_ListCreateItem(data);
 
-    assert(self);
+	assert(self);
 
-    if (self->head == NULL) {
-        self->head = item;
-        self->tail = item;
-    }
-    else if (callback(data, self->head->value) <= 0) {
-        item->next       = self->head;
-        self->head->prev = item;
-        self->head       = item;
-    }
-    else {
-        CDListItem* walker = self->head;
+	if (self->head == NULL) {
+		self->head = item;
+		self->tail = item;
+	}
+	else if (callback(data, self->head->value) <= 0) {
+		item->next       = self->head;
+		self->head->prev = item;
+		self->head       = item;
+	}
+	else {
+		CDListItem* walker = self->head;
 
-        while (walker->next) {
-            if (callback(data, walker->next->value) <= 0) {
-                item->next = walker->next;
-                item->prev = walker;
-                walker->next->prev = item;
-                walker->next = item;
-                walker = NULL;
-                break;
-            }
+		while (walker->next) {
+			if (callback(data, walker->next->value) <= 0) {
+				item->next = walker->next;
+				item->prev = walker;
+				walker->next->prev = item;
+				walker->next = item;
+				walker = NULL;
+				break;
+			}
 
-            walker = walker->next;
-        }
+			walker = walker->next;
+		}
 
-        if (walker != NULL) {
-            item->prev = walker;
-            walker->next = item;
-        }
-    }
+		if (walker != NULL) {
+			item->prev = walker;
+			walker->next = item;
+		}
+	}
 
-    self->changed = true;
+	self->changed = true;
 }
 
 static
 void
 cd_ListSortInsert (CDList* self, CDListCompareCallback callback)
 {
-    CDListItem* walker = self->head;
+	CDListItem* walker = self->head;
 
-    self->head = NULL;
-    self->tail = NULL;
+	self->head = NULL;
+	self->tail = NULL;
 
-    while (walker) {
-        CDListItem* toDestroy = walker;
+	while (walker) {
+		CDListItem* toDestroy = walker;
 
-        cd_ListInsertSorted(self, walker->value, callback);
+		cd_ListInsertSorted(self, walker->value, callback);
 
-        walker = walker->next;
+		walker = walker->next;
 
-        CD_free(toDestroy);
-    }
+		CD_free(toDestroy);
+	}
 }
 
 static
 CDPointer
 cd_ListDelete (CDList* self, CDPointer data, CDListCompareCallback callback)
 {
-    CDPointer result = CDNull;
+	CDPointer result = CDNull;
 
-    assert(self);
+	assert(self);
 
-    if (!self->head) {
-        return CDNull;
-    }
+	if (!self->head) {
+		return CDNull;
+	}
 
-    if (callback(data, self->head->value) == 0) {
-        CDListItem* item = self->head;
-        result           = item->value;
-        self->head       = item->next;
+	if (callback(data, self->head->value) == 0) {
+		CDListItem* item = self->head;
+		result           = item->value;
+		self->head       = item->next;
 
-        if (self->head) {
-            self->head->prev = NULL;
-        }
+		if (self->head) {
+			self->head->prev = NULL;
+		}
 
-        self->changed = true;
+		self->changed = true;
 
-        CD_free(item);
-    }
-    else {
-        CDListItem* item = self->head;
+		CD_free(item);
+	}
+	else {
+		CDListItem* item = self->head;
 
-        while (item->next) {
-            if (callback(data, item->next->value) == 0) {
-               CDListItem* toDelete   = item->next;
-                           item->next = toDelete->next;
-                           result     = toDelete->value;
+		while (item->next) {
+			if (callback(data, item->next->value) == 0) {
+			   CDListItem* toDelete   = item->next;
+						   item->next = toDelete->next;
+						   result     = toDelete->value;
  
-                if (item->next) {
-                    item->next->prev = item;
-                }
+				if (item->next) {
+					item->next->prev = item;
+				}
 
-                CD_free(toDelete);
+				CD_free(toDelete);
 
-                self->changed = true;
+				self->changed = true;
 
-                break;
-            }
-            else {
-                item = item->next;
-            }
-        }
-    }
+				break;
+			}
+			else {
+				item = item->next;
+			}
+		}
+	}
 
-    return result;
+	return result;
 }
 
 CDList*
 CD_CreateList (void)
 {
-    CDList* self = CD_malloc(sizeof(CDList));
+	CDList* self = CD_malloc(sizeof(CDList));
 
-    self->head = NULL;
-    self->tail = NULL;
+	self->head = NULL;
+	self->tail = NULL;
 
-    self->changed = false;
-    self->length  = 0;
+	self->changed = false;
+	self->length  = 0;
 
-    if (pthread_rwlock_init(&self->lock, NULL) != 0) {
-        CD_abort("pthread rwlock failed to initialize");
-    }
+	if (pthread_rwlock_init(&self->lock, NULL) != 0) {
+		CD_abort("pthread rwlock failed to initialize");
+	}
 
-    return self;
+	return self;
 }
 
 CDList*
 CD_CloneList (CDList* self)
 {
-    CDList* cloned = CD_CreateList();
+	CDList* cloned = CD_CreateList();
 
-    assert(self);
+	assert(self);
 
-    CD_LIST_FOREACH(self, it) {
-        CD_ListPush(cloned, CD_ListIteratorValue(it));
-    }
+	CD_LIST_FOREACH(self, it) {
+		CD_ListPush(cloned, CD_ListIteratorValue(it));
+	}
 
-    return cloned;
+	return cloned;
 }
 
 void
 CD_DestroyList (CDList* self)
 {
-    assert(self);
+	assert(self);
 
-    // Is this neccesary, only when somebody is still reading/writing but that should already
-    // be stopped before you call this.
-    pthread_rwlock_wrlock(&self->lock);
+	// Is this neccesary, only when somebody is still reading/writing but that should already
+	// be stopped before you call this.
+	pthread_rwlock_wrlock(&self->lock);
 
-    while (self->head) {
-        CDListItem* next = self->head->next;
-        CD_free(self->head);
-        self->head = next;
-    }
+	while (self->head) {
+		CDListItem* next = self->head->next;
+		CD_free(self->head);
+		self->head = next;
+	}
 
-    self->tail = self->head = NULL;
+	self->tail = self->head = NULL;
 
-    pthread_rwlock_unlock(&self->lock);
-    pthread_rwlock_destroy(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_destroy(&self->lock);
 
-    CD_free(self);
+	CD_free(self);
 }
 
 CDListIterator
 CD_ListBegin (CDList* self)
 {
-    CDListIterator it;
+	CDListIterator it;
 
-    assert(self);
+	assert(self);
 
-    it.raw    = self->head;
-    it.parent = self;
+	it.raw    = self->head;
+	it.parent = self;
 
-    return it;
+	return it;
 }
 
 CDListIterator
 CD_ListEnd (CDList* self)
 {
-    CDListIterator it;
+	CDListIterator it;
 
-    assert(self);
+	assert(self);
 
-    it.raw    = CDNull;
-    it.parent = self;
+	it.raw    = CDNull;
+	it.parent = self;
 
-    return it;
+	return it;
 }
 
 CDListIterator
 CD_ListNext (CDListIterator it)
 {
-    if (it.raw != NULL) {
-        it.raw = it.raw->next;
-    }
+	if (it.raw != NULL) {
+		it.raw = it.raw->next;
+	}
 
-    return it;
+	return it;
 }
 
 CDListIterator
 CD_ListPrevious (CDListIterator it)
 {
-    if (it.raw != NULL) {
-        it.raw = it.raw->prev;
-    }
+	if (it.raw != NULL) {
+		it.raw = it.raw->prev;
+	}
 
-    return it;
+	return it;
 }
 
 size_t
 CD_ListLength (CDList* self)
 {
-    assert(self);
+	assert(self);
 
-    pthread_rwlock_rdlock(&self->lock);
-    if (self->changed) {
-        size_t      result = 0;
-        CDListItem* runner = self->head;
+	pthread_rwlock_rdlock(&self->lock);
+	if (self->changed) {
+		size_t      result = 0;
+		CDListItem* runner = self->head;
 
-        while (runner) {
-            result++;
-            runner = runner->next;
-        }
+		while (runner) {
+			result++;
+			runner = runner->next;
+		}
 
-        self->length  = result;
-        self->changed = false;
-    }
-    pthread_rwlock_unlock(&self->lock);
+		self->length  = result;
+		self->changed = false;
+	}
+	pthread_rwlock_unlock(&self->lock);
 
-    return self->length;
+	return self->length;
 }
 
 bool
 CD_ListIteratorIsEqual (CDListIterator a, CDListIterator b)
 {
-    return a.raw == b.raw && a.parent == b.parent;
+	return a.raw == b.raw && a.parent == b.parent;
 }
 
 
 CDPointer
 CD_ListIteratorValue (CDListIterator it)
 {
-    if (it.raw == NULL) {
-      return CDNull;
-    }
+	if (it.raw == NULL) {
+	  return CDNull;
+	}
 
-    return it.raw->value;
+	return it.raw->value;
 }
 
 CDList*
 CD_ListPush (CDList* self, CDPointer data)
 {
-    assert(self);
+	assert(self);
 
-    pthread_rwlock_wrlock(&self->lock);
+	pthread_rwlock_wrlock(&self->lock);
 
-    CDListItem* item = (CDListItem*) CD_malloc(sizeof(CDListItem));
+	CDListItem* item = (CDListItem*) CD_malloc(sizeof(CDListItem));
 
-    item->next  = NULL;
-    item->prev  = NULL;
-    item->value = data;
+	item->next  = NULL;
+	item->prev  = NULL;
+	item->value = data;
 
-    if (self->head == NULL) {
-        self->head = item;
-        self->tail = item;
-    }
-    else {
-        item->prev       = self->tail;
-        self->tail->next = item;
-        self->tail       = item;
-    }
+	if (self->head == NULL) {
+		self->head = item;
+		self->tail = item;
+	}
+	else {
+		item->prev       = self->tail;
+		self->tail->next = item;
+		self->tail       = item;
+	}
 
-    self->changed  = true;
+	self->changed  = true;
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return self;
+	return self;
 }
 
 CDList*
 CD_ListPushIf (CDList* self, CDPointer data, CDListCompareCallback callback)
 {
-    assert(self);
-    assert(callback);
+	assert(self);
+	assert(callback);
 
-    if (callback((CDPointer) self, data) != 0) {
-        return NULL;
-    }
+	if (callback((CDPointer) self, data) != 0) {
+		return NULL;
+	}
 
-    return CD_ListPush(self, data);
+	return CD_ListPush(self, data);
 }
 
 CDList*
 CD_ListSortedPush (CDList* self, CDPointer data, CDListCompareCallback callback)
 {
-    assert(self);
-    assert(callback);
+	assert(self);
+	assert(callback);
 
-    pthread_rwlock_wrlock(&self->lock);
+	pthread_rwlock_wrlock(&self->lock);
 
-    cd_ListInsertSorted(self, data, callback);
+	cd_ListInsertSorted(self, data, callback);
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return self;
+	return self;
 }
 
 CDPointer
 CD_ListShift (CDList* self)
 {
-    CDPointer result = CDNull;
+	CDPointer result = CDNull;
 
-    assert(self);
+	assert(self);
 
-    pthread_rwlock_wrlock(&self->lock);
+	pthread_rwlock_wrlock(&self->lock);
 
-    if (self->head == NULL) {
-        result = CDNull;
-    }
-    else {
-        result = cd_ListDelete(self, self->head->value, cd_ListCompare);
-    }
-    self->changed = true;
+	if (self->head == NULL) {
+		result = CDNull;
+	}
+	else {
+		result = cd_ListDelete(self, self->head->value, cd_ListCompare);
+	}
+	self->changed = true;
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return result;
+	return result;
 }
 
 CDPointer
 CD_ListFirst (CDList* self)
 {
-    CDPointer result = CDNull;
+	CDPointer result = CDNull;
 
-    assert(self);
+	assert(self);
 
-    pthread_rwlock_rdlock(&self->lock);
+	pthread_rwlock_rdlock(&self->lock);
 
-    if (self->head) {
-        result = self->head->value;
-    }
+	if (self->head) {
+		result = self->head->value;
+	}
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return result;
+	return result;
 }
 
 CDPointer
 CD_ListLast (CDList* self)
 {
-    CDPointer result = CDNull;
+	CDPointer result = CDNull;
 
-    assert(self);
+	assert(self);
 
-    pthread_rwlock_rdlock(&self->lock);
+	pthread_rwlock_rdlock(&self->lock);
 
-    if (self->tail) {
-      result = self->tail->value;
-    }
+	if (self->tail) {
+	  result = self->tail->value;
+	}
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return result;
+	return result;
 }
 
 CDList *
 CD_ListSort (CDList* self, CDListSortAlgorithm algorithm, CDListCompareCallback callback)
 {
-    pthread_rwlock_wrlock(&self->lock);
+	pthread_rwlock_wrlock(&self->lock);
 
-    switch (algorithm) {
-        case CDSortInsert: {
-            cd_ListSortInsert(self, callback);
-        } break;
-    }
+	switch (algorithm) {
+		case CDSortInsert: {
+			cd_ListSortInsert(self, callback);
+		} break;
+	}
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return self;
+	return self;
 }
 
 bool
 CD_ListIsEqual (CDList* a, CDList* b, CDListCompareCallback callback)
 {
-    if (CD_ListLength(a) != CD_ListLength(b)) {
-        return false;
-    }
+	if (CD_ListLength(a) != CD_ListLength(b)) {
+		return false;
+	}
 
-    bool result = true;
+	bool result = true;
 
-    pthread_rwlock_rdlock(&a->lock);
-    pthread_rwlock_rdlock(&b->lock);
+	pthread_rwlock_rdlock(&a->lock);
+	pthread_rwlock_rdlock(&b->lock);
 
-    CDListIterator aIterator = CD_ListBegin(a);
-    CDListIterator aEnd      = CD_ListEnd(a);
+	CDListIterator aIterator = CD_ListBegin(a);
+	CDListIterator aEnd      = CD_ListEnd(a);
 
-    CDListIterator bIterator = CD_ListBegin(b);
-    CDListIterator bEnd      = CD_ListEnd(b);
+	CDListIterator bIterator = CD_ListBegin(b);
+	CDListIterator bEnd      = CD_ListEnd(b);
 
-    while (!CD_ListIteratorIsEqual(aIterator, aEnd) && !CD_ListIteratorIsEqual(bIterator, bEnd)) {
-        if (callback(CD_ListIteratorValue(aIterator), CD_ListIteratorValue(bIterator)) != 0) {
-            result = false;
-            goto end;
-        }
+	while (!CD_ListIteratorIsEqual(aIterator, aEnd) && !CD_ListIteratorIsEqual(bIterator, bEnd)) {
+		if (callback(CD_ListIteratorValue(aIterator), CD_ListIteratorValue(bIterator)) != 0) {
+			result = false;
+			goto end;
+		}
 
-        aIterator = CD_ListNext(aIterator);
-        bIterator = CD_ListNext(bIterator);
-    }
+		aIterator = CD_ListNext(aIterator);
+		bIterator = CD_ListNext(bIterator);
+	}
 
-    end: {
-        pthread_rwlock_unlock(&b->lock);
-        pthread_rwlock_unlock(&a->lock);
+	end: {
+		pthread_rwlock_unlock(&b->lock);
+		pthread_rwlock_unlock(&a->lock);
 
-        return result;
-    }
+		return result;
+	}
 }
 
 CDPointer
 CD_ListDelete (CDList* self, CDPointer data)
 {
-    CDPointer result = CDNull;
+	CDPointer result = CDNull;
 
-    assert(self);
-    assert(data);
+	assert(self);
+	assert(data);
 
-    pthread_rwlock_wrlock(&self->lock);
+	pthread_rwlock_wrlock(&self->lock);
 
-    result = cd_ListDelete(self, data, cd_ListCompare);
+	result = cd_ListDelete(self, data, cd_ListCompare);
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return result;
+	return result;
 }
 
 CDPointer
 CD_ListDeleteIf (CDList* self, CDPointer data, CDListCompareCallback callback)
 {
-    CDPointer result = CDNull;
+	CDPointer result = CDNull;
 
-    assert(self);
-    assert(data);
+	assert(self);
+	assert(data);
 
-    pthread_rwlock_wrlock(&self->lock);
+	pthread_rwlock_wrlock(&self->lock);
 
-    result = cd_ListDelete(self, data, callback);
+	result = cd_ListDelete(self, data, callback);
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return result;
+	return result;
 }
 
 
 CDPointer
 CD_ListDeleteAll (CDList* self, CDPointer data)
 {
-    CDPointer result = CDNull;
+	CDPointer result = CDNull;
 
-    pthread_rwlock_wrlock(&self->lock);
+	pthread_rwlock_wrlock(&self->lock);
 
-    result = cd_ListDelete(self, data, cd_ListCompare);
+	result = cd_ListDelete(self, data, cd_ListCompare);
 
-    if (result) {
-        while (cd_ListDelete(self, data, cd_ListCompare) != CDNull ) {
-            continue;
-        }
-    }
+	if (result) {
+		while (cd_ListDelete(self, data, cd_ListCompare) != CDNull ) {
+			continue;
+		}
+	}
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return result;
+	return result;
 }
 
 CDPointer
 CD_ListDeleteAllIf (CDList* self, CDPointer data, CDListCompareCallback callback)
 {
-    CDPointer result = CDNull;
+	CDPointer result = CDNull;
 
-    pthread_rwlock_wrlock(&self->lock);
+	pthread_rwlock_wrlock(&self->lock);
 
-    result = cd_ListDelete(self, data, callback);
+	result = cd_ListDelete(self, data, callback);
 
-    if (result) {
-        while (cd_ListDelete(self, data, callback) != CDNull ) {
-            continue;
-        }
-    }
+	if (result) {
+		while (cd_ListDelete(self, data, callback) != CDNull ) {
+			continue;
+		}
+	}
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    return result;
+	return result;
 }
 
 
@@ -558,83 +558,83 @@ CD_ListDeleteAllIf (CDList* self, CDPointer data, CDListCompareCallback callback
 CDPointer*
 CD_ListClear (CDList* self)
 {
-    CDPointer* result = (CDPointer*) CD_malloc(sizeof(CDPointer) * (CD_ListLength(self) + 1));
-    size_t     i      = 0;
+	CDPointer* result = (CDPointer*) CD_malloc(sizeof(CDPointer) * (CD_ListLength(self) + 1));
+	size_t     i      = 0;
 
-    assert(self);
-    assert(result);
+	assert(self);
+	assert(result);
 
-    pthread_rwlock_wrlock(&self->lock);
+	pthread_rwlock_wrlock(&self->lock);
 
-    while (self->head) {
-        CDPointer value = result[i++] = self->head->value;
+	while (self->head) {
+		CDPointer value = result[i++] = self->head->value;
 
-        while ((value = cd_ListDelete(self, value, cd_ListCompare)) != CDNull ) {
-            continue;
-        }
-    }
+		while ((value = cd_ListDelete(self, value, cd_ListCompare)) != CDNull ) {
+			continue;
+		}
+	}
 
-    pthread_rwlock_unlock(&self->lock);
+	pthread_rwlock_unlock(&self->lock);
 
-    result[i] = CDNull;
+	result[i] = CDNull;
 
-    return result;
+	return result;
 }
 
 bool
 CD_ListStartIterating (CDList* self)
 {
-    assert(self);
+	assert(self);
 
-    pthread_rwlock_rdlock(&self->lock);
+	pthread_rwlock_rdlock(&self->lock);
 
-    return true;
+	return true;
 }
 
 bool
 CD_ListStopIterating (CDList* self, bool stop)
 {
-    assert(self);
+	assert(self);
 
-    if (!stop) {
-        pthread_rwlock_unlock(&self->lock);
-    }
+	if (!stop) {
+		pthread_rwlock_unlock(&self->lock);
+	}
 
-    return stop;
+	return stop;
 }
 
 bool
 CD_ListContains (CDList* self, CDPointer data)
 {
-    bool result = false;
+	bool result = false;
 
-    assert(self);
+	assert(self);
 
-    CD_LIST_FOREACH(self, it) {
-        if (CD_ListIteratorValue(it) == data) {
-            result = true;
+	CD_LIST_FOREACH(self, it) {
+		if (CD_ListIteratorValue(it) == data) {
+			result = true;
 
-            CD_LIST_BREAK(self);
-        }
-    }
+			CD_LIST_BREAK(self);
+		}
+	}
 
-    return result;
+	return result;
 }
 
 bool
 CD_ListContainsIf (CDList* self, CDPointer data, CDListCompareCallback callback)
 {
-    bool result = false;
+	bool result = false;
 
-    assert(self);
+	assert(self);
 
-    CD_LIST_FOREACH(self, it) {
-        if (callback(data, CD_ListIteratorValue(it)) == 0) {
-            result = true;
+	CD_LIST_FOREACH(self, it) {
+		if (callback(data, CD_ListIteratorValue(it)) == 0) {
+			result = true;
 
-            CD_LIST_BREAK(self);
-        }
-    }
+			CD_LIST_BREAK(self);
+		}
+	}
 
-    return result;
+	return result;
 }

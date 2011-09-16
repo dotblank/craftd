@@ -33,7 +33,7 @@
 #endif
 
 static struct {
-    pthread_mutex_t login;
+	pthread_mutex_t login;
 } _lock;
 
 #include "callbacks.c"
@@ -42,117 +42,117 @@ static
 void
 cdsurvival_TimeIncrease (void* _, void* __, CDServer* server)
 {
-    CDList* worlds = (CDList*) CD_DynamicGet(server, "World.list");
+	CDList* worlds = (CDList*) CD_DynamicGet(server, "World.list");
 
-    CD_LIST_FOREACH(worlds, it) {
-        SVWorld* world = (SVWorld*) CD_ListIteratorValue(it);
+	CD_LIST_FOREACH(worlds, it) {
+		SVWorld* world = (SVWorld*) CD_ListIteratorValue(it);
 
-        uint16_t current = SV_WorldGetTime(world);
+		uint16_t current = SV_WorldGetTime(world);
 
-        if (current >= 0 && current <= 11999) {
-            SV_WorldSetTime(world, current += world->config.cache.rate.day);
-        }
-        else if (current >= 12000 && current <= 13799) {
-            SV_WorldSetTime(world, current += world->config.cache.rate.sunset);
-        }
-        else if (current >= 13800 && current <= 22199) {
-            SV_WorldSetTime(world, current += world->config.cache.rate.night);
-        }
-        else if (current >= 22200 && current <= 23999) {
-            SV_WorldSetTime(world, current += world->config.cache.rate.sunrise);
-        }
+		if (current >= 0 && current <= 11999) {
+			SV_WorldSetTime(world, current += world->config.cache.rate.day);
+		}
+		else if (current >= 12000 && current <= 13799) {
+			SV_WorldSetTime(world, current += world->config.cache.rate.sunset);
+		}
+		else if (current >= 13800 && current <= 22199) {
+			SV_WorldSetTime(world, current += world->config.cache.rate.night);
+		}
+		else if (current >= 22200 && current <= 23999) {
+			SV_WorldSetTime(world, current += world->config.cache.rate.sunrise);
+		}
 
-        if (current >= 24000) {
-            SV_WorldSetTime(world, current - 24000);
-        }
-    }
+		if (current >= 24000) {
+			SV_WorldSetTime(world, current - 24000);
+		}
+	}
 }
 
 static
 void
 cdsurvival_TimeUpdate (void* _, void* __, CDServer* server)
 {
-    CDList* worlds = (CDList*) CD_DynamicGet(server, "World.list");
+	CDList* worlds = (CDList*) CD_DynamicGet(server, "World.list");
 
-    CD_LIST_FOREACH(worlds, it) {
-        SVWorld* world = (SVWorld*) CD_ListIteratorValue(it);
+	CD_LIST_FOREACH(worlds, it) {
+		SVWorld* world = (SVWorld*) CD_ListIteratorValue(it);
 
-        SVPacketTimeUpdate pkt = {
-            .response = {
-                .time = SV_WorldGetTime(world)
-            }
-        };
+		SVPacketTimeUpdate pkt = {
+			.response = {
+				.time = SV_WorldGetTime(world)
+			}
+		};
 
-        SVPacket packet = { SVResponse, SVTimeUpdate, (CDPointer) &pkt };
+		SVPacket packet = { SVResponse, SVTimeUpdate, (CDPointer) &pkt };
 
-        SV_WorldBroadcastPacket(world, &packet);
-    }
+		SV_WorldBroadcastPacket(world, &packet);
+	}
 }
 
 static
 void
 cdsurvival_KeepAlive (void* _, void* __, CDServer* server)
 {
-    SVPacketKeepAlive pkt;
-    pkt.keepAliveID = 0;
-    
-    SVPacket  packet = { SVResponse, SVKeepAlive, (CDPointer) &pkt };
-    CDBuffer* buffer = SV_PacketToBuffer(&packet);
+	SVPacketKeepAlive pkt;
+	pkt.keepAliveID = 0;
 
-    CD_LIST_FOREACH(server->clients, it) {
-        CD_ClientSendBuffer((CDClient*) CD_ListIteratorValue(it), buffer);
-    }
+	SVPacket  packet = { SVResponse, SVKeepAlive, (CDPointer) &pkt };
+	CDBuffer* buffer = SV_PacketToBuffer(&packet);
 
-    CD_DestroyBuffer(buffer);
+	CD_LIST_FOREACH(server->clients, it) {
+		CD_ClientSendBuffer((CDClient*) CD_ListIteratorValue(it), buffer);
+	}
+
+	CD_DestroyBuffer(buffer);
 }
 
 static
 bool
 cdsurvival_ServerStart (CDServer* server)
 {
-    CDPlugin* self = CD_GetPlugin(server->plugins, "survival.base");
+	CDPlugin* self = CD_GetPlugin(server->plugins, "survival.base");
 
-    CDList*  worlds       = CD_CreateList();
-    SVWorld* defaultWorld = NULL;
+	CDList*  worlds       = CD_CreateList();
+	SVWorld* defaultWorld = NULL;
 
-    C_FOREACH(world, C_PATH(server->config, "server.game.protocol.worlds")) {
-         if (C_TO_BOOL(C_GET(world, "default"))) {
-            defaultWorld = SV_CreateWorld(self->server, C_TO_STRING(C_GET(world, "name")));
-            break;
-        }
-    }
+	C_FOREACH(world, C_PATH(server->config, "server.game.protocol.worlds")) {
+		 if (C_TO_BOOL(C_GET(world, "default"))) {
+			defaultWorld = SV_CreateWorld(self->server, C_TO_STRING(C_GET(world, "name")));
+			break;
+		}
+	}
 
-    if (!defaultWorld) {
-        defaultWorld = SV_CreateWorld(self->server, "default");
-    }
+	if (!defaultWorld) {
+		defaultWorld = SV_CreateWorld(self->server, "default");
+	}
 
-    CD_ListPush(worlds, (CDPointer) defaultWorld);
+	CD_ListPush(worlds, (CDPointer) defaultWorld);
 
-    C_FOREACH(world, C_PATH(self->config, "server.game.protocol.worlds")) {
-         if (!C_TO_BOOL(C_GET(world, "default"))) {
-            CD_ListPush(worlds, (CDPointer) SV_CreateWorld(self->server, C_TO_STRING(C_GET(world, "name"))));
-        }
-    }
+	C_FOREACH(world, C_PATH(self->config, "server.game.protocol.worlds")) {
+		 if (!C_TO_BOOL(C_GET(world, "default"))) {
+			CD_ListPush(worlds, (CDPointer) SV_CreateWorld(self->server, C_TO_STRING(C_GET(world, "name"))));
+		}
+	}
 
-    CD_DynamicPut(self->server, "World.list", (CDPointer) worlds);
-    CD_DynamicPut(self->server, "World.default", (CDPointer) defaultWorld);
+	CD_DynamicPut(self->server, "World.list", (CDPointer) worlds);
+	CD_DynamicPut(self->server, "World.default", (CDPointer) defaultWorld);
 
-    return true;
+	return true;
 }
 
 static
 bool
 cdsurvival_ServerStop (CDServer* server)
 {
-    CD_DynamicDelete(server, "World.default");
+	CD_DynamicDelete(server, "World.default");
 
-    CDList* worlds = (CDList*) CD_DynamicDelete(server, "World.list");
+	CDList* worlds = (CDList*) CD_DynamicDelete(server, "World.list");
 
-    CD_LIST_FOREACH(worlds, it) {
-        SV_DestroyWorld((SVWorld*) CD_ListIteratorValue(it));
-    }
+	CD_LIST_FOREACH(worlds, it) {
+		SV_DestroyWorld((SVWorld*) CD_ListIteratorValue(it));
+	}
 
-    return true;
+	return true;
 }
 
 #ifdef HAVE_JSON
@@ -160,13 +160,13 @@ static
 bool
 cdsurvival_JSON (CDServer* server, json_t* input, json_t* output)
 {
-    char* text = json_dumps(input, JSON_INDENT(2));
+	char* text = json_dumps(input, JSON_INDENT(2));
 
-    SLOG(server, LOG_NOTICE, "%s", text);
+	SLOG(server, LOG_NOTICE, "%s", text);
 
-    free(text);
+	free(text);
 
-    return true;
+	return true;
 }
 #endif
 
@@ -174,76 +174,76 @@ static
 bool
 cdsurvival_PersistenceInitialized (CDServer* server, CDPlugin* persistence)
 {
-    return true;
+	return true;
 }
 
 extern
 bool
 CD_PluginInitialize (CDPlugin* self)
 {
-    self->description = CD_CreateStringFromCString("Minecraft Beta 1.4");
+	self->description = CD_CreateStringFromCString("Minecraft Beta 1.4");
 
-    CD_InitializeSurvivalProtocol(self->server);
+	CD_InitializeSurvivalProtocol(self->server);
 
-    pthread_mutex_init(&_lock.login, NULL);
+	pthread_mutex_init(&_lock.login, NULL);
 
-    CD_DynamicPut(self, "Event.timeIncrease", CD_SetInterval(self->server->timeloop, 1,  (event_callback_fn) cdsurvival_TimeIncrease, CDNull));
-    CD_DynamicPut(self, "Event.timeUpdate",   CD_SetInterval(self->server->timeloop, 30, (event_callback_fn) cdsurvival_TimeUpdate, CDNull));
-    CD_DynamicPut(self, "Event.keepAlive",    CD_SetInterval(self->server->timeloop, 10, (event_callback_fn) cdsurvival_KeepAlive, CDNull));
+	CD_DynamicPut(self, "Event.timeIncrease", CD_SetInterval(self->server->timeloop, 1,  (event_callback_fn) cdsurvival_TimeIncrease, CDNull));
+	CD_DynamicPut(self, "Event.timeUpdate",   CD_SetInterval(self->server->timeloop, 30, (event_callback_fn) cdsurvival_TimeUpdate, CDNull));
+	CD_DynamicPut(self, "Event.keepAlive",    CD_SetInterval(self->server->timeloop, 10, (event_callback_fn) cdsurvival_KeepAlive, CDNull));
 
-    #ifdef HAVE_JSON
-    CD_EventRegister(self->server, "RPC.JSON", cdsurvival_JSON);
-    #endif
+	#ifdef HAVE_JSON
+	CD_EventRegister(self->server, "RPC.JSON", cdsurvival_JSON);
+	#endif
 
-    CD_EventRegister(self->server, "Server.start!", cdsurvival_ServerStart);
-    CD_EventRegister(self->server, "Server.stop!", cdsurvival_ServerStop);
+	CD_EventRegister(self->server, "Server.start!", cdsurvival_ServerStart);
+	CD_EventRegister(self->server, "Server.stop!", cdsurvival_ServerStop);
 
-    CD_EventRegister(self->server, "Persistence.initialized", cdsurvival_PersistenceInitialized);
+	CD_EventRegister(self->server, "Persistence.initialized", cdsurvival_PersistenceInitialized);
 
-    CD_EventRegister(self->server, "Client.connect", cdsurvival_ClientConnect);
-    CD_EventRegister(self->server, "Client.process", cdsurvival_ClientProcess);
-    CD_EventRegister(self->server, "Client.processed", cdsurvival_ClientProcessed);
-    CD_EventRegister(self->server, "Player.login", cdsurvival_PlayerLogin);
-    CD_EventRegister(self->server, "Player.logout", cdsurvival_PlayerLogout);
-    CD_EventRegister(self->server, "Player.destroy", cdsurvival_PlayerDestroy);
-    CD_EventRegister(self->server, "Client.kick", cdsurvival_ClientKick);
-    CD_EventRegister(self->server, "Client.disconnect", (CDEventCallbackFunction) cdsurvival_ClientDisconnect);
+	CD_EventRegister(self->server, "Client.connect", cdsurvival_ClientConnect);
+	CD_EventRegister(self->server, "Client.process", cdsurvival_ClientProcess);
+	CD_EventRegister(self->server, "Client.processed", cdsurvival_ClientProcessed);
+	CD_EventRegister(self->server, "Player.login", cdsurvival_PlayerLogin);
+	CD_EventRegister(self->server, "Player.logout", cdsurvival_PlayerLogout);
+	CD_EventRegister(self->server, "Player.destroy", cdsurvival_PlayerDestroy);
+	CD_EventRegister(self->server, "Client.kick", cdsurvival_ClientKick);
+	CD_EventRegister(self->server, "Client.disconnect", (CDEventCallbackFunction) cdsurvival_ClientDisconnect);
 
-    CD_EventProvides(self->server, "Player.login", CD_CreateEventParameters("SVPlayer", "bool", NULL));
-    CD_EventProvides(self->server, "Player.logout", CD_CreateEventParameters("SVPlayer", "bool", NULL));
-    CD_EventProvides(self->server, "Player.chat", CD_CreateEventParameters("SVPlayer", "CDString", NULL));
+	CD_EventProvides(self->server, "Player.login", CD_CreateEventParameters("SVPlayer", "bool", NULL));
+	CD_EventProvides(self->server, "Player.logout", CD_CreateEventParameters("SVPlayer", "bool", NULL));
+	CD_EventProvides(self->server, "Player.chat", CD_CreateEventParameters("SVPlayer", "CDString", NULL));
 
 
-    return true;
+	return true;
 }
 
 extern
 bool
 CD_PluginFinalize (CDPlugin* self)
 {
-    CD_ClearInterval(self->server->timeloop, (int) CD_DynamicDelete(self, "Event.timeIncrease"));
-    CD_ClearInterval(self->server->timeloop, (int) CD_DynamicDelete(self, "Event.timeUpdate"));
-    CD_ClearInterval(self->server->timeloop, (int) CD_DynamicDelete(self, "Event.keepAlive"));
+	CD_ClearInterval(self->server->timeloop, (int) CD_DynamicDelete(self, "Event.timeIncrease"));
+	CD_ClearInterval(self->server->timeloop, (int) CD_DynamicDelete(self, "Event.timeUpdate"));
+	CD_ClearInterval(self->server->timeloop, (int) CD_DynamicDelete(self, "Event.keepAlive"));
 
-    #ifdef HAVE_JSON
-    CD_EventUnregister(self->server, "RPC.JSON", cdsurvival_JSON);
-    #endif
+	#ifdef HAVE_JSON
+	CD_EventUnregister(self->server, "RPC.JSON", cdsurvival_JSON);
+	#endif
 
-    CD_EventUnregister(self->server, "Server.start!", cdsurvival_ServerStart);
-    CD_EventUnregister(self->server, "Server.stop!", cdsurvival_ServerStop);
+	CD_EventUnregister(self->server, "Server.start!", cdsurvival_ServerStart);
+	CD_EventUnregister(self->server, "Server.stop!", cdsurvival_ServerStop);
 
-    CD_EventUnregister(self->server, "Persistence.initialized", cdsurvival_PersistenceInitialized);
+	CD_EventUnregister(self->server, "Persistence.initialized", cdsurvival_PersistenceInitialized);
 
-    CD_EventUnregister(self->server, "Client.connect", cdsurvival_ClientConnect);
-    CD_EventUnregister(self->server, "Client.process", cdsurvival_ClientProcess);
-    CD_EventUnregister(self->server, "Client.processed", cdsurvival_ClientProcessed);
-    CD_EventUnregister(self->server, "Player.login", cdsurvival_PlayerLogin);
-    CD_EventUnregister(self->server, "Player.logout", cdsurvival_PlayerLogout);
-    CD_EventUnregister(self->server, "Player.destroy", cdsurvival_PlayerDestroy);
-    CD_EventUnregister(self->server, "Client.kick", cdsurvival_ClientKick);
-    CD_EventUnregister(self->server, "Client.disconnect", (CDEventCallbackFunction) cdsurvival_ClientDisconnect);
+	CD_EventUnregister(self->server, "Client.connect", cdsurvival_ClientConnect);
+	CD_EventUnregister(self->server, "Client.process", cdsurvival_ClientProcess);
+	CD_EventUnregister(self->server, "Client.processed", cdsurvival_ClientProcessed);
+	CD_EventUnregister(self->server, "Player.login", cdsurvival_PlayerLogin);
+	CD_EventUnregister(self->server, "Player.logout", cdsurvival_PlayerLogout);
+	CD_EventUnregister(self->server, "Player.destroy", cdsurvival_PlayerDestroy);
+	CD_EventUnregister(self->server, "Client.kick", cdsurvival_ClientKick);
+	CD_EventUnregister(self->server, "Client.disconnect", (CDEventCallbackFunction) cdsurvival_ClientDisconnect);
 
-    pthread_mutex_destroy(&_lock.login);
+	pthread_mutex_destroy(&_lock.login);
 
-    return true;
+	return true;
 }

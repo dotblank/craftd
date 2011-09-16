@@ -29,7 +29,7 @@
 typedef int CDError;
 
 typedef enum _CDErrorType {
-    CDOk
+	CDOk
 } CDErrorType;
 
 #define CD_DEFINE_ERROR CDError _error;

@@ -37,9 +37,9 @@ static inline
 void
 CD_free (void* pointer)
 {
-    if (pointer) {
-        free(pointer);
-    }
+	if (pointer) {
+		free(pointer);
+	}
 }
 
 /**
@@ -54,13 +54,13 @@ static inline
 void*
 CD_calloc (size_t number, size_t size)
 {
-    void* pointer;
+	void* pointer;
 
-    if ((pointer = calloc(number, size)) == NULL && number > 0 && size > 0) {
-        CD_abort("could not allocate memory with a calloc");
-    }
+	if ((pointer = calloc(number, size)) == NULL && number > 0 && size > 0) {
+		CD_abort("could not allocate memory with a calloc");
+	}
 
-    return pointer;
+	return pointer;
 }
 
 /**
@@ -74,13 +74,13 @@ static inline
 void*
 CD_malloc (size_t size)
 {
-    void* pointer;
+	void* pointer;
 
-    if ((pointer = malloc(size)) == NULL) {
-        CD_abort("could not allocate memory with a malloc");
-    }
+	if ((pointer = malloc(size)) == NULL) {
+		CD_abort("could not allocate memory with a malloc");
+	}
 
-    return pointer;
+	return pointer;
 }
 
 /**
@@ -90,13 +90,13 @@ static inline
 void*
 CD_alloc (size_t size)
 {
-    void* pointer = CD_malloc(size);
+	void* pointer = CD_malloc(size);
 
-    if (pointer) {
-        memset(pointer, 0, size);
-    }
+	if (pointer) {
+		memset(pointer, 0, size);
+	}
 
-    return pointer;
+	return pointer;
 }
 
 /**
@@ -111,23 +111,23 @@ static inline
 void*
 CD_realloc (void* pointer, size_t size)
 {
-    void* newPointer;
+	void* newPointer;
 
-    if (pointer == NULL) {
-        return CD_malloc(size);
-    }
+	if (pointer == NULL) {
+		return CD_malloc(size);
+	}
 
-    if (size == 0) {
-        CD_free(pointer);
+	if (size == 0) {
+		CD_free(pointer);
 
-        return NULL;
-    }
+		return NULL;
+	}
 
-    if ((newPointer = realloc(pointer, size)) == NULL) {
-      CD_abort("could not allocate memory with a realloc");
-    }
+	if ((newPointer = realloc(pointer, size)) == NULL) {
+	  CD_abort("could not allocate memory with a realloc");
+	}
 
-    return newPointer;
+	return newPointer;
 }
 
 #endif

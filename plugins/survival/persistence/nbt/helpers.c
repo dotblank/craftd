@@ -27,115 +27,115 @@ static
 bool
 cdnbt_ValidLevel (nbt_node* root)
 {
-    static char*    names[] = { ".Data.Time", ".Data.SpawnX", ".Data.SpawnY", ".Data.SpawnZ" };
-    static nbt_type types[] = { TAG_LONG,     TAG_INT,        TAG_INT,        TAG_INT };
+	static char*    names[] = { ".Data.Time", ".Data.SpawnX", ".Data.SpawnY", ".Data.SpawnZ" };
+	static nbt_type types[] = { TAG_LONG,     TAG_INT,        TAG_INT,        TAG_INT };
 
-    nbt_node* node;
+	nbt_node* node;
 
-    for (size_t i = 0; i < ARRAY_SIZE(names); i++) {
-        if ((node = nbt_find_by_path(root, names[i])) == NULL || node->type != types[i]) {
-            return false;
-        }
-    }
+	for (size_t i = 0; i < ARRAY_SIZE(names); i++) {
+		if ((node = nbt_find_by_path(root, names[i])) == NULL || node->type != types[i]) {
+			return false;
+		}
+	}
 
-    return true;
+	return true;
 }
 
 static
 bool
 cdnbt_ValidChunk (nbt_node* root)
 {
-    static char*  names[] = { ".Level.HeightMap", ".Level.Blocks", ".Level.Data", ".Level.BlockLight", ".Level.SkyLight" };
-    static size_t sizes[] = { 256,                32768,           16384,         16384,               16384 };
+	static char*  names[] = { ".Level.HeightMap", ".Level.Blocks", ".Level.Data", ".Level.BlockLight", ".Level.SkyLight" };
+	static size_t sizes[] = { 256,                32768,           16384,         16384,               16384 };
 
-    nbt_node* node;
+	nbt_node* node;
 
-    for (size_t i = 0; i < ARRAY_SIZE(names); i++) {
-        if ((node = nbt_find_by_path(root, names[i])) == NULL || node->type != TAG_BYTE_ARRAY || node->payload.tag_byte_array.length != sizes[i]) {
-            return false;
-        }
-    }
+	for (size_t i = 0; i < ARRAY_SIZE(names); i++) {
+		if ((node = nbt_find_by_path(root, names[i])) == NULL || node->type != TAG_BYTE_ARRAY || node->payload.tag_byte_array.length != sizes[i]) {
+			return false;
+		}
+	}
 
-    return true;
+	return true;
 }
 
 static
 CDString*
 cdnbt_ChunkPath (SVWorld* world, int x, int z)
 {
-    // Chunk directory and subdir location
-    char directory1[8];
-    char directory2[8];
+	// Chunk directory and subdir location
+	char directory1[8];
+	char directory2[8];
 
-    itoa((x & 63), directory1, _config.base);
-    itoa((z & 63), directory2, _config.base);
+	itoa((x & 63), directory1, _config.base);
+	itoa((z & 63), directory2, _config.base);
 
-    // Chunk file name
-    char chunkName1[8];
-    char chunkName2[8];
+	// Chunk file name
+	char chunkName1[8];
+	char chunkName2[8];
 
-    itoa(x, chunkName1, _config.base);
-    itoa(z, chunkName2, _config.base);
+	itoa(x, chunkName1, _config.base);
+	itoa(z, chunkName2, _config.base);
 
-    return CD_CreateStringFromFormat("%s/%s/%s/%s/c.%s.%s.dat",
-        _config.path, CD_StringContent(world->name),
-        directory1, directory2,
-        chunkName1, chunkName2
-    );
+	return CD_CreateStringFromFormat("%s/%s/%s/%s/c.%s.%s.dat",
+		_config.path, CD_StringContent(world->name),
+		directory1, directory2,
+		chunkName1, chunkName2
+	);
 }
 
 static
 CDError
 cdnbt_GenerateChunk (SVWorld* world, int x, int z, SVChunk* chunk, const char* seed)
 {
-    CDError   status;
-    CDString* chunkPath = cdnbt_ChunkPath(world, x, z);
-    CDString* directory = CD_StringDirname(chunkPath);
+	CDError   status;
+	CDString* chunkPath = cdnbt_ChunkPath(world, x, z);
+	CDString* directory = CD_StringDirname(chunkPath);
 
-    CD_mkdir(CD_StringContent(directory), 0755);
+	CD_mkdir(CD_StringContent(directory), 0755);
 
-    CD_EventDispatchWithError(status, world->server, "Mapgen.chunk", world, x, z, chunk, seed);
+	CD_EventDispatchWithError(status, world->server, "Mapgen.chunk", world, x, z, chunk, seed);
 
-    // TODO: save the generated chunk
+	// TODO: save the generated chunk
 
-    end: {
-        CD_DestroyString(chunkPath);
-        CD_DestroyString(directory);
-    }
+	end: {
+		CD_DestroyString(chunkPath);
+		CD_DestroyString(directory);
+	}
 
-    return status;
+	return status;
 }
 
 static
 int8_t
 cdnbt_ObjectNotWatched (CDList* self, CDPointer data)
 {
-    int8_t result = 0;
+	int8_t result = 0;
 
-    CD_LIST_FOREACH(self, it) {
-        if (data == CD_ListIteratorValue(it)) {
-            result = 1;
+	CD_LIST_FOREACH(self, it) {
+		if (data == CD_ListIteratorValue(it)) {
+			result = 1;
 
-            CD_LIST_BREAK(self);
-        }
-    }
+			CD_LIST_BREAK(self);
+		}
+	}
 
-    return result;
+	return result;
 }
 
 static
 int8_t
 cdnbt_NameNotObserved (CDList* self, CDPointer data)
 {
-    int8_t result = 0;
+	int8_t result = 0;
 
-    CD_LIST_FOREACH(self, it) {
-        if (CD_CStringIsEqual((char*) data, (char*) CD_ListIteratorValue(it))) {
-            result = 1;
+	CD_LIST_FOREACH(self, it) {
+		if (CD_CStringIsEqual((char*) data, (char*) CD_ListIteratorValue(it))) {
+			result = 1;
 
-            CD_LIST_BREAK(self);
-        }
-    }
+			CD_LIST_BREAK(self);
+		}
+	}
 
-    return result;
+	return result;
 }

@@ -24,78 +24,78 @@
  */
 
 #define CD_ADMIN_AUTH_USAGE \
-    "Usage: /auth [name] <password>\n" \
-    "   name          If omitted Player's username is used\n" \
-    "   password    Password to login"
+	"Usage: /auth [name] <password>\n" \
+	"   name          If omitted Player's username is used\n" \
+	"   password    Password to login"
 
 
 if (CD_StringIsEqual(matches->item[1], "auth")) {
-    if (!matches->item[2]) {
-        cdadmin_SendUsage(player, CD_ADMIN_AUTH_USAGE);
+	if (!matches->item[2]) {
+		cdadmin_SendUsage(player, CD_ADMIN_AUTH_USAGE);
 
-        goto done;
-    }
+		goto done;
+	}
 
-    DO {
-        CDRegexpMatches* old = matches;
-        matches = CD_RegexpMatch(regexp, old->item[2]);
-        CD_DestroyRegexpMatches(old);
-    }
+	DO {
+		CDRegexpMatches* old = matches;
+		matches = CD_RegexpMatch(regexp, old->item[2]);
+		CD_DestroyRegexpMatches(old);
+	}
 
-    DO {
-        const char* currentName     = NULL;
-        const char* currentPassword = NULL;
-        const char* name            = NULL;
-        const char* password        = NULL;
-        const char* level           = NULL;
-              bool  authorized      = false;
+	DO {
+		const char* currentName     = NULL;
+		const char* currentPassword = NULL;
+		const char* name            = NULL;
+		const char* password        = NULL;
+		const char* level           = NULL;
+			  bool  authorized      = false;
 
-        if (matches->item[2]) {
-            currentName     = CD_StringContent(matches->item[1]);
-            currentPassword = CD_StringContent(matches->item[2]);
-        }
-        else {
-            currentName     = CD_StringContent(player->username);
-            currentPassword = CD_StringContent(matches->item[1]);
-        }
+		if (matches->item[2]) {
+			currentName     = CD_StringContent(matches->item[1]);
+			currentPassword = CD_StringContent(matches->item[2]);
+		}
+		else {
+			currentName     = CD_StringContent(player->username);
+			currentPassword = CD_StringContent(matches->item[1]);
+		}
 
-        J_DO {
-            J_IN(server, player->client->server->config->data, "server") {
-                J_IN(plugin, server, "plugin") {
-                    J_FOREACH(plugin, plugin, "plugins") {
-                        J_IF_STRING(plugin, "name") {
-                            if (CD_CStringIsEqual(J_STRING_VALUE, "admin")) {
-                                J_FOREACH(auth, plugin, "authorizations") {
-                                    J_STRING(auth, "name", name);
-                                    J_STRING(auth, "password", password);
-                                    J_STRING(auth, "level", level);
+		J_DO {
+			J_IN(server, player->client->server->config->data, "server") {
+				J_IN(plugin, server, "plugin") {
+					J_FOREACH(plugin, plugin, "plugins") {
+						J_IF_STRING(plugin, "name") {
+							if (CD_CStringIsEqual(J_STRING_VALUE, "admin")) {
+							    J_FOREACH(auth, plugin, "authorizations") {
+							        J_STRING(auth, "name", name);
+							        J_STRING(auth, "password", password);
+							        J_STRING(auth, "level", level);
 
-                                    if (CD_CStringIsEqual(currentName, name) && CD_CStringIsEqual(currentPassword, password)) {
-                                        cdadmin_SetPlayerAuthLevel(player, level);
+							        if (CD_CStringIsEqual(currentName, name) && CD_CStringIsEqual(currentPassword, password)) {
+							            cdadmin_SetPlayerAuthLevel(player, level);
 
-                                        cdadmin_SendSuccess(player, CD_CreateStringFromFormat(
-                                            "Authorized as %s with level %s", name, level
-                                        ));
+							            cdadmin_SendSuccess(player, CD_CreateStringFromFormat(
+							                "Authorized as %s with level %s", name, level
+							            ));
 
-                                        authorized = true;
+							            authorized = true;
 
-                                        break;
-                                    }
-                                }
+							            break;
+							        }
+							    }
 
-                                if (!authorized) {
-                                    cdadmin_SendFailure(player, CD_CreateStringFromFormat(
-                                        "Failed to authorize as %s", currentName));
-                                }
+							    if (!authorized) {
+							        cdadmin_SendFailure(player, CD_CreateStringFromFormat(
+							            "Failed to authorize as %s", currentName));
+							    }
 
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+							    break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-    goto done;
+	goto done;
 }

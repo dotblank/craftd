@@ -37,537 +37,537 @@ static
 void
 cdtest_String_fromBuffer (void* data)
 {
-    const char* test   = "lol wut";
-    CDString*   string = CD_CreateStringFromBuffer(test, 3);
+	const char* test   = "lol wut";
+	CDString*   string = CD_CreateStringFromBuffer(test, 3);
 
-    tt_int_op(CD_StringLength(string), ==, 3);
+	tt_int_op(CD_StringLength(string), ==, 3);
 
-    end: {
-        CD_DestroyString(string);
-    }
+	end: {
+		CD_DestroyString(string);
+	}
 }
 
 static struct testcase_t cd_utils_String_tests[] = {
-    { "fromBuffer", cdtest_String_fromBuffer, },
+	{ "fromBuffer", cdtest_String_fromBuffer, },
 
-    END_OF_TESTCASES
+	END_OF_TESTCASES
 };
 
 static
 void
 cdtest_String_UTF8_length (void* data)
 {
-    CDString* test = CD_CreateStringFromCString("Æ§Ð");
+	CDString* test = CD_CreateStringFromCString("Æ§Ð");
 
-    tt_int_op(CD_StringLength(test), ==, 3);
-    tt_int_op(CD_StringSize(test), ==, 6);
+	tt_int_op(CD_StringLength(test), ==, 3);
+	tt_int_op(CD_StringSize(test), ==, 6);
 
-    end: {
-        CD_DestroyString(test);
-    }
+	end: {
+		CD_DestroyString(test);
+	}
 }
 
 static
 void
 cdtest_String_UTF8_charAt (void* data)
 {
-    CDString* test = CD_CreateStringFromCString("Æ§Ð");
-    CDString* ch   = CD_CharAt(test, 1);
+	CDString* test = CD_CreateStringFromCString("Æ§Ð");
+	CDString* ch   = CD_CharAt(test, 1);
 
-    tt_assert(CD_StringIsEqual(ch, "§"));
+	tt_assert(CD_StringIsEqual(ch, "§"));
 
-    end: {
-        CD_DestroyString(test);
-        CD_DestroyString(ch);
-    }
+	end: {
+		CD_DestroyString(test);
+		CD_DestroyString(ch);
+	}
 }
 
 static struct testcase_t cd_utils_String_UTF8_tests[] = {
-    { "length", cdtest_String_UTF8_length, },
-    { "charAt", cdtest_String_UTF8_charAt, },
+	{ "length", cdtest_String_UTF8_length, },
+	{ "charAt", cdtest_String_UTF8_charAt, },
 
-    END_OF_TESTCASES
+	END_OF_TESTCASES
 };
 
 static
 void
 cdtest_String_Minecraft_sanitize (void* data)
 {
-    CDString* string    = CD_CreateStringFromCString("æßðđ¼½¬²³æðđ]}»”¢“}¹²³þæßł@»ł”##æðþŋŋŋ§2ŋŋŋł€¶®ÐJª§&<©>‘ŁØ&ØΩ§3");
-    CDString* sanitized = SV_StringSanitize(string);
+	CDString* string    = CD_CreateStringFromCString("æßðđ¼½¬²³æðđ]}»”¢“}¹²³þæßł@»ł”##æðþŋŋŋ§2ŋŋŋł€¶®ÐJª§&<©>‘ŁØ&ØΩ§3");
+	CDString* sanitized = SV_StringSanitize(string);
 
-    tt_assert(CD_StringIsEqual(sanitized, "æ???¼½¬??æ??]}»???}????æ??@»??##æ?????§2??????®?Jª§&<?>??Ø&Ø?"));
+	tt_assert(CD_StringIsEqual(sanitized, "æ???¼½¬??æ??]}»???}????æ??@»??##æ?????§2??????®?Jª§&<?>??Ø&Ø?"));
 
-    end: {
-        CD_DestroyString(string);
-        CD_DestroyString(sanitized);
-    }
+	end: {
+		CD_DestroyString(string);
+		CD_DestroyString(sanitized);
+	}
 }
 
 static
 void
 cdtest_String_Minecraft_valid (void* data)
 {
-    CDString* invalid = CD_CreateStringFromCString("æßðđ¼½¬²³æðđ]}»”¢“}¹²³þæßł@»ł”##æðþŋŋŋ§2ŋŋŋł€¶®ÐJª§&<©>‘ŁØ&ØΩ§3");
-    CDString* valid   = CD_CreateStringFromCString("æ???¼½¬??æ??]}»???}????æ??@»??##æ?????§2??????®?Jª§&<?>??Ø&Ø?");
+	CDString* invalid = CD_CreateStringFromCString("æßðđ¼½¬²³æðđ]}»”¢“}¹²³þæßł@»ł”##æðþŋŋŋ§2ŋŋŋł€¶®ÐJª§&<©>‘ŁØ&ØΩ§3");
+	CDString* valid   = CD_CreateStringFromCString("æ???¼½¬??æ??]}»???}????æ??@»??##æ?????§2??????®?Jª§&<?>??Ø&Ø?");
 
-    tt_assert(SV_StringIsValid(invalid) == false);
-    tt_assert(SV_StringIsValid(valid) == true);
+	tt_assert(SV_StringIsValid(invalid) == false);
+	tt_assert(SV_StringIsValid(valid) == true);
 
-    end: {
-        CD_DestroyString(invalid);
-        CD_DestroyString(valid);
-    }
+	end: {
+		CD_DestroyString(invalid);
+		CD_DestroyString(valid);
+	}
 }
 
 static struct testcase_t cd_utils_String_Minecraft_tests[] = {
-    { "sanitize", cdtest_String_Minecraft_sanitize, },
-    { "valid",    cdtest_String_Minecraft_valid, },
+	{ "sanitize", cdtest_String_Minecraft_sanitize, },
+	{ "valid",    cdtest_String_Minecraft_valid, },
 
-    END_OF_TESTCASES
+	END_OF_TESTCASES
 };
 
 static
 void
 cdtest_Hash_put (void* data)
 {
-    CDHash* hash = CD_CreateHash();
+	CDHash* hash = CD_CreateHash();
 
-    CD_HashPut(hash, "lol", 2);
+	CD_HashPut(hash, "lol", 2);
 
-    tt_int_op((int) CD_HashGet(hash, "lol"), ==, 2);
+	tt_int_op((int) CD_HashGet(hash, "lol"), ==, 2);
 
-    end: {
-        CD_DestroyHash(hash);
-    }
+	end: {
+		CD_DestroyHash(hash);
+	}
 }
 
 static
 void
 cdtest_Hash_foreach (void* data)
 {
-    CDHash* hash = CD_CreateHash();
+	CDHash* hash = CD_CreateHash();
 
-    CD_HashPut(hash, "lol", 1);
-    CD_HashPut(hash, "omg", 2);
-    CD_HashPut(hash, "wat", 3);
-    CD_HashPut(hash, "win", 4);
+	CD_HashPut(hash, "lol", 1);
+	CD_HashPut(hash, "omg", 2);
+	CD_HashPut(hash, "wat", 3);
+	CD_HashPut(hash, "win", 4);
 
-    CD_HASH_FOREACH(hash, it) {
-        if (CD_CStringIsEqual("lol", CD_HashIteratorKey(it))) {
-            tt_int_op((int) CD_HashIteratorValue(it), ==, 1);
-        }
-        else if (CD_CStringIsEqual("omg", CD_HashIteratorKey(it))) {
-            tt_int_op((int) CD_HashIteratorValue(it), ==, 2);
-        }
-        else if (CD_CStringIsEqual("wat", CD_HashIteratorKey(it))) {
-            tt_int_op((int) CD_HashIteratorValue(it), ==, 3);
-        }
-        else if (CD_CStringIsEqual("win", CD_HashIteratorKey(it))) {
-            tt_int_op((int) CD_HashIteratorValue(it), ==, 4);
-        }
-        else {
-            tt_abort_msg("Unknown hash key");
-        }
-    }
+	CD_HASH_FOREACH(hash, it) {
+		if (CD_CStringIsEqual("lol", CD_HashIteratorKey(it))) {
+			tt_int_op((int) CD_HashIteratorValue(it), ==, 1);
+		}
+		else if (CD_CStringIsEqual("omg", CD_HashIteratorKey(it))) {
+			tt_int_op((int) CD_HashIteratorValue(it), ==, 2);
+		}
+		else if (CD_CStringIsEqual("wat", CD_HashIteratorKey(it))) {
+			tt_int_op((int) CD_HashIteratorValue(it), ==, 3);
+		}
+		else if (CD_CStringIsEqual("win", CD_HashIteratorKey(it))) {
+			tt_int_op((int) CD_HashIteratorValue(it), ==, 4);
+		}
+		else {
+			tt_abort_msg("Unknown hash key");
+		}
+	}
 
-    end: {
-        CD_DestroyHash(hash);
-    }
+	end: {
+		CD_DestroyHash(hash);
+	}
 }
 
 static struct testcase_t cd_utils_Hash_tests[] = {
-    { "put", cdtest_Hash_put, },
-    { "foreach", cdtest_Hash_foreach, },
+	{ "put", cdtest_Hash_put, },
+	{ "foreach", cdtest_Hash_foreach, },
 
-    END_OF_TESTCASES
+	END_OF_TESTCASES
 };
 
 static
 void
 cdtest_Map_put (void* data)
 {
-    CDMap* map = CD_CreateMap();
+	CDMap* map = CD_CreateMap();
 
-    CD_MapPut(map, 9001, 2);
+	CD_MapPut(map, 9001, 2);
 
-    tt_int_op((int) CD_MapGet(map, 9001), ==, 2);
+	tt_int_op((int) CD_MapGet(map, 9001), ==, 2);
 
-    end: {
-        CD_DestroyMap(map);
-    }
+	end: {
+		CD_DestroyMap(map);
+	}
 }
 
 static
 void
 cdtest_Map_foreach (void* data)
 {
-    CDMap* map = CD_CreateMap();
+	CDMap* map = CD_CreateMap();
 
-    CD_MapPut(map, 23, 1);
-    CD_MapPut(map, 42, 2);
-    CD_MapPut(map, 9001, 3);
-    CD_MapPut(map, 911, 4);
+	CD_MapPut(map, 23, 1);
+	CD_MapPut(map, 42, 2);
+	CD_MapPut(map, 9001, 3);
+	CD_MapPut(map, 911, 4);
 
-    CD_MAP_FOREACH(map, it) {
-        if (CD_MapIteratorKey(it) == 23) {
-            tt_int_op((int) CD_MapIteratorValue(it), ==, 1);
-        }
-        else if (CD_MapIteratorKey(it) == 42) {
-            tt_int_op((int) CD_MapIteratorValue(it), ==, 2);
-        }
-        else if (CD_MapIteratorKey(it) == 9001) {
-            tt_int_op((int) CD_MapIteratorValue(it), ==, 3);
-        }
-        else if (CD_MapIteratorKey(it) == 911) {
-            tt_int_op((int) CD_MapIteratorValue(it), ==, 4);
-        }
-        else {
-            tt_abort_msg("Unknown map key");
-        }
-    }
+	CD_MAP_FOREACH(map, it) {
+		if (CD_MapIteratorKey(it) == 23) {
+			tt_int_op((int) CD_MapIteratorValue(it), ==, 1);
+		}
+		else if (CD_MapIteratorKey(it) == 42) {
+			tt_int_op((int) CD_MapIteratorValue(it), ==, 2);
+		}
+		else if (CD_MapIteratorKey(it) == 9001) {
+			tt_int_op((int) CD_MapIteratorValue(it), ==, 3);
+		}
+		else if (CD_MapIteratorKey(it) == 911) {
+			tt_int_op((int) CD_MapIteratorValue(it), ==, 4);
+		}
+		else {
+			tt_abort_msg("Unknown map key");
+		}
+	}
 
-    end: {
-        CD_DestroyMap(map);
-    }
+	end: {
+		CD_DestroyMap(map);
+	}
 }
 
 static struct testcase_t cd_utils_Map_tests[] = {
-    { "put", cdtest_Map_put, },
-    { "foreach", cdtest_Map_foreach, },
+	{ "put", cdtest_Map_put, },
+	{ "foreach", cdtest_Map_foreach, },
 
-    END_OF_TESTCASES
+	END_OF_TESTCASES
 };
 
 static
 void
 cdtest_List_push (void* data)
 {
-    CDList* list = CD_CreateList();
+	CDList* list = CD_CreateList();
 
-    CD_ListPush(list, 42);
+	CD_ListPush(list, 42);
 
-    tt_int_op(CD_ListShift(list), ==, 42);
+	tt_int_op(CD_ListShift(list), ==, 42);
 
-    end: {
-        CD_DestroyList(list);
-    }
+	end: {
+		CD_DestroyList(list);
+	}
 }
 
 static
 int8_t cdtest_ListNot42 (CDList* self, int data)
 {
-    if (data == 42) {
-        return 1;
-    }
+	if (data == 42) {
+		return 1;
+	}
 
-    return 0;
+	return 0;
 }
 
 static
 void
 cdtest_List_pushIf (void* data)
 {
-    CDList* list = CD_CreateList();
+	CDList* list = CD_CreateList();
 
-    CD_ListPushIf(list, 42, (CDListCompareCallback) cdtest_ListNot42);
-    CD_ListPushIf(list, 23, (CDListCompareCallback) cdtest_ListNot42);
+	CD_ListPushIf(list, 42, (CDListCompareCallback) cdtest_ListNot42);
+	CD_ListPushIf(list, 23, (CDListCompareCallback) cdtest_ListNot42);
 
-    tt_int_op(CD_ListLength(list), ==, 1);
+	tt_int_op(CD_ListLength(list), ==, 1);
 
-    end: {
-        CD_DestroyList(list);
-    }
+	end: {
+		CD_DestroyList(list);
+	}
 }
 
 static
 void
 cdtest_List_foreach (void* data)
 {
-    CDList* list  = CD_CreateList();
-    int     total = 0;
+	CDList* list  = CD_CreateList();
+	int     total = 0;
 
-    CD_ListPush(list, 23);
-    CD_ListPush(list, 42);
-    CD_ListPush(list, 9001);
-    CD_ListPush(list, 911);
+	CD_ListPush(list, 23);
+	CD_ListPush(list, 42);
+	CD_ListPush(list, 9001);
+	CD_ListPush(list, 911);
 
-    CD_LIST_FOREACH(list, it) {
-        switch (CD_ListIteratorValue(it)) {
-            case 23: case 42: case 9001: case 911: total += CD_ListIteratorValue(it); break;
+	CD_LIST_FOREACH(list, it) {
+		switch (CD_ListIteratorValue(it)) {
+			case 23: case 42: case 9001: case 911: total += CD_ListIteratorValue(it); break;
 
-            default: {
-                tt_abort_msg("Unknown value in list");
-            }
-        }
-    }
+			default: {
+				tt_abort_msg("Unknown value in list");
+			}
+		}
+	}
 
-    tt_int_op(total, ==, 23 + 42 + 9001 + 911);
+	tt_int_op(total, ==, 23 + 42 + 9001 + 911);
 
-    end: {
-        CD_DestroyList(list);
-    }
+	end: {
+		CD_DestroyList(list);
+	}
 }
 
 static
 void
 cdtest_List_clear (void* data)
 {
-    CDList* list = CD_CreateList();
+	CDList* list = CD_CreateList();
 
-    CD_ListPush(list, 23);
-    CD_ListPush(list, 42);
-    CD_ListPush(list, 9001);
-    CD_ListPush(list, 911);
+	CD_ListPush(list, 23);
+	CD_ListPush(list, 42);
+	CD_ListPush(list, 9001);
+	CD_ListPush(list, 911);
 
-    CD_free(CD_ListClear(list));
+	CD_free(CD_ListClear(list));
 
-    tt_int_op(CD_ListLength(list), ==, 0);
+	tt_int_op(CD_ListLength(list), ==, 0);
 
-    end: {
-        CD_DestroyList(list);
-    }
+	end: {
+		CD_DestroyList(list);
+	}
 }
 
 static
 int8_t
 cdtest_ListCompare (CDPointer a, CDPointer b)
 {
-    if (a < b) {
-        return -1;
-    }
-    else if (a > b) {
-        return 1;
-    }
-    else {
-        return 0;
-    }
+	if (a < b) {
+		return -1;
+	}
+	else if (a > b) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
 }
 
 static
 void
 cdtest_List_sort (void* data)
 {
-    CDList* list = CD_CreateList();
+	CDList* list = CD_CreateList();
 
-    CD_ListPush(list, 30);
-    CD_ListPush(list, 40);
-    CD_ListPush(list, 20);
-    CD_ListPush(list, 10);
+	CD_ListPush(list, 30);
+	CD_ListPush(list, 40);
+	CD_ListPush(list, 20);
+	CD_ListPush(list, 10);
 
-    CD_ListSort(list, CDSortInsert, cdtest_ListCompare);
+	CD_ListSort(list, CDSortInsert, cdtest_ListCompare);
 
-    tt_int_op(CD_ListShift(list), ==, 10);
-    tt_int_op(CD_ListShift(list), ==, 20);
-    tt_int_op(CD_ListShift(list), ==, 30);
-    tt_int_op(CD_ListShift(list), ==, 40);
+	tt_int_op(CD_ListShift(list), ==, 10);
+	tt_int_op(CD_ListShift(list), ==, 20);
+	tt_int_op(CD_ListShift(list), ==, 30);
+	tt_int_op(CD_ListShift(list), ==, 40);
 
-    end: {
-        CD_DestroyList(list);
-    }
+	end: {
+		CD_DestroyList(list);
+	}
 }
 
 static
 void
 cdtest_List_insertSorted (void *data)
 {
-    CDList* list = CD_CreateList();
+	CDList* list = CD_CreateList();
 
-    CD_ListSortedPush(list, 30, cdtest_ListCompare);
-    CD_ListSortedPush(list, 10, cdtest_ListCompare);
-    CD_ListSortedPush(list, 40, cdtest_ListCompare);
-    CD_ListSortedPush(list, 20, cdtest_ListCompare);
+	CD_ListSortedPush(list, 30, cdtest_ListCompare);
+	CD_ListSortedPush(list, 10, cdtest_ListCompare);
+	CD_ListSortedPush(list, 40, cdtest_ListCompare);
+	CD_ListSortedPush(list, 20, cdtest_ListCompare);
 
-    tt_int_op(CD_ListShift(list), ==, 10);
-    tt_int_op(CD_ListShift(list), ==, 20);
-    tt_int_op(CD_ListShift(list), ==, 30);
-    tt_int_op(CD_ListShift(list), ==, 40);
+	tt_int_op(CD_ListShift(list), ==, 10);
+	tt_int_op(CD_ListShift(list), ==, 20);
+	tt_int_op(CD_ListShift(list), ==, 30);
+	tt_int_op(CD_ListShift(list), ==, 40);
 
-    end: {
-        CD_DestroyList(list);
-    }
+	end: {
+		CD_DestroyList(list);
+	}
 }
 
 static struct testcase_t cd_utils_List_tests[] = {
-    { "push", cdtest_List_push, },
-    { "push if", cdtest_List_pushIf, },
-    { "foreach", cdtest_List_foreach, },
-    { "clear", cdtest_List_clear, },
-    { "sort", cdtest_List_sort, },
-    { "insert sorted", cdtest_List_insertSorted, },
+	{ "push", cdtest_List_push, },
+	{ "push if", cdtest_List_pushIf, },
+	{ "foreach", cdtest_List_foreach, },
+	{ "clear", cdtest_List_clear, },
+	{ "sort", cdtest_List_sort, },
+	{ "insert sorted", cdtest_List_insertSorted, },
 
-    END_OF_TESTCASES
+	END_OF_TESTCASES
 };
 
 static
 void
 cdtest_Set_put (void* data)
 {
-    CDSet* set = CD_CreateSet();
+	CDSet* set = CD_CreateSet();
 
-    CD_SetPut(set, 1);
-    CD_SetPut(set, 9001);
+	CD_SetPut(set, 1);
+	CD_SetPut(set, 9001);
 
-    tt_assert(CD_SetHas(set, 1));
-    tt_assert(CD_SetHas(set, 9001));
+	tt_assert(CD_SetHas(set, 1));
+	tt_assert(CD_SetHas(set, 9001));
 
-    end: {
-        CD_DestroySet(set);
-    }
+	end: {
+		CD_DestroySet(set);
+	}
 }
 
 static
 void
 cdtest_Set_delete (void* data)
 {
-    CDSet* set = CD_CreateSet();
+	CDSet* set = CD_CreateSet();
 
-    CD_SetPut(set, 1);
-    CD_SetPut(set, 2);
+	CD_SetPut(set, 1);
+	CD_SetPut(set, 2);
 
-    tt_int_op(CD_SetDelete(set, 2), ==, 2);
-    tt_assert(!CD_SetHas(set, 2));
+	tt_int_op(CD_SetDelete(set, 2), ==, 2);
+	tt_assert(!CD_SetHas(set, 2));
 
-    tt_int_op(CD_SetLength(set), ==, 1);
+	tt_int_op(CD_SetLength(set), ==, 1);
 
-    end: {
-        CD_DestroySet(set);
-    }
+	end: {
+		CD_DestroySet(set);
+	}
 }
 
 static
 void
 cdtest_Set_length (void* data)
 {
-    CDSet* set = CD_CreateSet();
+	CDSet* set = CD_CreateSet();
 
-    CD_SetPut(set, 1);
-    CD_SetPut(set, 3);
-    CD_SetPut(set, 3); // Redundant element should not get added
-    CD_SetPut(set, 2);
+	CD_SetPut(set, 1);
+	CD_SetPut(set, 3);
+	CD_SetPut(set, 3); // Redundant element should not get added
+	CD_SetPut(set, 2);
 
-    tt_int_op(CD_SetLength(set), ==, 3);
+	tt_int_op(CD_SetLength(set), ==, 3);
 
-    end: {
-        CD_DestroySet(set);
-    }
+	end: {
+		CD_DestroySet(set);
+	}
 }
 
 static struct testcase_t cd_utils_Set_tests[] = {
-    { "put",    cdtest_Set_put, },
-    { "delete", cdtest_Set_delete, },
-    { "length", cdtest_Set_length, },
+	{ "put",    cdtest_Set_put, },
+	{ "delete", cdtest_Set_delete, },
+	{ "length", cdtest_Set_length, },
 
-    END_OF_TESTCASES
+	END_OF_TESTCASES
 };
 
 static
 void
 cdtest_Regexp_match (void* data)
 {
-    CDRegexpMatches* matches = CD_RegexpMatchCString("(\\w+) (\\d+) (\\w+)(?: (.+?))?$", 0, "lol 23 omg");
+	CDRegexpMatches* matches = CD_RegexpMatchCString("(\\w+) (\\d+) (\\w+)(?: (.+?))?$", 0, "lol 23 omg");
 
-    tt_int_op(matches->length, ==, 5);
-    tt_int_op(matches->matched, ==, 3);
-    tt_int_op(matches->item[4], ==, NULL);
+	tt_int_op(matches->length, ==, 5);
+	tt_int_op(matches->matched, ==, 3);
+	tt_int_op(matches->item[4], ==, NULL);
 
-    tt_assert(CD_StringIsEqual(matches->item[1], "lol"));
-    tt_assert(CD_StringIsEqual(matches->item[2], "23"));
-    tt_assert(CD_StringIsEqual(matches->item[3], "omg"));
+	tt_assert(CD_StringIsEqual(matches->item[1], "lol"));
+	tt_assert(CD_StringIsEqual(matches->item[2], "23"));
+	tt_assert(CD_StringIsEqual(matches->item[3], "omg"));
 
-    end: {
-        CD_DestroyRegexpMatches(matches);
-    }
+	end: {
+		CD_DestroyRegexpMatches(matches);
+	}
 }
 
 static
 void
 cdtest_Regexp_test (void* data)
 {
-    CDRegexp* regexp = CD_CreateRegexp("^\\d+$", CDRegexpNone);
-    CDString* string = CD_CreateStringFromCString("23");
+	CDRegexp* regexp = CD_CreateRegexp("^\\d+$", CDRegexpNone);
+	CDString* string = CD_CreateStringFromCString("23");
 
-    tt_assert(CD_RegexpTest(regexp, string));
+	tt_assert(CD_RegexpTest(regexp, string));
 
-    end: {
-        CD_DestroyRegexpKeepString(regexp);
-        CD_DestroyString(string);
-    }
+	end: {
+		CD_DestroyRegexpKeepString(regexp);
+		CD_DestroyString(string);
+	}
 }
 
 static struct testcase_t cd_utils_Regexp_tests[] = {
-    { "match", cdtest_Regexp_match, },
-    { "test",  cdtest_Regexp_test, },
+	{ "match", cdtest_Regexp_match, },
+	{ "test",  cdtest_Regexp_test, },
 
-    END_OF_TESTCASES
+	END_OF_TESTCASES
 };
 
 static
 void
 cdtest_events_provided (void* data)
 {
-    puts("\n---");
+	puts("\n---");
 
-    CD_HASH_FOREACH(_server->event.provided, it) {
-        CDString* output  = CD_CreateStringFromFormat("%s (", (char*) CD_HashIteratorKey(it));
-        CDList*   params  = (CDList*) CD_HashIteratorValue(it);
-        int       length  = CD_ListLength(params);
-        int       current = 1;
-        
-        CD_LIST_FOREACH(params, it) {
-            output = CD_AppendCString(output, (char*) CD_ListIteratorValue(it));
+	CD_HASH_FOREACH(_server->event.provided, it) {
+		CDString* output  = CD_CreateStringFromFormat("%s (", (char*) CD_HashIteratorKey(it));
+		CDList*   params  = (CDList*) CD_HashIteratorValue(it);
+		int       length  = CD_ListLength(params);
+		int       current = 1;
 
-            if (current < length) {
-                output = CD_AppendCString(output, ", ");
-            }
+		CD_LIST_FOREACH(params, it) {
+			output = CD_AppendCString(output, (char*) CD_ListIteratorValue(it));
 
-            current++;
-        }
+			if (current < length) {
+				output = CD_AppendCString(output, ", ");
+			}
 
-        output = CD_AppendCString(output, ")");
+			current++;
+		}
 
-        puts(CD_StringContent(output));
+		output = CD_AppendCString(output, ")");
 
-        CD_DestroyString(output);
-    }
+		puts(CD_StringContent(output));
 
-    puts("---");
+		CD_DestroyString(output);
+	}
 
-    end: {
+	puts("---");
 
-    }
+	end: {
+
+	}
 }
 
 static struct testcase_t cd_events_tests[] = {
-    { "provided", cdtest_events_provided, },
+	{ "provided", cdtest_events_provided, },
 
-    END_OF_TESTCASES
+	END_OF_TESTCASES
 };
 
 static struct testgroup_t cd_groups[] = {
-    { "utils/String/",           cd_utils_String_tests },
-    { "utils/String/UTF8/",      cd_utils_String_UTF8_tests },
-    { "utils/String/Minecraft/", cd_utils_String_Minecraft_tests },
-    { "utils/Hash/",             cd_utils_Hash_tests },
-    { "utils/Map/",              cd_utils_Map_tests },
-    { "utils/List/",             cd_utils_List_tests },
-    { "utils/Set/",              cd_utils_Set_tests },
-    { "utils/Regexp/",           cd_utils_Regexp_tests },
+	{ "utils/String/",           cd_utils_String_tests },
+	{ "utils/String/UTF8/",      cd_utils_String_UTF8_tests },
+	{ "utils/String/Minecraft/", cd_utils_String_Minecraft_tests },
+	{ "utils/Hash/",             cd_utils_Hash_tests },
+	{ "utils/Map/",              cd_utils_Map_tests },
+	{ "utils/List/",             cd_utils_List_tests },
+	{ "utils/Set/",              cd_utils_Set_tests },
+	{ "utils/Regexp/",           cd_utils_Regexp_tests },
 
 //    { "events/", cd_events_tests },
 
-    END_OF_GROUPS
+	END_OF_GROUPS
 };
 
 bool
 CD_PluginInitialize (CDPlugin* self)
 {
-    puts("");
+	puts("");
 
-    _server = self->server;
-    tinytest_main(0, NULL, cd_groups);
+	_server = self->server;
+	tinytest_main(0, NULL, cd_groups);
 
-    puts("");
+	puts("");
 
-    return true;
+	return true;
 }

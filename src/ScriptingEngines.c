@@ -30,71 +30,71 @@
 CDScriptingEngines*
 CD_CreateScriptingEngines (struct _CDServer* server)
 {
-    CDScriptingEngines* self = CD_malloc(sizeof(CDScriptingEngines));
+	CDScriptingEngines* self = CD_malloc(sizeof(CDScriptingEngines));
 
-    self->server = server;
-    self->items  = CD_CreateHash();
+	self->server = server;
+	self->items  = CD_CreateHash();
 
-    lt_dlinit();
-    
-    lt_dladvise_init(&self->advise);
-    lt_dladvise_ext(&self->advise);
-    lt_dladvise_local(&self->advise);
+	lt_dlinit();
+	
+	lt_dladvise_init(&self->advise);
+	lt_dladvise_ext(&self->advise);
+	lt_dladvise_local(&self->advise);
 
-    C_FOREACH(path, C_PATH(self->server->config, "server.scripting.paths")) {
-         lt_dladdsearchdir(C_STRING(path));
-    }
+	C_FOREACH(path, C_PATH(self->server->config, "server.scripting.paths")) {
+		 lt_dladdsearchdir(C_STRING(path));
+	}
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyScriptingEngines (CDScriptingEngines* self)
 {
-    CD_HASH_FOREACH(self->items, it) {
-        CD_DestroyScriptingEngine((CDScriptingEngine*) CD_HashIteratorValue(it));
-    }
+	CD_HASH_FOREACH(self->items, it) {
+		CD_DestroyScriptingEngine((CDScriptingEngine*) CD_HashIteratorValue(it));
+	}
 
-    CD_DestroyHash(self->items);
+	CD_DestroyHash(self->items);
 
-    CD_free(self);
+	CD_free(self);
 
-    lt_dladvise_destroy(&self->advise);
-    lt_dlexit();
+	lt_dladvise_destroy(&self->advise);
+	lt_dlexit();
 }
 
 bool
 CD_LoadScriptingEngines (CDScriptingEngines* self)
 {
-    C_FOREACH(engine, C_PATH(self->server->config, "server.scripting.engines")) {
-        CD_LoadScriptingEngine(self, C_STRING(C_GET(engine, "name")));
-    }
+	C_FOREACH(engine, C_PATH(self->server->config, "server.scripting.engines")) {
+		CD_LoadScriptingEngine(self, C_STRING(C_GET(engine, "name")));
+	}
 
-    return true;
+	return true;
 }
 
 CDScriptingEngine*
 CD_LoadScriptingEngine (CDScriptingEngines* self, const char* name)
 {
-    CDScriptingEngine* engine = CD_CreateScriptingEngine(self->server, name);
+	CDScriptingEngine* engine = CD_CreateScriptingEngine(self->server, name);
 
-    if (!engine) {
-        return NULL;
-    }
+	if (!engine) {
+		return NULL;
+	}
 
-    CD_HashPut(self->items, name, (CDPointer) engine);
+	CD_HashPut(self->items, name, (CDPointer) engine);
 
-    return engine;
+	return engine;
 }
 
 CDScriptingEngine*
 CD_GetScriptingEngine (CDScriptingEngines* self, const char* name)
 {
-    return (CDScriptingEngine*) CD_HashGet(self->items, name);
+	return (CDScriptingEngine*) CD_HashGet(self->items, name);
 }
 
 void
 CD_UnloadScriptingEngine (CDScriptingEngines* self, const char* name)
 {
-    CD_DestroyScriptingEngine((CDScriptingEngine*) CD_HashDelete(self->items, name));
+	CD_DestroyScriptingEngine((CDScriptingEngine*) CD_HashDelete(self->items, name));
 }

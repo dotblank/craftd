@@ -36,11 +36,11 @@ struct _CDServer;
  * The Plugins class.
  */
 typedef struct _CDPlugins {
-    struct _CDServer* server;
+	struct _CDServer* server;
 
-    CDHash* items;
+	CDHash* items;
 
-    lt_dladvise advise;
+	lt_dladvise advise;
 } CDPlugins;
 
 /**

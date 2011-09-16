@@ -33,57 +33,57 @@ static
 void
 cd_ConsoleLog (int priority, const char* format, ...)
 {
-    /* Return on MASKed log priorities */
-    if (LOG_MASK(priority) & cd_mask) {
-        return;
-    }
+	/* Return on MASKed log priorities */
+	if (LOG_MASK(priority) & cd_mask) {
+		return;
+	}
 
-    static const char* names[] = {
-        "EMERG", "ALERT", "CRIT", "ERR", "WARNING", "NOTICE", "INFO", "DEBUG"
-    };
+	static const char* names[] = {
+		"EMERG", "ALERT", "CRIT", "ERR", "WARNING", "NOTICE", "INFO", "DEBUG"
+	};
 
-    va_list ap;
-    va_start(ap, format);
+	va_list ap;
+	va_start(ap, format);
 
-    CDString* priorityBuffer;
-    CDString* messageBuffer = CD_CreateStringFromFormatList(format, ap);
+	CDString* priorityBuffer;
+	CDString* messageBuffer = CD_CreateStringFromFormatList(format, ap);
 
-    if (priority >= ARRAY_SIZE(names) || priority < 0) {
-        priorityBuffer = CD_CreateStringFromCString("UNKNOWN");
-    }
-    else {
-        priorityBuffer = CD_CreateStringFromCString(names[priority]);
-    }
+	if (priority >= ARRAY_SIZE(names) || priority < 0) {
+		priorityBuffer = CD_CreateStringFromCString("UNKNOWN");
+	}
+	else {
+		priorityBuffer = CD_CreateStringFromCString(names[priority]);
+	}
 
-    printf("%s: %s\n", CD_StringContent(priorityBuffer), CD_StringContent(messageBuffer));
-    fflush(stdout);
+	printf("%s: %s\n", CD_StringContent(priorityBuffer), CD_StringContent(messageBuffer));
+	fflush(stdout);
 
-    CD_DestroyString(priorityBuffer);
-    CD_DestroyString(messageBuffer);
+	CD_DestroyString(priorityBuffer);
+	CD_DestroyString(messageBuffer);
 
-    va_end(ap);
+	va_end(ap);
 }
 
 static
 int cd_ConsoleSetLogMask (int mask)
 {
-    int old = cd_mask;
+	int old = cd_mask;
 
-    if (mask != 0) {
-        cd_mask = mask;
-    }
+	if (mask != 0) {
+		cd_mask = mask;
+	}
 
-    return old;
+	return old;
 }
 
 static
 void cd_ConsoleCloseLog (void)
 {
-    fflush(stdout);
+	fflush(stdout);
 }
 
 CDLogger CDConsoleLogger = {
-    .log        = cd_ConsoleLog,
-    .setlogmask = cd_ConsoleSetLogMask,
-    .closelog   = cd_ConsoleCloseLog
+	.log        = cd_ConsoleLog,
+	.setlogmask = cd_ConsoleSetLogMask,
+	.closelog   = cd_ConsoleCloseLog
 };

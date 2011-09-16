@@ -30,39 +30,39 @@
 #include <libconfig.h>
 
 typedef struct _CDConfig {
-    config_t data;
+	config_t data;
 
-    struct {
-        bool daemonize;
+	struct {
+		bool daemonize;
 
-        struct {
-            struct {
-                struct sockaddr_in  ipv4;
-                struct sockaddr_in6 ipv6;
-            } bind;
+		struct {
+			struct {
+				struct sockaddr_in  ipv4;
+				struct sockaddr_in6 ipv6;
+			} bind;
 
-            uint16_t port;
-            int      backlog;
-        } connection;
+			uint16_t port;
+			int      backlog;
+		} connection;
 
-        struct {
-            const char* motd;
-        } files;
+		struct {
+			const char* motd;
+		} files;
 
-        int workers;
+		int workers;
 
-        struct {
-            struct {
-                bool        standard;
-                const char* name;
-            } protocol;
+		struct {
+			struct {
+				bool        standard;
+				const char* name;
+			} protocol;
 
-            struct {
-                int     max;
-                uint8_t simultaneous;
-            } clients;
-        } game;
-    } cache;
+			struct {
+				int     max;
+				uint8_t simultaneous;
+			} clients;
+		} game;
+	} cache;
 } CDConfig;
 
 /**
@@ -80,11 +80,11 @@ CDConfig* CD_ParseConfig (const char* path);
 void CD_DestroyConfig (CDConfig* self);
 
 #define C_ROOT(config) \
-    config_root_setting((config_t*) config)
+	config_root_setting((config_t*) config)
 
 #define C_IN(var, config, name) \
-    config_setting_t* var = config_setting_get_member(config, name); \
-    if (var)
+	config_setting_t* var = config_setting_get_member(config, name); \
+	if (var)
 
 #define C_INT    config_setting_get_int
 #define C_LONG   config_setting_get_int64
@@ -99,29 +99,29 @@ void CD_DestroyConfig (CDConfig* self);
 #define C_TO_STRING(x) (x ? C_STRING(x) : "")
 
 #define C_GET(config, name) \
-    config_setting_get_member(config, name)
+	config_setting_get_member(config, name)
 
 #define C_INDEX(config, index) \
-    config_setting_get_elem(config, index)
+	config_setting_get_elem(config, index)
 
 #define C_PATH(config, path) (config_lookup((config_t*) config, path))
 #define C_PATH_OR(config, path, x, cast) \
-    (C_PATH((config_t*) config, path) ?  \
-        cast(C_PATH((config_t*) config, path)) : x)
+	(C_PATH((config_t*) config, path) ?  \
+		cast(C_PATH((config_t*) config, path)) : x)
 
 #define C_SAVE(conf, cast, into)    \
-    if (conf) {                     \
-        into = cast(conf);          \
-    }
+	if (conf) {                     \
+		into = cast(conf);          \
+	}
 
 #define C_FOREACH(name, config)                                                                 \
-    if (config)                                                                                 \
-    for (config_setting_t* name = C_INDEX(config, 0), *__i__ = (config_setting_t*) 0,           \
-            *__end__ = (config_setting_t*) (long) config_setting_length(config);                \
-                                                                                                \
-         (long) __i__ < (long) __end__;                                                         \
-                                                                                                \
-         __i__ = (config_setting_t*) (((long) __i__) + 1),                                      \
-            name = C_INDEX(config, (long) __i__))
+	if (config)                                                                                 \
+	for (config_setting_t* name = C_INDEX(config, 0), *__i__ = (config_setting_t*) 0,           \
+			*__end__ = (config_setting_t*) (long) config_setting_length(config);                \
+									                                                            \
+		 (long) __i__ < (long) __end__;                                                         \
+									                                                            \
+		 __i__ = (config_setting_t*) (((long) __i__) + 1),                                      \
+			name = C_INDEX(config, (long) __i__))
 
 #endif

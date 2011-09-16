@@ -48,20 +48,20 @@ typedef bool (*CDPluginFinalizer)(struct _CDPlugin*);
  * The Plugin class.
  */
 typedef struct _CDPlugin {
-    struct _CDServer* server;
+	struct _CDServer* server;
 
-    CDString* name;
-    CDString* description;
+	CDString* name;
+	CDString* description;
 
-    config_t* config;
+	config_t* config;
 
-    lt_dlhandle handle;
+	lt_dlhandle handle;
 
-    CDPluginInitializer initialize;
-    CDPluginFinalizer   finalize;
+	CDPluginInitializer initialize;
+	CDPluginFinalizer   finalize;
 
-    CD_DEFINE_DYNAMIC;
-    CD_DEFINE_ERROR;
+	CD_DEFINE_DYNAMIC;
+	CD_DEFINE_ERROR;
 } CDPlugin;
 
 /**

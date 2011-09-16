@@ -24,90 +24,90 @@
  */
 
 #define CD_ADMIN_PLAYER_USAGE \
-    "Usage: /player <command> [options]\n" \
-    "   Level:\n" \
-    "       Registered Users:\n" \
-    "           number    Get the number of connected players\n" \
-    "\n" \
-    "       Moderator:\n" \
-    "           list     Get a list of connected players\n" \
-    "           kick    Kick a player"
+	"Usage: /player <command> [options]\n" \
+	"   Level:\n" \
+	"       Registered Users:\n" \
+	"           number    Get the number of connected players\n" \
+	"\n" \
+	"       Moderator:\n" \
+	"           list     Get a list of connected players\n" \
+	"           kick    Kick a player"
 
 #define CD_ADMIN_PLAYER_KICK_USAGE \
-    "Usage: /player kick <name> [reason]\n" \
-    "    name        The name of the player to kick\n" \
-    "    reason    The reason for the kick"
+	"Usage: /player kick <name> [reason]\n" \
+	"    name        The name of the player to kick\n" \
+	"    reason    The reason for the kick"
 
 if (CD_StringIsEqual(matches->item[1], "player")) {
-    if (!matches->item[2]) {
-        cdadmin_SendUsage(player, CD_ADMIN_PLAYER_USAGE);
+	if (!matches->item[2]) {
+		cdadmin_SendUsage(player, CD_ADMIN_PLAYER_USAGE);
 
-        goto done;
-    }
+		goto done;
+	}
 
-    if (!cdadmin_AuthLevelIsEnoughWithMessage(player, CDLevelRegisteredUser)) {
-        goto done;
-    }
+	if (!cdadmin_AuthLevelIsEnoughWithMessage(player, CDLevelRegisteredUser)) {
+		goto done;
+	}
 
-    DO {
-        CDRegexpMatches* old = matches;
-        matches = CD_RegexpMatch(regexp, old->item[2]);
-        CD_DestroyRegexpMatches(old);
-    }
+	DO {
+		CDRegexpMatches* old = matches;
+		matches = CD_RegexpMatch(regexp, old->item[2]);
+		CD_DestroyRegexpMatches(old);
+	}
 
-    if (CD_StringIsEqual(matches->item[1], "number")) {
-        size_t connected = CD_HashLength(server->players);
+	if (CD_StringIsEqual(matches->item[1], "number")) {
+		size_t connected = CD_HashLength(server->players);
 
-        if (connected > 1) {
-            cdadmin_SendResponse(player, CD_CreateStringFromFormat("There are %d connected players", connected));
-        }
-        else {
-            cdadmin_SendResponse(player, CD_CreateStringFromFormat("There is %d connected player", connected));
-        }
+		if (connected > 1) {
+			cdadmin_SendResponse(player, CD_CreateStringFromFormat("There are %d connected players", connected));
+		}
+		else {
+			cdadmin_SendResponse(player, CD_CreateStringFromFormat("There is %d connected player", connected));
+		}
 
-        goto done;
-    }
+		goto done;
+	}
 
-    if (!cdadmin_AuthLevelIsEnoughWithMessage(player, CDLevelModerator)) {
-        goto done;
-    }
+	if (!cdadmin_AuthLevelIsEnoughWithMessage(player, CDLevelModerator)) {
+		goto done;
+	}
 
-    if (CD_StringIsEqual(matches->item[1], "list")) {
-        cdadmin_SendResponse(player, CD_CreateStringFromCString("Players:"));
+	if (CD_StringIsEqual(matches->item[1], "list")) {
+		cdadmin_SendResponse(player, CD_CreateStringFromCString("Players:"));
 
-        CD_HASH_FOREACH(server->players, it) {
-            CDPlayer* current = (CDPlayer*) CD_HashIteratorValue(it);
-            CDString* name    = cdadmin_ColoredNick(current);
+		CD_HASH_FOREACH(server->players, it) {
+			CDPlayer* current = (CDPlayer*) CD_HashIteratorValue(it);
+			CDString* name    = cdadmin_ColoredNick(current);
 
-            cdadmin_SendResponse(player, CD_CreateStringFromFormat("%s" MC_COLOR_GRAY " > x: %lf; y:%lf; z:%lf", CD_StringContent(name),
-                current->entity.position.x, current->entity.position.y, current->entity.position.z));
-        }
+			cdadmin_SendResponse(player, CD_CreateStringFromFormat("%s" MC_COLOR_GRAY " > x: %lf; y:%lf; z:%lf", CD_StringContent(name),
+				current->entity.position.x, current->entity.position.y, current->entity.position.z));
+		}
 
-        goto done;
-    }
+		goto done;
+	}
 
-    if (CD_StringIsEqual(matches->item[1], "kick")) {
-        if (!matches->item[2]) {
-            cdadmin_SendUsage(player, CD_ADMIN_PLAYER_KICK_USAGE);
-            goto done;
-        }
+	if (CD_StringIsEqual(matches->item[1], "kick")) {
+		if (!matches->item[2]) {
+			cdadmin_SendUsage(player, CD_ADMIN_PLAYER_KICK_USAGE);
+			goto done;
+		}
 
-        DO {
-            CDRegexpMatches* old = matches;
-            matches = CD_RegexpMatch(regexp, old->item[2]);
-            CD_DestroyRegexpMatches(old);
-        }
+		DO {
+			CDRegexpMatches* old = matches;
+			matches = CD_RegexpMatch(regexp, old->item[2]);
+			CD_DestroyRegexpMatches(old);
+		}
 
-        if (CD_HashHasKey(server->players, CD_StringContent(matches->item[1]))) {
-            CD_ServerKick(server, (CDPlayer*) CD_HashGet(server->players, CD_StringContent(matches->item[1])), CD_CloneString(matches->item[2]));
-        }
-        else {
-            cdadmin_SendFailure(player, CD_CreateStringFromFormat("Player %s not found.", CD_StringContent(matches->item[1])));
-        }
+		if (CD_HashHasKey(server->players, CD_StringContent(matches->item[1]))) {
+			CD_ServerKick(server, (CDPlayer*) CD_HashGet(server->players, CD_StringContent(matches->item[1])), CD_CloneString(matches->item[2]));
+		}
+		else {
+			cdadmin_SendFailure(player, CD_CreateStringFromFormat("Player %s not found.", CD_StringContent(matches->item[1])));
+		}
 
-        goto done;
-    }
+		goto done;
+	}
 
-    cdadmin_SendUsage(player, CD_ADMIN_PLAYER_USAGE);
-    goto done;
+	cdadmin_SendUsage(player, CD_ADMIN_PLAYER_USAGE);
+	goto done;
 }

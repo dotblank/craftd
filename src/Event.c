@@ -29,205 +29,205 @@ static
 int8_t
 cd_EventIsEqual (CDEventCallbackFunction a, CDEventCallback* b)
 {
-    if (a == b->function) {
-        return 0;
-    }
+	if (a == b->function) {
+		return 0;
+	}
 
-    return 1;
+	return 1;
 }
 
 int8_t
 cd_EventCompare (CDEventCallback* a, CDEventCallback* b)
 {
-    if (a->priority > b->priority) {
-        return 1;
-    }
-    else if (a->priority < b->priority) {
-        return -1;
-    }
-    else {
-        return 0;
-    }
+	if (a->priority > b->priority) {
+		return 1;
+	}
+	else if (a->priority < b->priority) {
+		return -1;
+	}
+	else {
+		return 0;
+	}
 }
 
 CDEventCallback*
 CD_CreateEventCallback (CDEventCallbackFunction function, int priority)
 {
-    CDEventCallback* self = CD_malloc(sizeof(CDEventCallback));
+	CDEventCallback* self = CD_malloc(sizeof(CDEventCallback));
 
-    self->function = function;
-    self->priority = priority;
+	self->function = function;
+	self->priority = priority;
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyEventCallback (CDEventCallback* self)
 {
-    CD_free(self);
+	CD_free(self);
 }
 
 CDList*
 CD_CreateEventParameters (const char* first, ...)
 {
-    va_list ap;
-    CDList* self    = CD_CreateList();
-    char*   current = NULL;
+	va_list ap;
+	CDList* self    = CD_CreateList();
+	char*   current = NULL;
 
-    if (first) {
-        va_start(ap, first);
+	if (first) {
+		va_start(ap, first);
 
-        CD_ListPush(self, (CDPointer) strdup(first));
+		CD_ListPush(self, (CDPointer) strdup(first));
 
-        while ((current = va_arg(ap, char*))) {
-            CD_ListPush(self, (CDPointer) strdup(current));
-        }
+		while ((current = va_arg(ap, char*))) {
+			CD_ListPush(self, (CDPointer) strdup(current));
+		}
 
-        va_end(ap);
-    }
+		va_end(ap);
+	}
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyEventParameters (CDList* parameters)
 {
-    CD_LIST_FOREACH(parameters, it) {
-        CD_free((char*) CD_ListIteratorValue(it));
-    }
+	CD_LIST_FOREACH(parameters, it) {
+		CD_free((char*) CD_ListIteratorValue(it));
+	}
 
-    CD_DestroyList(parameters);
+	CD_DestroyList(parameters);
 }
 
 static
 int
 cd_EventParameterCompare (char* a, char* b)
 {
-    if (CD_CStringIsEqual(a, b)) {
-        return 0;
-    }
-    
-    return 1;
+	if (CD_CStringIsEqual(a, b)) {
+		return 0;
+	}
+	
+	return 1;
 }
 
 bool
 CD_EventProvides (CDServer* server, const char* eventName, CDList* parameters)
 {
-    CDList* params = (CDList*) CD_HashGet(server->event.provided, eventName);
+	CDList* params = (CDList*) CD_HashGet(server->event.provided, eventName);
 
-    if (params && !CD_ListIsEqual(params, parameters, (CDListCompareCallback) cd_EventParameterCompare)) {
-        SERR(server, "Event %s signature mismatch", eventName);
+	if (params && !CD_ListIsEqual(params, parameters, (CDListCompareCallback) cd_EventParameterCompare)) {
+		SERR(server, "Event %s signature mismatch", eventName);
 
-        CD_DestroyList(parameters);
-        
-        return false;
-    }
+		CD_DestroyList(parameters);
+		
+		return false;
+	}
 
-    CD_HashPut(server->event.provided, eventName, (CDPointer) parameters);
+	CD_HashPut(server->event.provided, eventName, (CDPointer) parameters);
 
-    return true;
+	return true;
 }
 
 bool
 cd_EventBeforeDispatch (CDServer* self, const char* eventName, ...)
 {
-    CDList* callbacks = (CDList*) CD_HashGet(self->event.callbacks, "Event.dispatch:before");
-    bool    result    = true;
-    va_list ap;
+	CDList* callbacks = (CDList*) CD_HashGet(self->event.callbacks, "Event.dispatch:before");
+	bool    result    = true;
+	va_list ap;
 
-    va_start(ap, eventName);
+	va_start(ap, eventName);
 
-    CD_LIST_FOREACH(callbacks, it) {
-        if (!CD_ListIteratorValue(it)) {
-            continue;
-        }
+	CD_LIST_FOREACH(callbacks, it) {
+		if (!CD_ListIteratorValue(it)) {
+			continue;
+		}
 
-        if (!((CDEventCallback*) CD_ListIteratorValue(it))->function(self, eventName, ap)) {
-            result = CD_LIST_BREAK(callbacks);
-        }
-    }
+		if (!((CDEventCallback*) CD_ListIteratorValue(it))->function(self, eventName, ap)) {
+			result = CD_LIST_BREAK(callbacks);
+		}
+	}
 
-    va_end(ap);
+	va_end(ap);
 
-    return result;
+	return result;
 }
 
 bool
 cd_EventAfterDispatch (CDServer* self, const char* eventName, bool interrupted, ...)
 {
-    CDList* callbacks = (CDList*) CD_HashGet(self->event.callbacks, "Event.dispatch:after");
-    bool    result    = true;
-    va_list ap;
+	CDList* callbacks = (CDList*) CD_HashGet(self->event.callbacks, "Event.dispatch:after");
+	bool    result    = true;
+	va_list ap;
 
-    va_start(ap, interrupted);
+	va_start(ap, interrupted);
 
-    CD_LIST_FOREACH(callbacks, it) {
-        if (!CD_ListIteratorValue(it)) {
-            continue;
-        }
+	CD_LIST_FOREACH(callbacks, it) {
+		if (!CD_ListIteratorValue(it)) {
+			continue;
+		}
 
-        if (!((CDEventCallback*) CD_ListIteratorValue(it))->function(self, eventName, interrupted, ap)) {
-            result = CD_LIST_BREAK(callbacks);
-        }
-    }
+		if (!((CDEventCallback*) CD_ListIteratorValue(it))->function(self, eventName, interrupted, ap)) {
+			result = CD_LIST_BREAK(callbacks);
+		}
+	}
 
-    va_end(ap);
+	va_end(ap);
 
-    return result;
+	return result;
 }
 
 void
 CD_EventRegister (CDServer* self, const char* eventName, CDEventCallbackFunction callback)
 {
-    assert(self);
+	assert(self);
 
-    CDList* callbacks = (CDList*) CD_HashGet(self->event.callbacks, eventName);
+	CDList* callbacks = (CDList*) CD_HashGet(self->event.callbacks, eventName);
 
-    if (!callbacks) {
-        callbacks = CD_CreateList();
-        CD_HashPut(self->event.callbacks, eventName, (CDPointer) callbacks);
-    }
+	if (!callbacks) {
+		callbacks = CD_CreateList();
+		CD_HashPut(self->event.callbacks, eventName, (CDPointer) callbacks);
+	}
 
-    CD_ListSortedPush(callbacks, (CDPointer) CD_CreateEventCallback(callback, 0), (CDListCompareCallback) cd_EventCompare);
+	CD_ListSortedPush(callbacks, (CDPointer) CD_CreateEventCallback(callback, 0), (CDListCompareCallback) cd_EventCompare);
 }
 
 void
 CD_EventRegisterWithPriority (CDServer* self, const char* eventName, int priority, CDEventCallbackFunction callback)
 {
-    assert(self);
+	assert(self);
 
-    CDList* callbacks = (CDList*) CD_HashGet(self->event.callbacks, eventName);
+	CDList* callbacks = (CDList*) CD_HashGet(self->event.callbacks, eventName);
 
-    if (!callbacks) {
-        callbacks = CD_CreateList();
-        CD_HashPut(self->event.callbacks, eventName, (CDPointer) callbacks);
-    }
+	if (!callbacks) {
+		callbacks = CD_CreateList();
+		CD_HashPut(self->event.callbacks, eventName, (CDPointer) callbacks);
+	}
 
-    CD_ListSortedPush(callbacks, (CDPointer) CD_CreateEventCallback(callback, priority), (CDListCompareCallback) cd_EventCompare);
+	CD_ListSortedPush(callbacks, (CDPointer) CD_CreateEventCallback(callback, priority), (CDListCompareCallback) cd_EventCompare);
 }
 
 CDEventCallback**
 CD_EventUnregister (CDServer* self, const char* eventName, CDEventCallbackFunction callback)
 {
-    CDList*           callbacks = (CDList*) CD_HashGet(self->event.callbacks, eventName);
-    CDEventCallback** result    = NULL;
+	CDList*           callbacks = (CDList*) CD_HashGet(self->event.callbacks, eventName);
+	CDEventCallback** result    = NULL;
 
-    if (!callbacks) {
-        return NULL;
-    }
+	if (!callbacks) {
+		return NULL;
+	}
 
-    if (callback) {
-        result    = CD_calloc(2, sizeof(CDEventCallback));
-        result[0] = (CDEventCallback*) CD_ListDeleteAllIf(callbacks, (CDPointer) callback,
-            (CDListCompareCallback) cd_EventIsEqual);
-    }
-    else {
-        result = (CDEventCallback**) CD_ListClear(callbacks);
-    }
+	if (callback) {
+		result    = CD_calloc(2, sizeof(CDEventCallback));
+		result[0] = (CDEventCallback*) CD_ListDeleteAllIf(callbacks, (CDPointer) callback,
+			(CDListCompareCallback) cd_EventIsEqual);
+	}
+	else {
+		result = (CDEventCallback**) CD_ListClear(callbacks);
+	}
 
-    if (CD_ListLength(callbacks) == 0) {
-        CD_DestroyList(callbacks);
-    }
+	if (CD_ListLength(callbacks) == 0) {
+		CD_DestroyList(callbacks);
+	}
 
-    return result;
+	return result;
 }

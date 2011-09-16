@@ -40,7 +40,7 @@ static inline
 int
 CD_Min (int x, int y)
 {
-    return x > y ? y : x;
+	return x > y ? y : x;
 }
 
 /**
@@ -58,12 +58,12 @@ static inline
 int
 CD_Div (int x, int y)
 {
-    if (-13 / 5 == -2 && (x < 0) != (y < 0) && x % y != 0) {
-        return x / y - 1;
-    }
-    else {
-        return x / y;
-    }
+	if (-13 / 5 == -2 && (x < 0) != (y < 0) && x % y != 0) {
+		return x / y - 1;
+	}
+	else {
+		return x / y;
+	}
 }
 
 /**
@@ -81,12 +81,12 @@ static inline
 int
 CD_Mod (int x, int y)
 {
-    if (-13 / 5 == -2 && (x < 0) != (y < 0) && x % y != 0) {
-        return x % y + y;
-    }
-    else {
-        return x % y;
-    }
+	if (-13 / 5 == -2 && (x < 0) != (y < 0) && x % y != 0) {
+		return x % y + y;
+	}
+	else {
+		return x % y;
+	}
 }
 
 /**
@@ -103,7 +103,7 @@ static inline
 int
 CD_Floor (int x, int y)
 {
-    return CD_Div(x, y);
+	return CD_Div(x, y);
 }
 
 /**
@@ -119,7 +119,7 @@ static inline
 int
 CD_Ceiling (int x, int y)
 {
-    return CD_Div(x, y) + (x % y != 0);
+	return CD_Div(x, y) + (x % y != 0);
 }
 
 #endif

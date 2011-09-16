@@ -28,104 +28,104 @@
 CDBuffer*
 CD_CreateBuffer (void)
 {
-    CDBuffer* self = CD_malloc(sizeof(CDBuffer));
+	CDBuffer* self = CD_malloc(sizeof(CDBuffer));
 
-    self->raw      = evbuffer_new();
-    self->external = false;
+	self->raw      = evbuffer_new();
+	self->external = false;
 
-    evbuffer_enable_locking(self->raw, NULL);
+	evbuffer_enable_locking(self->raw, NULL);
 
-    return self;
+	return self;
 }
 
 CDBuffer*
 CD_WrapBuffer (CDRawBuffer buffer)
 {
-    CDBuffer* self = CD_malloc(sizeof(CDBuffer));
+	CDBuffer* self = CD_malloc(sizeof(CDBuffer));
 
-    self->raw      = buffer;
-    self->external = true;
+	self->raw      = buffer;
+	self->external = true;
 
-    evbuffer_enable_locking(self->raw, NULL);
+	evbuffer_enable_locking(self->raw, NULL);
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyBuffer (CDBuffer* self)
 {
-    if (!self->external) {
-        evbuffer_free(self->raw);
-    }
+	if (!self->external) {
+		evbuffer_free(self->raw);
+	}
 
-    CD_free(self);
+	CD_free(self);
 }
 
 CDPointer
 CD_BufferContent (CDBuffer* self)
 {
-    CDPointer data = (CDPointer) CD_malloc(CD_BufferLength(self));
+	CDPointer data = (CDPointer) CD_malloc(CD_BufferLength(self));
 
-    evbuffer_copyout(self->raw, (void*) data, CD_BufferLength(self));
+	evbuffer_copyout(self->raw, (void*) data, CD_BufferLength(self));
 
-    return data;
+	return data;
 }
 
 size_t
 CD_BufferLength (CDBuffer* self)
 {
-    return evbuffer_get_length(self->raw);
+	return evbuffer_get_length(self->raw);
 }
 
 bool
 CD_BufferEmpty (CDBuffer* self)
 {
-    return CD_BufferLength(self) == 0;
+	return CD_BufferLength(self) == 0;
 }
 
 int
 CD_BufferDrain (CDBuffer* self, size_t length)
 {
-    return evbuffer_drain(self->raw, length);
+	return evbuffer_drain(self->raw, length);
 }
 
 void
 CD_BufferAdd (CDBuffer* self, CDPointer data, size_t length)
 {
-    evbuffer_add(self->raw, (void*) data, length);
+	evbuffer_add(self->raw, (void*) data, length);
 }
 
 void
 CD_BufferAddBuffer (CDBuffer* self, CDBuffer* data)
 {
-    CDPointer stuff = CD_BufferContent(data);
+	CDPointer stuff = CD_BufferContent(data);
 
-    evbuffer_add(self->raw, (void*) stuff, CD_BufferLength(data));
+	evbuffer_add(self->raw, (void*) stuff, CD_BufferLength(data));
 
-    CD_free((void*) stuff);
+	CD_free((void*) stuff);
 }
 
 CDPointer
 CD_BufferRemove (CDBuffer* self, size_t length)
 {
-    CDPointer result = (CDPointer) CD_malloc(length);
+	CDPointer result = (CDPointer) CD_malloc(length);
 
-    evbuffer_remove(self->raw, (void*) result, length);
+	evbuffer_remove(self->raw, (void*) result, length);
 
-    return result;
+	return result;
 }
 
 CDBuffer*
 CD_BufferRemoveBuffer (CDBuffer* self)
 {
-    struct evbuffer* buffer = evbuffer_new();
-    CDBuffer*        result;
+	struct evbuffer* buffer = evbuffer_new();
+	CDBuffer*        result;
 
-    evbuffer_remove_buffer(self->raw, buffer, CD_BufferLength(self));
+	evbuffer_remove_buffer(self->raw, buffer, CD_BufferLength(self));
 
-    result = CD_WrapBuffer(buffer);
+	result = CD_WrapBuffer(buffer);
 
-    result->external = false;
+	result->external = false;
 
-    return result;
+	return result;
 }

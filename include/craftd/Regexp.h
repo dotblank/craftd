@@ -29,11 +29,11 @@
 #include <pcre.h>
 
 typedef enum _CDRegexpOption {
-    CDRegexpNone            = 0,
-    CDRegexpCaseInsensitive = PCRE_CASELESS,
-    CDRegexpExtended        = PCRE_EXTENDED,
-    CDRegexpMultiline       = PCRE_MULTILINE,
-    CDRegexpDotAll          = PCRE_DOTALL
+	CDRegexpNone            = 0,
+	CDRegexpCaseInsensitive = PCRE_CASELESS,
+	CDRegexpExtended        = PCRE_EXTENDED,
+	CDRegexpMultiline       = PCRE_MULTILINE,
+	CDRegexpDotAll          = PCRE_DOTALL
 } CDRegexpOption;
 
 #define CD_REGEXP_I PCRE_CASELESS
@@ -44,18 +44,18 @@ typedef enum _CDRegexpOption {
 #include <craftd/String.h>
 
 typedef struct _CDRegexp {
-    char* string;
-    int   options;
+	char* string;
+	int   options;
 
-    pcre*       pattern;
-    pcre_extra* study;
+	pcre*       pattern;
+	pcre_extra* study;
 } CDRegexp;
 
 typedef struct _CDRegexpMatches {
-    size_t matched;
+	size_t matched;
 
-    size_t     length;
-    CDString** item;
+	size_t     length;
+	CDString** item;
 } CDRegexpMatches;
 
 CDRegexp* CD_CreateRegexp (char* regexp, int options);

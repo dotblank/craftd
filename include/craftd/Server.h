@@ -39,35 +39,35 @@
  * Server class.
  */
 typedef struct _CDServer {
-    char* name;
+	char* name;
 
-    CDProtocol*         protocol;
-    CDTimeLoop*         timeloop;
-    CDWorkers*          workers;
-    CDConfig*           config;
-    CDPlugins*          plugins;
-    CDScriptingEngines* scriptingEngines;
-    CDLogger            logger;
+	CDProtocol*         protocol;
+	CDTimeLoop*         timeloop;
+	CDWorkers*          workers;
+	CDConfig*           config;
+	CDPlugins*          plugins;
+	CDScriptingEngines* scriptingEngines;
+	CDLogger            logger;
 
-    CDList* clients;
-    CDList* disconnecting;
+	CDList* clients;
+	CDList* disconnecting;
 
-    bool running;
+	bool running;
 
-    uint16_t time;
+	uint16_t time;
 
-    struct {
-        struct event_base* base;
-        struct event*      listener;
+	struct {
+		struct event_base* base;
+		struct event*      listener;
 
-        CDHash* callbacks;
-        CDHash* provided;
-    } event;
+		CDHash* callbacks;
+		CDHash* provided;
+	} event;
 
-    evutil_socket_t socket;
+	evutil_socket_t socket;
 
-    CD_DEFINE_DYNAMIC;
-    CD_DEFINE_ERROR;
+	CD_DEFINE_DYNAMIC;
+	CD_DEFINE_ERROR;
 } CDServer;
 
 /**

@@ -32,55 +32,55 @@ static
 bool
 cdtrivial_GenerateLevel (CDServer* server, SVWorld* world)
 {
-    world->spawnPosition = (SVBlockPosition) {
-        .x = 0,
-        .y = 120,
-        .z = 0
-    };
+	world->spawnPosition = (SVBlockPosition) {
+		.x = 0,
+		.y = 120,
+		.z = 0
+	};
 
-    return true;
+	return true;
 }
 
 static
 bool
 cdtrivial_GenerateChunk (CDServer* server, int x, int z, SVChunk* data, const char* seed)
 {
-    int lightValue = CD_Max(0x0F - ABS(x) - ABS(z), 0);
+	int lightValue = CD_Max(0x0F - ABS(x) - ABS(z), 0);
 
-    // this should only put 1 layer of bedrock
-    for (int x = 0; x < 16; x++) {
-        for (int z = 0; z < 16; z++) {
-            data->blocks[(z * 128) + (x * 128 * 16)] = SVBedrock; // one layer bedrock
-            data->heightMap[x + (z * 16)] = 1; // max height is 1
+	// this should only put 1 layer of bedrock
+	for (int x = 0; x < 16; x++) {
+		for (int z = 0; z < 16; z++) {
+			data->blocks[(z * 128) + (x * 128 * 16)] = SVBedrock; // one layer bedrock
+			data->heightMap[x + (z * 16)] = 1; // max height is 1
 
-            for (int y = 1; y < 128; y++) {
-                // full light for first 2 layers
-                data->skyLight[((z * 128) + (x * 128 * 16) + y) / 2] = (lightValue | (lightValue << 4));
-            }
-        }
-    }
+			for (int y = 1; y < 128; y++) {
+				// full light for first 2 layers
+				data->skyLight[((z * 128) + (x * 128 * 16) + y) / 2] = (lightValue | (lightValue << 4));
+			}
+		}
+	}
 
-    return false;
+	return false;
 }
 
 extern
 bool
 CD_PluginInitialize (CDPlugin* self)
 {
-    self->description = CD_CreateStringFromCString("Trivial Mapgen");
+	self->description = CD_CreateStringFromCString("Trivial Mapgen");
 
-    CD_EventRegister(self->server, "Mapgen.level", cdtrivial_GenerateLevel);
-    CD_EventRegister(self->server, "Mapgen.chunk", cdtrivial_GenerateChunk);
+	CD_EventRegister(self->server, "Mapgen.level", cdtrivial_GenerateLevel);
+	CD_EventRegister(self->server, "Mapgen.chunk", cdtrivial_GenerateChunk);
 
-    return true;
+	return true;
 }
 
 extern
 bool
 CD_PluginFinalize (CDPlugin* self)
 {
-    CD_EventUnregister(self->server, "Mapgen.level", cdtrivial_GenerateLevel);
-    CD_EventUnregister(self->server, "Mapgen.chunk", cdtrivial_GenerateChunk);
+	CD_EventUnregister(self->server, "Mapgen.level", cdtrivial_GenerateLevel);
+	CD_EventUnregister(self->server, "Mapgen.chunk", cdtrivial_GenerateChunk);
 
-    return true;
+	return true;
 }

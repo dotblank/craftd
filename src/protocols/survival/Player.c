@@ -30,97 +30,97 @@
 SVPlayer*
 SV_CreatePlayer (CDClient* client)
 {
-    SVPlayer* self = CD_malloc(sizeof(SVPlayer));
+	SVPlayer* self = CD_malloc(sizeof(SVPlayer));
 
-    assert(self);
+	assert(self);
 
-    self->client = client;
+	self->client = client;
 
-    self->entity.id         = 0;
-    self->entity.type       = SVEntityPlayer;
-    self->entity.position.x = 0;
-    self->entity.position.y = 0;
-    self->entity.position.z = 0;
+	self->entity.id         = 0;
+	self->entity.type       = SVEntityPlayer;
+	self->entity.position.x = 0;
+	self->entity.position.y = 0;
+	self->entity.position.z = 0;
 
-    self->username = NULL;
-    self->world    = NULL;
+	self->username = NULL;
+	self->world    = NULL;
 
-    DYNAMIC(self) = CD_CreateDynamic();
-    ERROR(self)   = CDNull;
+	DYNAMIC(self) = CD_CreateDynamic();
+	ERROR(self)   = CDNull;
 
-    return self;
+	return self;
 }
 
 void
 SV_DestroyPlayer (SVPlayer* self)
 {
-    CD_EventDispatch(self->client->server, "Player.destroy", self);
+	CD_EventDispatch(self->client->server, "Player.destroy", self);
 
-    if (self->username) {
-        CD_DestroyString(self->username);
-    }
+	if (self->username) {
+		CD_DestroyString(self->username);
+	}
 
-    CD_DestroyDynamic(DYNAMIC(self));
+	CD_DestroyDynamic(DYNAMIC(self));
 
-    CD_free(self);
+	CD_free(self);
 }
 
 void
 SV_PlayerSendMessage (SVPlayer* self, CDString* message)
 {
-    DO {
-        SVPacketChat pkt = {
-            .response = {
-                .message = message
-            }
-        };
+	DO {
+		SVPacketChat pkt = {
+			.response = {
+				.message = message
+			}
+		};
 
-        SVPacket response = { SVResponse, SVChat, (CDPointer) &pkt };
+		SVPacket response = { SVResponse, SVChat, (CDPointer) &pkt };
 
-        SV_PlayerSendPacketAndCleanData(self, &response);
-    }
+		SV_PlayerSendPacketAndCleanData(self, &response);
+	}
 }
 
 void
 SV_PlayerSendPacket (SVPlayer* self, SVPacket* packet)
 {
-    if (!self || !self->client || !self->client->buffers) {
-        return;
-    }
+	if (!self || !self->client || !self->client->buffers) {
+		return;
+	}
 
-    CDBuffer* data = SV_PacketToBuffer(packet);
+	CDBuffer* data = SV_PacketToBuffer(packet);
 
-    CD_ClientSendBuffer(self->client, data);
+	CD_ClientSendBuffer(self->client, data);
 
-    CD_DestroyBuffer(data);
+	CD_DestroyBuffer(data);
 }
 
 void
 SV_PlayerSendPacketAndClean (SVPlayer* self, SVPacket* packet)
 {
-    if (!self || !self->client || !self->client->buffers) {
-        return;
-    }
+	if (!self || !self->client || !self->client->buffers) {
+		return;
+	}
 
-    CDBuffer* data = SV_PacketToBuffer(packet);
+	CDBuffer* data = SV_PacketToBuffer(packet);
 
-    CD_ClientSendBuffer(self->client, data);
+	CD_ClientSendBuffer(self->client, data);
 
-    CD_DestroyBuffer(data);
-    SV_DestroyPacket(packet);
+	CD_DestroyBuffer(data);
+	SV_DestroyPacket(packet);
 }
 
 void
 SV_PlayerSendPacketAndCleanData (SVPlayer* self, SVPacket* packet)
 {
-    if (!self || !self->client || !self->client->buffers) {
-        return;
-    }
+	if (!self || !self->client || !self->client->buffers) {
+		return;
+	}
 
-    CDBuffer* data = SV_PacketToBuffer(packet);
+	CDBuffer* data = SV_PacketToBuffer(packet);
 
-    CD_ClientSendBuffer(self->client, data);
+	CD_ClientSendBuffer(self->client, data);
 
-    CD_DestroyBuffer(data);
-    SV_DestroyPacketData(packet);
+	CD_DestroyBuffer(data);
+	SV_DestroyPacketData(packet);
 }

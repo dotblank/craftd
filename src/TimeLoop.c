@@ -30,139 +30,139 @@ static
 void
 cd_KeepTimeLoopAlive (void)
 {
-    return;
+	return;
 }
 
 CDTimeLoop*
 CD_CreateTimeLoop (struct _CDServer* server)
 {
-    CDTimeLoop* self = CD_malloc(sizeof(CDTimeLoop));
+	CDTimeLoop* self = CD_malloc(sizeof(CDTimeLoop));
 
-    if (pthread_spin_init(&self->lock.last, PTHREAD_PROCESS_PRIVATE) != 0) {
-        CD_abort("pthread spinlock failed to initialize");
-    }
+	if (pthread_spin_init(&self->lock.last, PTHREAD_PROCESS_PRIVATE) != 0) {
+		CD_abort("pthread spinlock failed to initialize");
+	}
 
-    if (pthread_attr_init(&self->attributes) != 0) {
-        CD_abort("pthread attribute failed to initialize");
-    }
+	if (pthread_attr_init(&self->attributes) != 0) {
+		CD_abort("pthread attribute failed to initialize");
+	}
 
-    if (pthread_attr_setdetachstate(&self->attributes, PTHREAD_CREATE_DETACHED) != 0) {
-        CD_abort("pthread attribute failed to set in detach state");
-    }
+	if (pthread_attr_setdetachstate(&self->attributes, PTHREAD_CREATE_DETACHED) != 0) {
+		CD_abort("pthread attribute failed to set in detach state");
+	}
 
-    self->server     = server;
-    self->running    = false;
-    self->event.base = event_base_new();
-    self->callbacks  = CD_CreateMap();
-    self->last       = INT_MIN;
+	self->server     = server;
+	self->running    = false;
+	self->event.base = event_base_new();
+	self->callbacks  = CD_CreateMap();
+	self->last       = INT_MIN;
 
-    CD_SetInterval(self, 10000000, (event_callback_fn) cd_KeepTimeLoopAlive, CDNull);
+	CD_SetInterval(self, 10000000, (event_callback_fn) cd_KeepTimeLoopAlive, CDNull);
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyTimeLoop (CDTimeLoop* self)
 {
-    CD_StopTimeLoop(self);
+	CD_StopTimeLoop(self);
 
-    event_base_free(self->event.base);
+	event_base_free(self->event.base);
 
-    CD_DestroyMap(self->callbacks);
+	CD_DestroyMap(self->callbacks);
 
-    pthread_spin_destroy(&self->lock.last);
+	pthread_spin_destroy(&self->lock.last);
 
-    CD_free(self);
+	CD_free(self);
 }
 
 bool
 CD_RunTimeLoop (CDTimeLoop* self)
 {
-    CD_EventDispatch(self->server, "TimeLoop.start!", self);
+	CD_EventDispatch(self->server, "TimeLoop.start!", self);
 
-    bool result = event_base_loop(self->event.base, 0);
+	bool result = event_base_loop(self->event.base, 0);
 
-    CD_EventDispatch(self->server, "TimeLoop.stopped", self);
+	CD_EventDispatch(self->server, "TimeLoop.stopped", self);
 
-    return result;
+	return result;
 }
 
 bool
 CD_StopTimeLoop (CDTimeLoop* self)
 {
-    struct timeval interval = { 0, 0 };
+	struct timeval interval = { 0, 0 };
 
-    CD_EventDispatch(self->server, "TimeLoop.stop!", self);
+	CD_EventDispatch(self->server, "TimeLoop.stop!", self);
 
-    return event_base_loopexit(self->event.base, &interval);
+	return event_base_loopexit(self->event.base, &interval);
 }
 
 int
 CD_SetTimeout (CDTimeLoop* self, float seconds, event_callback_fn callback, CDPointer data)
 {
-    struct timeval timeout      = { (int) seconds, (seconds - (int) seconds) * 1000000 };
-    struct event*  timeoutEvent = event_new(self->event.base, -1, 0, callback, (void*) (data ? data : (CDPointer) self->server));
-    int            result;
+	struct timeval timeout      = { (int) seconds, (seconds - (int) seconds) * 1000000 };
+	struct event*  timeoutEvent = event_new(self->event.base, -1, 0, callback, (void*) (data ? data : (CDPointer) self->server));
+	int            result;
 
-    if (evtimer_add(timeoutEvent, &timeout) < 0) {
-        SERR(self->server, "could not add a timeout");
-        event_free(timeoutEvent);
-        return 0;
-    }
+	if (evtimer_add(timeoutEvent, &timeout) < 0) {
+		SERR(self->server, "could not add a timeout");
+		event_free(timeoutEvent);
+		return 0;
+	}
 
-    pthread_spin_lock(&self->lock.last);
-    if ((self->last + 1) == 0) {
-        self->last++;
-    }
+	pthread_spin_lock(&self->lock.last);
+	if ((self->last + 1) == 0) {
+		self->last++;
+	}
 
-    CD_MapPut(self->callbacks, (result = self->last++), (CDPointer) timeoutEvent);
-    pthread_spin_unlock(&self->lock.last);
+	CD_MapPut(self->callbacks, (result = self->last++), (CDPointer) timeoutEvent);
+	pthread_spin_unlock(&self->lock.last);
 
-    return result;
+	return result;
 }
 
 void
 CD_ClearTimeout (CDTimeLoop* self, int id)
 {
-    struct event* clear = (struct event*) CD_MapDelete(self->callbacks, id);
+	struct event* clear = (struct event*) CD_MapDelete(self->callbacks, id);
 
-    if (clear) {
-        evtimer_del(clear);
-        event_free(clear);
-    }
+	if (clear) {
+		evtimer_del(clear);
+		event_free(clear);
+	}
 }
 
 int
 CD_SetInterval (CDTimeLoop* self, float seconds, event_callback_fn callback, CDPointer data)
 {
-    struct timeval interval      = { (int) seconds, (seconds - (int) seconds) * 1000000 };
-    struct event*  intervalEvent = event_new(self->event.base, -1, EV_PERSIST, callback, (void*) (data ? data : (CDPointer) self->server));
-    int            result;
+	struct timeval interval      = { (int) seconds, (seconds - (int) seconds) * 1000000 };
+	struct event*  intervalEvent = event_new(self->event.base, -1, EV_PERSIST, callback, (void*) (data ? data : (CDPointer) self->server));
+	int            result;
 
-    if (evtimer_add(intervalEvent, &interval) < 0) {
-        SERR(self->server, "could not add an interval");
-        event_free(intervalEvent);
-        return 0;
-    }
+	if (evtimer_add(intervalEvent, &interval) < 0) {
+		SERR(self->server, "could not add an interval");
+		event_free(intervalEvent);
+		return 0;
+	}
 
-    pthread_spin_lock(&self->lock.last);
-    if ((self->last + 1) == 0) {
-        self->last++;
-    }
+	pthread_spin_lock(&self->lock.last);
+	if ((self->last + 1) == 0) {
+		self->last++;
+	}
 
-    CD_MapPut(self->callbacks, (result = self->last++), (CDPointer) intervalEvent);
-    pthread_spin_unlock(&self->lock.last);
+	CD_MapPut(self->callbacks, (result = self->last++), (CDPointer) intervalEvent);
+	pthread_spin_unlock(&self->lock.last);
 
-    return result;
+	return result;
 }
 
 void
 CD_ClearInterval (CDTimeLoop* self, int id)
 {
-    struct event* clear = (struct event*) CD_MapDelete(self->callbacks, id);
+	struct event* clear = (struct event*) CD_MapDelete(self->callbacks, id);
 
-    if (clear) {
-        evtimer_del(clear);
-        event_free(clear);
-    }
+	if (clear) {
+		evtimer_del(clear);
+		event_free(clear);
+	}
 }

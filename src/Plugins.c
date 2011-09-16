@@ -30,73 +30,73 @@
 CDPlugins*
 CD_CreatePlugins (struct _CDServer* server)
 {
-    CDPlugins* self = CD_malloc(sizeof(CDPlugins));
+	CDPlugins* self = CD_malloc(sizeof(CDPlugins));
 
-    self->server = server;
-    self->items  = CD_CreateHash();
+	self->server = server;
+	self->items  = CD_CreateHash();
 
-    lt_dlinit();
-    
-    lt_dladvise_init(&self->advise);
-    lt_dladvise_ext(&self->advise);
-    lt_dladvise_global(&self->advise);
+	lt_dlinit();
+	
+	lt_dladvise_init(&self->advise);
+	lt_dladvise_ext(&self->advise);
+	lt_dladvise_global(&self->advise);
 
-    C_FOREACH(path, C_PATH(self->server->config, "server.plugins.paths")) {
-        lt_dladdsearchdir(C_TO_STRING(path));
-    }
+	C_FOREACH(path, C_PATH(self->server->config, "server.plugins.paths")) {
+		lt_dladdsearchdir(C_TO_STRING(path));
+	}
 
-    return self;
+	return self;
 }
 
 void
 CD_DestroyPlugins (CDPlugins* self)
 {
-    CD_HASH_FOREACH(self->items, it) {
-        CD_DestroyPlugin((CDPlugin*) CD_HashIteratorValue(it));
-    }
+	CD_HASH_FOREACH(self->items, it) {
+		CD_DestroyPlugin((CDPlugin*) CD_HashIteratorValue(it));
+	}
 
-    CD_DestroyHash(self->items);
+	CD_DestroyHash(self->items);
 
-    CD_free(self);
+	CD_free(self);
 
-    lt_dladvise_destroy(&self->advise);
-    lt_dlexit();
+	lt_dladvise_destroy(&self->advise);
+	lt_dlexit();
 }
 
 bool
 CD_LoadPlugins (CDPlugins* self)
 {
-    C_FOREACH(plugin, C_PATH(self->server->config, "server.plugins.load")) {
-        if (C_GET(plugin, "name")) {
-            CD_LoadPlugin(self, C_TO_STRING(C_GET(plugin, "name")));
-        }
-    }
+	C_FOREACH(plugin, C_PATH(self->server->config, "server.plugins.load")) {
+		if (C_GET(plugin, "name")) {
+			CD_LoadPlugin(self, C_TO_STRING(C_GET(plugin, "name")));
+		}
+	}
 
-    return true;
+	return true;
 }
 
 CDPlugin*
 CD_LoadPlugin (CDPlugins* self, const char* name)
 {
-    CDPlugin* plugin = CD_CreatePlugin(self->server, name);
+	CDPlugin* plugin = CD_CreatePlugin(self->server, name);
 
-    if (!plugin) {
-        return NULL;
-    }
+	if (!plugin) {
+		return NULL;
+	}
 
-    CD_HashPut(self->items, name, (CDPointer) plugin);
+	CD_HashPut(self->items, name, (CDPointer) plugin);
 
-    return plugin;
+	return plugin;
 }
 
 CDPlugin*
 CD_GetPlugin (CDPlugins* self, const char* name)
 {
-    return (CDPlugin*) CD_HashGet(self->items, name);
+	return (CDPlugin*) CD_HashGet(self->items, name);
 }
 
 void
 CD_UnloadPlugin (CDPlugins* self, const char* name)
 {
-    CD_DestroyPlugin((CDPlugin*) CD_HashDelete(self->items, name));
+	CD_DestroyPlugin((CDPlugin*) CD_HashDelete(self->items, name));
 }

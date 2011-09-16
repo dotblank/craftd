@@ -27,6 +27,6 @@
 #define CRAFTD_VERSION_H
 
 #define CRAFTD_NOTICE_MESSAGE "(" PACKAGE_STRING ")\n" \
-    "    Copyright (c) 2011 Kevin Bowling - http://mc.kev009.com/craftd/\n"
+	"    Copyright (c) 2011 Kevin Bowling - http://mc.kev009.com/craftd/\n"
 
 #endif

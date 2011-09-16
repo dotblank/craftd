@@ -97,30 +97,30 @@ static inline
 double
 ntohd (double d)
 {
-    union {
-        uint64_t l;
-        double   d;
-    } tmp;
+	union {
+		uint64_t l;
+		double   d;
+	} tmp;
 
-    tmp.d = d;
-    tmp.l = ntohll(tmp.l);
+	tmp.d = d;
+	tmp.l = ntohll(tmp.l);
 
-    return tmp.d;
+	return tmp.d;
 }
 
 static inline
 double
 htond (double d)
 {
-    union {
-        uint64_t l;
-        double   d;
-    } tmp;
+	union {
+		uint64_t l;
+		double   d;
+	} tmp;
 
-    tmp.d = d;
-    tmp.l = htonll(tmp.l);
+	tmp.d = d;
+	tmp.l = htonll(tmp.l);
 
-    return tmp.d;
+	return tmp.d;
 }
 
 
@@ -128,30 +128,30 @@ static inline
 float
 ntohf (float f)
 {
-    union {
-        uint32_t i;
-        float f;
-    } tmp;
+	union {
+		uint32_t i;
+		float f;
+	} tmp;
 
-    tmp.f = f;
-    tmp.i = ntohl(tmp.i);
+	tmp.f = f;
+	tmp.i = ntohl(tmp.i);
 
-    return tmp.f;
+	return tmp.f;
 }
 
 static inline
 float
 htonf (float f)
 {
-    union {
-        uint32_t i;
-        float f;
-    } tmp;
+	union {
+		uint32_t i;
+		float f;
+	} tmp;
 
-    tmp.f = f;
-    tmp.i = htonl(tmp.i);
+	tmp.f = f;
+	tmp.i = htonl(tmp.i);
 
-    return tmp.f;
+	return tmp.f;
 }
 
 #endif

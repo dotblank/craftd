@@ -28,5 +28,5 @@
 int
 CD_ErrorToErrno (CDError error)
 {
-    return 0;
+	return 0;
 }

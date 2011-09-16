@@ -31,40 +31,40 @@
 #include <craftd/Client.h>
 
 typedef enum _CDJobType {
-    CDClientConnectJob,
-    CDClientProcessJob,
-    CDClientDisconnectJob,
+	CDClientConnectJob,
+	CDClientProcessJob,
+	CDClientDisconnectJob,
 
-    CDCustomJob
+	CDCustomJob
 } CDJobType;
 
 #define CD_JOB_IS_CUSTOM(job) ( \
-    job->type == CDCustomJob    \
+	job->type == CDCustomJob    \
 )
 
 #define CD_JOB_IS_PLAYER(job) (             \
-        job->type == CDClientConnectJob     \
-    ||  job->type == CDClientProcessJob     \
-    ||  job->type == CDClientDisconnectJob  \
+		job->type == CDClientConnectJob     \
+	||  job->type == CDClientProcessJob     \
+	||  job->type == CDClientDisconnectJob  \
 )
 
 typedef void (*CDCustomJobCallback) (CDPointer);
 
 typedef struct _CDCustomJobData {
-    CDCustomJobCallback callback;
-    CDPointer           data;
+	CDCustomJobCallback callback;
+	CDPointer           data;
 } CDCustomJobData;
 
 typedef struct _CDClientProcessJobData {
-    CDClient* client;
-    void*     packet;
+	CDClient* client;
+	void*     packet;
 } CDClientProcessJobData;
 
 typedef struct _CDJob {
-    CDJobType type;
-    CDPointer data;
+	CDJobType type;
+	CDPointer data;
 
-    bool external;
+	bool external;
 } CDJob;
 
 CDJob* CD_CreateJob (CDJobType type, CDPointer data);

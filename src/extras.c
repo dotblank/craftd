@@ -28,25 +28,25 @@
 int
 config_export (config_setting_t* setting, config_t* config)
 {
-    if (config_setting_is_group(setting) != CONFIG_TRUE) {
-        return CONFIG_FALSE;
-    }
+	if (config_setting_is_group(setting) != CONFIG_TRUE) {
+		return CONFIG_FALSE;
+	}
 
-    memset(config, 0, sizeof(*config));
+	memset(config, 0, sizeof(*config));
 
-    config->root = setting;
+	config->root = setting;
 
-    #if LIBCONFIG_VER_MAJOR >= 1 && LIBCONFIG_VER_MINOR >= 4
-    config->tab_width = 2;
-    #endif
+	#if LIBCONFIG_VER_MAJOR >= 1 && LIBCONFIG_VER_MINOR >= 4
+	config->tab_width = 2;
+	#endif
 
-    return CONFIG_TRUE;
+	return CONFIG_TRUE;
 }
 
 int
 config_unexport (config_t* config)
 {
-    memset(config, 0, sizeof(*config));
+	memset(config, 0, sizeof(*config));
 
-    return CONFIG_TRUE;
+	return CONFIG_TRUE;
 }
