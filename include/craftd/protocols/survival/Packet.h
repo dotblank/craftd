@@ -28,7 +28,7 @@
 
 #include <craftd/protocols/survival/common.h>
 
-#define CRAFTD_PROTOCOL_VERSION (11)
+#define CRAFTD_PROTOCOL_VERSION (17)
 
 typedef enum _SVPacketChain {
     SVRequest,
@@ -87,6 +87,7 @@ typedef enum _SVPacketType {
     SVTransaction          = 0x6A,
     SVUpdateSign           = 0x82,
     SVIncrementStatistic   = 0xC8,
+    SVListPing             = 0xFE,
     SVDisconnect           = 0xFF
 } SVPacketType;
 
@@ -95,6 +96,10 @@ typedef struct _SVPacket {
     SVPacketType  type;
     CDPointer     data;
 } SVPacket;
+
+typedef struct _SVPacketListPing {
+    char empty
+} SVPacketListPing;
 
 typedef union _SVPacketKeepAlive {
     char empty;
@@ -105,18 +110,23 @@ typedef union _SVPacketLogin {
         SVInteger version;
 
         SVString username;
-
-        SVLong mapSeed;
-        SVByte dimension;
+	SVLong u1;
+	SVInteger u2;
+	SVByte u3;
+	SVByte u4;
+	SVByte u5;
+	SVByte u6;
     } request;
 
     struct {
         SVInteger id;
-
-        SVString serverName;
-
+        SVString u1;
         SVLong mapSeed;
+	SVInteger serverMode;
         SVByte dimension;
+	SVByte u2;
+	SVByte worldHeight;
+	SVByte maxPlayers;
     } response;
 } SVPacketLogin;
 

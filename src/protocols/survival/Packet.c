@@ -213,15 +213,23 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
         case SVKeepAlive: {
             return (CDPointer) CD_malloc(sizeof(SVPacketKeepAlive));
         }
+        
+	case SVListPing: {
+	    return (CDPointer) CD_malloc(sizeof(SVPacketListPing));
+	}
 
         case SVLogin: {
             SVPacketLogin* packet = (SVPacketLogin*) CD_malloc(sizeof(SVPacketLogin));
 
-            SV_BufferRemoveFormat(input, "iUlb",
+            SV_BufferRemoveFormat(input, "iUlibbb",
                 &packet->request.version,
                 &packet->request.username,
-                &packet->request.mapSeed,
-                &packet->request.dimension
+		&packet->request.u1,
+		&packet->request.u2,
+		&packet->request.u3,
+		&packet->request.u4,
+                &packet->request.u5,
+                &packet->request.u6
             );
 
             return (CDPointer) packet;
@@ -490,11 +498,14 @@ SV_PacketToBuffer (SVPacket* self)
                 case SVLogin: {
                     SVPacketLogin* packet = (SVPacketLogin*) self->data;
 
-                    SV_BufferAddFormat(data, "iUlb",
+                    SV_BufferAddFormat(data, "iUlibbb",
                         packet->response.id,
-                        packet->response.serverName,
+                        packet->response.u1,
                         packet->response.mapSeed,
-                        packet->response.dimension
+                        packet->response.dimension,
+                        packet->response.u2,
+                        packet->response.worldHeight,
+                        packet->response.maxPlayers
                     );
                 } break;
 

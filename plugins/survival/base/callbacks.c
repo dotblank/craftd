@@ -475,12 +475,14 @@ cdsurvival_ClientProcess (CDServer* server, CDClient* client, SVPacket* packet)
                 SVPacketLogin pkt = {
                     .response = {
                         .id         = player->entity.id,
-                        .serverName = CD_CreateStringFromCString(""),
+                        .u1 = CD_CreateStringFromCString(""),
                         .mapSeed    = 0,
-                        .dimension  = 0
+                        .dimension  = 0,
+                        .u2         = 2,
+                        .worldHeight = 128,
+                        .maxPlayers = 10
                     }
                 };
-
                 SVPacket response = { SVResponse, SVLogin, (CDPointer) &pkt };
 
                 SLOG(server, LOG_INFO, "%s responding with entity id %d", CD_StringContent(player->username), player->entity.id);
