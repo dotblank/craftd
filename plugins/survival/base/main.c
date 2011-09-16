@@ -93,7 +93,10 @@ static
 void
 cdsurvival_KeepAlive (void* _, void* __, CDServer* server)
 {
-    SVPacket  packet = { SVResponse, SVKeepAlive, CDNull };
+    SVPacketKeepAlive pkt;
+    pkt.keepAliveID = 0;
+    
+    SVPacket  packet = { SVResponse, SVKeepAlive, (CDPointer) &pkt };
     CDBuffer* buffer = SV_PacketToBuffer(&packet);
 
     CD_LIST_FOREACH(server->clients, it) {
