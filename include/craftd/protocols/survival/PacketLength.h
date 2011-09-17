@@ -68,7 +68,7 @@ static const size_t SVPacketLength[] = {
 /* 0x18 */  21,     // Mob Spawn
 /* 0x19 */  23,     // Painting
 /* 0x1A */  19,     // Experience Orb
-/* 0x1B */  CDNull, // Stance Update (?)
+/* 0x1B */  18,     // Stance Update (?)
 /* 0x1C */  11,		// Entity Velocity
 /* 0x1D */  5,		// Destroy Entity
 /* 0x1E */  5,		// Entity

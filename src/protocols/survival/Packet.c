@@ -202,6 +202,12 @@ SV_DestroyPacketData (SVPacket* self)
                     CD_free(packet->response.item);
                 } break;
 
+                case SVItemData: {
+                	SVPacketItemData* packet = (SVPacketItemData*) self->data;
+
+                	CD_free(packet->response.text); //This value is a byte array, not a string. Blame notch and his names!
+                }
+
                 case SVDisconnect: {
                     SVPacketDisconnect* packet = (SVPacketDisconnect*) self->data;
 
@@ -229,10 +235,6 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
 
         	return (CDPointer) packet;
         }
-        
-	case SVListPing: {
-	    return (CDPointer) CD_malloc(sizeof(SVPacketListPing));
-	}
 
         case SVLogin: {
             SVPacketLogin* packet = (SVPacketLogin*) CD_malloc(sizeof(SVPacketLogin));
@@ -280,7 +282,16 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
         }
 
         case SVRespawn: {
-            return (CDPointer) CD_malloc(sizeof(SVPacketRespawn));
+        	SVPacketRespawn* packet = (SVPacketRespawn*) CD_malloc(sizeof(SVPacketRespawn));
+
+        	SV_BufferRemoveFormat(input, "bbbsl",
+        		&packet->request.world,
+        		&packet->request.u1,
+        		&packet->request.mode,
+        		&packet->request.worldHeight,
+        		&packet->request.mapSeed
+        	);
+            return (CDPointer) packet;
         }
 
         case SVOnGround: {
@@ -401,6 +412,20 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
             return (CDPointer) packet;
         }
 
+        case SVStanceUpdate: { //This is most likely a packet that isn't used, but it might be in the future
+        	SVPacketStanceUpdate* packet = (SVPacketStanceUpdate*) CD_malloc(sizeof(SVPacketStanceUpdate));
+
+        	SV_BufferRemoveFormat(input, "fffBB",
+        		&packet->request.u1,
+        		&packet->request.u2,
+        		&packet->request.u3,
+        		&packet->request.u4,
+        		&packet->request.u5
+        	);
+
+        	return (CDPointer) packet;
+        }
+
         case SVEntityMetadata: {
             SVPacketEntityMetadata* packet = (SVPacketEntityMetadata*) CD_malloc(sizeof(SVPacketEntityMetadata));
 
@@ -410,6 +435,30 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
             );
 
             return (CDPointer) packet;
+        }
+
+        case SVEntityEffect: {
+        	SVPacketEntityEffect* packet = (SVPacketEntityEffect*) CD_malloc(sizeof(SVPacketEntityEffect));
+
+        	SV_BufferRemoveFormat(input, "ibbs",
+        		&packet->request.entity.id,
+        		&packet->request.effect,
+        		&packet->request.amplifier,
+        		&packet->request.duration
+        	);
+
+        	return (CDPointer) packet;
+        }
+
+        case SVRemoveEntityEffect: {
+        	SVPacketRemoveEntityEffect* packet = (SVPacketRemoveEntityEffect*) CD_malloc(sizeof(SVPacketRemoveEntityEffect));
+
+        	SV_BufferRemoveFormat(input, "ib",
+        		&packet->request.entity.id,
+        		&packet->request.effect
+        	);
+
+        	return (CDPointer) packet;
         }
 
         case SVCloseWindow: {
@@ -494,6 +543,10 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
             return (CDPointer) packet;
         }
 
+    	case SVListPing: {
+    	    return (CDPointer) CD_malloc(sizeof(SVPacketListPing));
+    	}
+
         case SVDisconnect: {
             SVPacketDisconnect* packet = (SVPacketDisconnect*) CD_malloc(sizeof(SVPacketDisconnect));
 
@@ -535,7 +588,7 @@ SV_PacketToBuffer (SVPacket* self)
                 
                 default: break;
             }
-            } break;
+        } break;
 
         case SVResponse: {
             switch (self->type) {
@@ -544,6 +597,7 @@ SV_PacketToBuffer (SVPacket* self)
 
             		SV_BufferAddInteger(data, packet->keepAliveID);
             	} break;
+
                 case SVLogin: {
                     SVPacketLogin* packet = (SVPacketLogin*) self->data;
 
@@ -601,7 +655,11 @@ SV_PacketToBuffer (SVPacket* self)
                 case SVUpdateHealth: {
                     SVPacketUpdateHealth* packet = (SVPacketUpdateHealth*) self->data;
 
-                    SV_BufferAddShort(data, packet->response.health);
+                    SV_BufferAddFormat(data, "ssf",
+                    	packet->response.health,
+                    	packet->response.food,
+                    	packet->response.foodSaturation
+                    );
                 } break;
 
                 case SVPlayerMoveLook: {
@@ -688,8 +746,14 @@ SV_PacketToBuffer (SVPacket* self)
                         packet->response.type,
                         packet->response.position.x,
                         packet->response.position.y,
-                        packet->response.position.z
+                        packet->response.position.z,
+                        packet->response.flag
                     );
+                    if(packet->response.flag > 0) { //These fields are sent under this condition
+                    	SV_BufferAddShort(data, packet->response.u1);
+                    	SV_BufferAddShort(data, packet->response.u2);
+                    	SV_BufferAddShort(data, packet->response.u3);
+                    }
                 } break;
 
                 case SVSpawnMob: {
@@ -718,6 +782,30 @@ SV_PacketToBuffer (SVPacket* self)
                         packet->response.position.z,
                         packet->response.direction
                     );
+                } break;
+
+                case SVExperienceOrb: {
+                	SVPacketExperienceOrb* packet = (SVPacketExperienceOrb*) self->data;
+
+                	SV_BufferAddFormat(data, "iiiis",
+                		packet->response.entity.id,
+                		packet->response.position.x,
+                		packet->response.position.y,
+                		packet->response.position.z,
+                		packet->response.count
+                	);
+                } break;
+
+                case SVStanceUpdate: {
+                	SVPacketStanceUpdate* packet = (SVPacketStanceUpdate*) self->data;
+
+                	SV_BufferAddFormat(data, "fffBB",
+                		packet->response.u1,
+                		packet->response.u2,
+                		packet->response.u3,
+                		packet->response.u4,
+                		packet->response.u5
+                	);
                 } break;
 
                 case SVEntityVelocity: {
@@ -817,6 +905,36 @@ SV_PacketToBuffer (SVPacket* self)
                     );
                 } break;
 
+                case SVEntityEffect: {
+                	SVPacketEntityEffect* packet = (SVPacketEntityEffect*) self->data;
+
+                	SV_BufferAddFormat(data, "ibbs",
+                		packet->response.entity.id,
+                		packet->response.effect,
+                		packet->response.amplifier,
+                		packet->response.duration
+                	);
+                } break;
+
+                case SVRemoveEntityEffect: {
+                	SVPacketRemoveEntityEffect* packet = (SVPacketRemoveEntityEffect*) self->data;
+
+                	SV_BufferAddFormat(data, "ib",
+                		packet->response.entity.id,
+                		packet->response.effect
+                	);
+                } break;
+
+                case SVExperience: {
+                	SVPacketExperience* packet = (SVPacketExperience*) self->data;
+
+                	SV_BufferAddFormat(data, "bbb",
+                		packet->response.currentExperience,
+                		packet->response.level,
+                		packet->response.totalExperience
+                	);
+                } break;
+
                 case SVPreChunk: {
                     SVPacketPreChunk* packet = (SVPacketPreChunk*) self->data;
 
@@ -873,7 +991,7 @@ SV_PacketToBuffer (SVPacket* self)
                     );
                 } break;
 
-                case SVPlayNoteBlock: {
+                case SVPlayNoteBlock: { //TODO: Rename to SVBlockAction
                     SVPacketPlayNoteBlock* packet = (SVPacketPlayNoteBlock*) self->data;
 
                     SV_BufferAddFormat(data, "isibb",
@@ -901,6 +1019,39 @@ SV_PacketToBuffer (SVPacket* self)
 
                     CD_BufferAdd(data, (CDPointer) packet->response.item, packet->response.length * 3 * SVByteSize);
                 } break;
+
+                case SVSoundEffect: {
+                	SVPacketSoundEffect* packet = (SVPacketSoundEffect*) self->data;
+
+                	SV_BufferAddFormat(data, "iibii",
+                		packet->response.effect,
+                		packet->response.position.x,
+                		packet->response.position.y,
+                		packet->response.position.z,
+                		packet->response.data
+                	);
+                } break;
+
+                case SVState: {
+                	SVPacketState* packet = (SVPacketState*) self->data;
+
+                	SV_BufferAddFormat(data, "bb",
+                		packet->response.reason,
+                		packet->response.gameMode
+                	);
+                } break;
+
+                case SVThunderbolt: {
+                	SVPacketThunderbolt* packet = (SVPacketThunderbolt*) self->data;
+
+                	SV_BufferAddFormat(data, "iBiii",
+                		packet->response.entity.id,
+                		packet->response.u1,
+                		packet->response.position.x,
+                		packet->response.position.y,
+                		packet->response.position.z
+                	);
+                }
 
                 case SVOpenWindow: {
                     SVPacketOpenWindow* packet = (SVPacketOpenWindow*) self->data;
@@ -1000,6 +1151,29 @@ SV_PacketToBuffer (SVPacket* self)
                         packet->response.third,
                         packet->response.fourth
                     );
+                } break;
+
+                case SVItemData: { //TODO: Implement
+
+                } break;
+
+                case SVIncrementStatistic: {
+                	SVPacketIncrementStatistic* packet = (SVPacketIncrementStatistic*) self->data;
+
+                	SV_BufferAddFormat(data, "ib",
+                		packet->request.id,
+                		packet->request.amount
+                	);
+                } break;
+
+                case SVPlayerListItem: {
+                	SVPacketPlayerListItem* packet = (SVPacketPlayerListItem*) self->data;
+
+                	SV_BufferAddFormat(data, "Ubs",
+                		packet->response.playerName,
+                		packet->response.online,
+                		packet->response.ping
+                	);
                 } break;
 
                 case SVDisconnect: {

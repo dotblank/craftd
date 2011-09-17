@@ -254,8 +254,12 @@ typedef union _SVPacketUpdateHealth {
 } SVPacketUpdateHealth;
 
 typedef union _SVPacketRespawn {
-    struct {
-    	//TODO: figure out if the client sends something and implement
+    struct { //Not entirely sure what is recieved, may be all 0's
+    	SVByte world;
+    	SVByte u1;
+    	SVByte mode;
+    	SVShort worldHeight;
+    	SVLong mapSeed;
     } request;
 
     struct {
@@ -586,7 +590,7 @@ typedef union _SVPacketEntityStatus { // Not sure yet
 
         enum {
             SVDrowning = 2,
-            SVDead
+            SVDead = 3
         } status;
     } response;
 } SVPacketEntityStatus;
@@ -640,7 +644,7 @@ typedef union _SVPacketRemoveEntityEffect {
 		SVEntity entity;
 		SVEffect effect;
 	} response;
-} SVPacketRemoveEnttiyEffect;
+} SVPacketRemoveEntityEffect;
 
 typedef union _SVPacketExperience {
 	struct {
@@ -729,9 +733,9 @@ typedef union _SVPacketSoundEffect {
 			SVPlayRecord = 1005,
 			SVSmoke = 2000,
 			SVBlockBreak = 2001
-		} effect;
+		} effect; //int
 
-		SVRelativePosition position;
+		SVAbsolutePosition position;
 
 		enum {
 			SVSouthEast = 0,
@@ -743,7 +747,7 @@ typedef union _SVPacketSoundEffect {
 			SVNorthEast = 6,
 			SVNorth = 7,
 			SVNorthWest = 8
-		} data;
+		} data; //int
 	} response;
 } SVPacketSoundEffect;
 
@@ -761,7 +765,7 @@ typedef union _SVPacketThunderbolt {
 	struct {
 		SVEntity entity;
 		SVBoolean u1; //always true
-		SVRelativePosition position;
+		SVAbsolutePosition position;
 	} response;
 } SVPacketThunderbolt;
 
@@ -853,11 +857,11 @@ typedef union _SVPacketCreativeInventoryAction {
 	} request;
 
 	struct {
-			SVShort slot;
-			SVShort itemId;
-			SVShort quantity;
-			SVShort damage;
-		} response;
+		SVShort slot;
+		SVShort itemId;
+		SVShort quantity;
+		SVShort damage;
+	} response;
 } SVPacketCreativeInventoryAction;
 
 typedef union _SVPacketUpdateSign {
