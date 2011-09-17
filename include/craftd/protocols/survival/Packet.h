@@ -63,6 +63,8 @@ typedef enum _SVPacketType {
     SVSpawnObject             = 0x17,
     SVSpawnMob                = 0x18,
     SVPainting                = 0x19,
+    SVExperienceOrb           = 0x1A,
+    SVStanceUpdate            = 0x1B,
     SVEntityVelocity          = 0x1C,
     SVEntityDestroy           = 0x1D,
     SVEntityCreate            = 0x1E,
@@ -73,12 +75,18 @@ typedef enum _SVPacketType {
     SVEntityStatus            = 0x26,
     SVEntityAttach            = 0x27,
     SVEntityMetadata          = 0x28,
+    SVEntityEffect            = 0x29,
+    SVRemoveEntityEffect      = 0x2A,
+    SVExperience              = 0x2B,
     SVPreChunk                = 0x32,
     SVMapChunk                = 0x33,
     SVMultiBlockChange        = 0x34,
     SVBlockChange             = 0x35,
-    SVPlayNoteBlock           = 0x36,
+    SVPlayNoteBlock           = 0x36, //TODO: Needs to be changed to SVBlockAction
     SVExplosion               = 0x3C,
+    SVSoundEffect             = 0x3D,
+    SVState                   = 0x46,
+    SVThunderbolt             = 0x47,
     SVOpenWindow              = 0x64,
     SVCloseWindow             = 0x65,
     SVWindowClick             = 0x66,
@@ -88,21 +96,75 @@ typedef enum _SVPacketType {
     SVTransaction             = 0x6A,
     SVCreativeInventoryAction = 0x6B,
     SVUpdateSign              = 0x82,
+    SVItemData                = 0x83,
     SVIncrementStatistic      = 0xC8,
+    SVPlayerListItem          = 0xC9,
     SVListPing                = 0xFE,
     SVDisconnect              = 0xFF
 } SVPacketType;
+
+/*
+ * Commonly used enums
+ */
+
+typedef enum _SVAnimationType {
+    SVNoAnimation = 0,
+    SVSwingArmAnimation = 1,
+    SVDamageAnimation = 2,
+    SVLeaveBedAnimation = 3,
+    SVUnknownAnimation = 102,
+    SVCrouchAnimation = 104,
+    SVUncrouchAnimation = 105
+} SVAnimationType;
+
+typedef enum _SVActionType {
+	SVCrouchAction = 1,
+	SVUncrouchAction = 2,
+	SVLeaveBedAction = 3,
+	SVStartSprintAction = 4,
+	SVStopSprintAction = 5
+} SVActionType;
+
+typedef enum _SVBlockFace {
+	SVFaceNegativeY = 0,
+	SVFacePositiveY = 1,
+	SVFaceNegativeZ = 2,
+	SVFacePositiveZ = 3,
+	SVFaceNegativeX = 4,
+	SVFacePositiveX = 5
+} SVBlockFace;
+
+typedef enum _SVEntityEffect {
+	SVIncreaseSpeed = 1,
+	SVDecreaseSpeed = 2,
+	SVIncreaseDigSpeed = 3,
+	SVDecreaseDigSpeed = 4,
+	SVDamageBoost = 5,
+	SVHeal = 6,
+	SVHarm = 7,
+	SVJump = 8,
+	SVConfusion = 9,
+	SVRegeneration = 10,
+	SVResistance = 11,
+	SVFireResistance = 12,
+	SVWaterBreathing = 13,
+	SVInvisibility = 14,
+	SVBlindness = 15,
+	SVNightVision = 16,
+	SVFoodPoisoning = 17,
+	SVWeakness = 18,
+	SVPoisoned = 19
+} SVEffect;
+
+/*
+ * Packet stuff
+ */
 
 typedef struct _SVPacket {
     SVPacketChain chain;
     SVPacketType  type;
     CDPointer     data;
 } SVPacket;
-
-
-typedef struct _SVPacketListPing {
-    char empty;
-} SVPacketListPing;
 
 typedef struct _SVPacketKeepAlive {
     SVInteger keepAliveID;
@@ -186,11 +248,23 @@ typedef union _SVPacketUseEntity {
 typedef union _SVPacketUpdateHealth {
     struct {
         SVShort health;
+        SVShort food;
+        SVFloat foodSaturation;
     } response;
 } SVPacketUpdateHealth;
 
 typedef union _SVPacketRespawn {
-    char empty;
+    struct {
+    	//TODO: figure out if the client sends something and implement
+    } request;
+
+    struct {
+    	SVByte world;
+    	SVByte u1;
+    	SVByte mode;
+    	SVShort worldHeight;
+    	SVLong mapSeed;
+    } responce;
 } SVPacketRespawn;
 
 typedef union _SVPacketOnGround {
@@ -251,23 +325,17 @@ typedef union _SVPacketPlayerMoveLook {
 typedef union _SVPacketPlayerDigging {
     struct {
         enum {
-            SVStartedDigging,
+            SVStartedDigging = 0,
             SVDigging,
-            SVStoppedDigging,
+            SVStoppedDigging = 2,
             SVBlockBroken,
-            SVDropItem
+            SVDropItem = 4,
+            SVArrowShot = 5
         } status;
 
         SVBlockPosition position;
 
-        enum {
-            SVFaceNegativeY,
-            SVFacePositiveY,
-            SVFaceNegativeZ,
-            SVFacePositiveZ,
-            SVFaceNegativeX,
-            SVFacePositiveX
-        } face;
+        SVBlockFace face;
     } request;
 } SVPacketPlayerDigging;
 
@@ -275,7 +343,7 @@ typedef union _SVPacketPlayerBlockPlacement {
     struct {
         SVBlockPosition position;
 
-        SVByte  direction;
+        SVBlockFace direction;
         SVItem  item;
         SVByte  amount;
         SVShort damage;
@@ -297,24 +365,6 @@ typedef union _SVPacketUseBed {
         SVBlockPosition position;
     } response;
 } SVPacketUseBed;
-
-typedef enum _SVAnimationType {
-    SVNoAnimation = 0,
-    SVSwingArmAnimation = 1,
-    SVDamageAnimation = 2,
-    SVLeaveBedAnimation = 3,
-    SVUnknownAnimation = 102,
-    SVCrouchAnimation = 104,
-    SVUncrouchAnimation = 105
-} SVAnimationType;
-
-typedef enum _SVActionType {
-	SVCrouchAction = 1,
-	SVUncrouchAction = 2,
-	SVLeaveBedAction = 3,
-	SVStartSprintAction = 4,
-	SVStopSprintAction = 5
-} SVActionType;
 
 typedef union _SVPacketAnimation {
     struct {
@@ -379,22 +429,27 @@ typedef union _SVPacketSpawnObject {
             SVBoat = 1,
 
             SVMinecart = 10,
-            SVStorageCart,
-            SVPoweredCart,
+            SVStorageCart = 11,
+            SVPoweredCart = 12,
 
             SVActivatedTNT = 50,
 
             SVArrow = 60,
-            SVThrownSnowball,
-            SVThrownEgg,
+            SVThrownSnowball = 61,
+            SVThrownEgg = 62,
 
             SVFallingSand = 70,
-            SVFallingGravel,
+            SVFallingGravel = 71,
 
             SVFishingFloat = 90
         } type;
 
         SVAbsolutePosition position;
+
+        SVInteger flag; //Unknown, if greater then 0, the next three shorts are sent
+        SVShort u1;
+        SVShort u2;
+        SVShort u3;
     } response;
 } SVPacketSpawnObject;
 
@@ -404,19 +459,20 @@ typedef union _SVPacketSpawnMob {
 
         enum {
             SVCreeper = 50, // metadata: possible values -1, 1
-            SVSkeleton,
-            SVSpider,
-            SVGiantZombie,
-            SVZombie,
-            SVSlime,
-            SVGhast,
-            SVZombiePigman,
+            SVSkeleton = 51,
+            SVSpider = 52,
+            SVGiantZombie = 53,
+            SVZombie = 54,
+            SVSlime = 55,
+            SVGhast = 56,
+            SVZombiePigman = 57,
 
             SVPig = 90, // metadata: possible values 0, 1
-            SVSheep,    // metadata: bit 0x10 indicates shearedness, the lower 4 bits indicate wool color.
-            SVCow,
-            SVHen,
-            SVSquid
+            SVSheep = 91,    // metadata: bit 0x10 indicates shearedness, the lower 4 bits indicate wool color.
+            SVCow = 92,
+            SVHen = 93,
+            SVSquid = 94,
+            SVWolf = 95
         } type;
 
         SVAbsolutePosition position;
@@ -428,16 +484,44 @@ typedef union _SVPacketSpawnMob {
     } response;
 } SVPacketSpawnMob;
 
-typedef union _SVPacketPainting { // Verify type and coordiates
+typedef union _SVPacketPainting {
     struct {
         SVEntity entity;
         SVString title;
 
         SVBlockPosition position;
 
-        SVInteger type;
+        SVInteger direction;
     } response;
 } SVPacketPainting;
+
+typedef union _SVPacketExperienceOrb {
+	struct {
+		SVEntity entity;
+		SVBlockPosition position;
+		SVShort count;
+	} response;
+} SVPacketExperienceOrb;
+
+typedef union _SVPacketStanceUpdate { //most likely not used
+	struct {
+		SVFloat u1;
+		SVFloat u2;
+		SVFloat u3;
+		SVFloat u4;
+		SVBoolean u5;
+		SVBoolean u6;
+	} request;
+
+	struct {
+		SVFloat u1;
+		SVFloat u2;
+		SVFloat u3;
+		SVFloat u4;
+		SVBoolean u5;
+		SVBoolean u6;
+	} response;
+} SVPacketStanceUpdate;
 
 typedef union _SVPacketEntityVelocity {
     struct {
@@ -526,6 +610,46 @@ typedef union _SVPacketEntityMetadata {
     } response;
 } SVPacketEntityMetadata;
 
+typedef union _SVPacketEntityEffect {
+	struct {
+		SVEntity entity;
+
+		SVEffect effect;
+
+		SVByte amplifier;
+		SVShort duration;
+	} request;
+
+	struct {
+		SVEntity entity;
+
+		SVEffect effect;
+
+		SVByte amplifier;
+		SVShort duration;
+	} response;
+} SVPacketEntityEffect;
+
+typedef union _SVPacketRemoveEntityEffect {
+	struct {
+		SVEntity entity;
+		SVEffect effect;
+	} request;
+
+	struct {
+		SVEntity entity;
+		SVEffect effect;
+	} response;
+};
+
+typedef union _SVPacketExperience {
+	struct {
+		SVByte currentExperience;
+		SVByte level;
+		SVByte totalExperience;
+	} response;
+};
+
 typedef union _SVPacketPreChunk {
     struct {
         SVChunkPosition position;
@@ -565,19 +689,21 @@ typedef union _SVPacketBlockChange {
     } response;
 } SVPacketBlockChange;
 
-typedef union _SVPacketPlayNoteBlock {
+typedef union _SVPacketPlayNoteBlock { //TODO: need to be renamed to _SVBlockAction
     struct {
         SVBlockPosition position;
 
-        enum {
-            SVHarp,
-            SVDoubleBass,
-            SVSnareDrum,
-            SVClicksSticks,
-            SVBassDrum
-        } instrument;
+        /**
+         * Instrument Type (0-4)
+         * Piston State (0-1)
+         */
+        SVByte data1;
 
-        SVByte pitch;
+        /**
+         * Pitch (0-24)
+         * Pushing Direction (0-5)
+         */
+        SVByte data2;
     } response;
 } SVPacketPlayNoteBlock;
 
@@ -591,6 +717,53 @@ typedef union _SVPacketExplosion { // Not sure yet
         SVRelativePosition* item;
     } response;
 } SVPacketExplosion;
+
+typedef union _SVPacketSoundEffect {
+	struct {
+		enum {
+			SVClick1 = 1001,
+			SVClick2 = 1000,
+			SVFireBow = 1002,
+			SVDoorToggle = 1003,
+			SVExtinguish = 1004,
+			SVPlayRecord = 1005,
+			SVSmoke = 2000,
+			SVBlockBreak = 2001
+		} effect;
+
+		SVRelativePosition position;
+
+		enum {
+			SVSouthEast = 0,
+			SVSouth = 1,
+			SVSouthWest = 2,
+			SVEast = 3,
+			SVCenter = 4,
+			SVWest = 5,
+			SVNorthEast = 6,
+			SVNorth = 7,
+			SVNorthWest = 8
+		} data;
+	} response;
+} SVPacketSoundEffect;
+
+typedef union _SVPacketState {
+	struct {
+		//0-Invalid Bed 1/2-Start/Stop Rain 3-Game Mode
+		SVByte reason;
+
+		//0-survival 1-creative
+		SVByte gameMode;
+	} response;
+} SVPacketState;
+
+typedef union _SVPacketThunderbolt {
+	struct {
+		SVEntity entity;
+		SVBoolean u1; //always true
+		SVRelativePosition position;
+	} response;
+};
 
 typedef union _SVPacketOpenWindow {
     struct {
@@ -625,6 +798,7 @@ typedef union _SVPacketWindowClick {
         SVShort   slot;
         SVBoolean rightClick;
         SVShort   action;
+        SVBoolean shiftPressed;
 
         SVItem item; // if the first of the 3 values is -1 the packet ends there
     } request;
@@ -706,12 +880,33 @@ typedef union _SVPacketUpdateSign {
     } response;
 } SVPacketUpdateSign;
 
+typedef union _SVPacketItemData {
+	struct {
+		SVShort itemType;
+		SVShort itemId;
+		SVByte textLength; //This is unsigned!
+		SVByte* text;
+	} response;
+};
+
 typedef union _SVPacketIncrementStatistic {
     struct {
         SVInteger id;
         SVByte    amount;
     } request;
 } SVPacketIncrementStatistic;
+
+typedef union _SVPacketPlayerListItem {
+	struct {
+		SVString playerName;
+		SVBoolean online;
+		SVShort ping; //in milliseconds
+	} response;
+} SVPacketPlayerListItem;
+
+typedef struct _SVPacketListPing {
+    char empty;
+} SVPacketListPing;
 
 typedef union _SVPacketDisconnect {
     struct {
