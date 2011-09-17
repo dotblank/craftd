@@ -716,7 +716,7 @@ SV_PacketToBuffer (SVPacket* self)
                         packet->response.position.x,
                         packet->response.position.y,
                         packet->response.position.z,
-                        packet->response.type
+                        packet->response.direction
                     );
                 } break;
 
@@ -881,8 +881,8 @@ SV_PacketToBuffer (SVPacket* self)
                         packet->response.position.y,
                         packet->response.position.z,
 
-                        packet->response.instrument,
-                        packet->response.pitch
+                        packet->response.data1,
+                        packet->response.data2
                     );
                 } break;
 

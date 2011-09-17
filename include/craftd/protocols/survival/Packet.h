@@ -640,7 +640,7 @@ typedef union _SVPacketRemoveEntityEffect {
 		SVEntity entity;
 		SVEffect effect;
 	} response;
-};
+} SVPacketRemoveEnttiyEffect;
 
 typedef union _SVPacketExperience {
 	struct {
@@ -648,7 +648,7 @@ typedef union _SVPacketExperience {
 		SVByte level;
 		SVByte totalExperience;
 	} response;
-};
+} SVPacketExperience;
 
 typedef union _SVPacketPreChunk {
     struct {
@@ -763,7 +763,7 @@ typedef union _SVPacketThunderbolt {
 		SVBoolean u1; //always true
 		SVRelativePosition position;
 	} response;
-};
+} SVPacketThunderbolt;
 
 typedef union _SVPacketOpenWindow {
     struct {
@@ -887,7 +887,7 @@ typedef union _SVPacketItemData {
 		SVByte textLength; //This is unsigned!
 		SVByte* text;
 	} response;
-};
+} SVPacketItemData;
 
 typedef union _SVPacketIncrementStatistic {
     struct {
