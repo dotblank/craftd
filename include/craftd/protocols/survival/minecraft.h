@@ -136,7 +136,7 @@ typedef struct _SVChunkPosition {
 
 typedef struct _SVBlockPosition {
 	SVInteger x;
-	SVInteger y;
+	SVByte    y;
 	SVInteger z;
 } SVBlockPosition;
 
