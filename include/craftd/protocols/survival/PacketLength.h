@@ -49,8 +49,8 @@ static const size_t SVPacketLength[] = {
 /* 0x05 */  11,     // Entity Equipment
 /* 0x06 */  13,     // Spawn Position
 /* 0x07 */  10,     // Use Entity
-/* 0x08 */  3,      // Update Health
-/* 0x09 */  1,      // Respawn
+/* 0x08 */  9,      // Update Health
+/* 0x09 */  13,     // Respawn
 /* 0x0A */  2,      // Player
 /* 0x0B */  34,     // Player Position
 /* 0x0C */  10,     // Player Look
@@ -64,11 +64,11 @@ static const size_t SVPacketLength[] = {
 /* 0x14 */  23,     // Named Entity Spawn
 /* 0x15 */  25,     // Pickup Spawn
 /* 0x16 */  9,      // Collect Item
-/* 0x17 */  18,     // Add Object/Vehicle
+/* 0x17 */  22,     // Add Object/Vehicle
 /* 0x18 */  21,     // Mob Spawn
 /* 0x19 */  23,     // Painting
-/* 0x1A */  CDNull,	// Experience Orb
-/* 0x1B */  19,		// Stance Update (?)
+/* 0x1A */  19,     // Experience Orb
+/* 0x1B */  18,     // Stance Update (?)
 /* 0x1C */  11,		// Entity Velocity
 /* 0x1D */  5,		// Destroy Entity
 /* 0x1E */  5,		// Entity
@@ -82,9 +82,9 @@ static const size_t SVPacketLength[] = {
 /* 0x26 */  6,		// Entity Status
 /* 0x27 */  9,		// Attach Entity
 /* 0x28 */  6,		// Entity Metadata
-/* 0x29 */  CDNull,	// Entity Effect
-/* 0x2A */  CDNull,	// Remove Entity Effect
-/* 0x2B */  CDNull,	// Experience
+/* 0x29 */  9,      // Entity Effect
+/* 0x2A */  6,      // Remove Entity Effect
+/* 0x2B */  5,  	// Experience
 /* 0x2C */  CDNull,
 /* 0x2D */  CDNull,
 /* 0x2E */  CDNull,
@@ -102,7 +102,7 @@ static const size_t SVPacketLength[] = {
 /* 0x3A */  CDNull,
 /* 0x3B */  CDNull,
 /* 0x3C */  33,		// Explosion
-/* 0x3D */  CDNull,	// Sound Effect
+/* 0x3D */  18,     // Sound Effect
 /* 0x3E */  CDNull,
 /* 0x3F */  CDNull,
 /* 0x40 */  CDNull,
@@ -111,8 +111,8 @@ static const size_t SVPacketLength[] = {
 /* 0x43 */  CDNull,
 /* 0x44 */  CDNull,
 /* 0x45 */  CDNull,
-/* 0x46 */  CDNull,	// New/Invalid State
-/* 0x47 */  CDNull,	// Thunderbolt
+/* 0x46 */  3,      // New/Invalid State
+/* 0x47 */  18,     // Thunderbolt
 /* 0x48 */  CDNull,
 /* 0x49 */  CDNull,
 /* 0x4A */  CDNull,
@@ -143,12 +143,12 @@ static const size_t SVPacketLength[] = {
 /* 0x63 */  CDNull,
 /* 0x64 */  6,		// Open Window
 /* 0x65 */  2,		// Close Window
-/* 0x66 */  9,		// Window Click
+/* 0x66 */  10,		// Window Click
 /* 0x67 */  6,		// Set Slot
 /* 0x68 */  4,		// Window Items
 /* 0x69 */  6,		// Update Progress Bar
 /* 0x6A */  5,		// Transaction
-/* 0x6B */  CDNull,	// Creative Inventory Action
+/* 0x6B */  9,      // Creative Inventory Action
 /* 0x6C */  CDNull,
 /* 0x6D */  CDNull,
 /* 0x6E */  CDNull,
@@ -172,7 +172,7 @@ static const size_t SVPacketLength[] = {
 /* 0x80 */  CDNull,
 /* 0x81 */  CDNull,
 /* 0x82 */  19,		// Update Sign
-/* 0x83 */  CDNull,	// Item Data
+/* 0x83 */  6,      // Item Data
 /* 0x84 */  CDNull,
 /* 0x85 */  CDNull,
 /* 0x86 */  CDNull,
@@ -242,7 +242,7 @@ static const size_t SVPacketLength[] = {
 /* 0xC6 */  CDNull,
 /* 0xC7 */  CDNull,
 /* 0xC8 */  6,		// Increment Statistic
-/* 0xC9 */  CDNull,	// Player List Item
+/* 0xC9 */  6,      // Player List Item
 /* 0xCA */  CDNull,
 /* 0xCB */  CDNull,
 /* 0xCC */  CDNull,
