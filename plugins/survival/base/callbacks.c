@@ -658,7 +658,24 @@ cdsurvival_ClientProcess (CDServer* server, CDClient* client, SVPacket* packet)
                                     (data->request.position.z & 0xF) + 16 *
                                     (data->request.position.x & 0xF));
 
-                            printf("Break info: Chunk X:%i Chunk Z:%i Block Type:0x%.2X Block Data:0x%.2X\n",
+                            SVBlock block = {
+                                .blockPosition = {
+                                    .x = data->request.position.x,
+                                    .y = data->request.position.y,
+                                    .z = data->request.position.z
+                                },
+                                .chunkPosition = {
+                                    .x = pos.x,
+                                    .z = pos.z
+                                },
+                                .type = chunk->blocks[iPos],
+                                .data = {
+                                    .blockType = chunk->blocks[iPos],
+                                    .data = chunk->data[iPos],
+                                }
+                            };
+
+                            DEBUG("Break info: Chunk X:%i Chunk Z:%i Block Type:0x%.2X Block Data:0x%.2X\n",
                                     pos.x, pos.z, chunk->blocks[iPos], chunk->data[iPos]);
 
                             SVPacketBlockChange pkt = {
