@@ -642,6 +642,22 @@ cdsurvival_ClientProcess (CDServer* server, CDClient* client, SVPacket* packet)
 			player->yaw             = data->request.yaw;
 			player->pitch           = data->request.pitch;
 		} break;
+                
+                case SVPlayerDigging: {
+                    SVPacketPlayerDigging* data = (SVPacketPlayerDigging*) packet->data;
+                    SVPrecisePosition a = SV_BlockPositionToAbsolutePosition(data->request.position);
+                    
+                    if(data->request.status == SVBlockBroken) { //Survival mode for now
+                        if(!SV_IsDistanceGreater(player->entity.position, a, 6)) {
+
+                        }
+                        else {
+                            SERR(server, "Player %s tried to dig past max dig limit! Hacking?",
+                                    CD_StringContent(player->username));
+                            CD_ServerKick(server, client, CD_CreateStringFromCString("You tried to dig to far! Hacking?"));
+                        }
+                    }
+                }
 
 		case SVDisconnect: {
 			SVPacketDisconnect* data = (SVPacketDisconnect*) packet->data;
