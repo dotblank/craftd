@@ -36,9 +36,20 @@ typedef enum _SVWorldError {
 } SVWorldError;
 
 typedef enum _SVWorldDimension {
-	SVWorldNether = -1,
-	SVWorldNormal =  0
+	SVWorldNether   = -1,
+	SVWorldNormal   =  0,
+        SVWorldSkylands =  1
 } SVWorldDimension;
+
+typedef enum _SVWorldMode {
+        SVModeCreative = 1,
+        SVModeSurvival = 0
+} SVWorldMode;
+
+typedef enum _SVWorldDifficulty {
+    SVDifficultyNormal = 1,
+    SVDifficultyHard   = 2
+} SVWorldDifficulty;
 
 typedef struct _SVWorld {
 	CDServer* server;
@@ -56,9 +67,11 @@ typedef struct _SVWorld {
 		} cache;
 	} config;
 
-	CDString*        name;
-	SVWorldDimension dimension;
-	uint16_t         time;
+	CDString*         name;
+	SVWorldDimension  dimension;
+        SVWorldMode       mode;
+        SVWorldDifficulty difficulty;
+	uint16_t          time;
 
 	struct {
 		pthread_spinlock_t time;
