@@ -163,5 +163,3 @@ mkmf.log
 config.h
 conftest*
 *.fas
-/build/rake/
-/build/auto/
