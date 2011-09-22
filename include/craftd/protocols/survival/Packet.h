@@ -28,7 +28,7 @@
 
 #include <craftd/protocols/survival/common.h>
 
-#define CRAFTD_PROTOCOL_VERSION (17)
+#define CRAFTD_PROTOCOL_VERSION (18)
 
 typedef enum _SVPacketChain {
 	SVRequest,
