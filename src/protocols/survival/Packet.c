@@ -778,7 +778,7 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
 				case SVSpawnObject: {
 					SVPacketSpawnObject* packet = (SVPacketSpawnObject*) CD_malloc(sizeof(SVPacketSpawnObject));
 
-					SV_BufferRemoveFormat(input, "ibiiiisss",
+					SV_BufferRemoveFormat(input, "ibiiii",
 						&packet->response.entity.id,
 						&packet->response.type,
 						&packet->response.position.x,
@@ -788,7 +788,7 @@ SV_GetPacketDataFromBuffer (SVPacket* self, CDBuffer* input)
 					);
 					
 					if (packet->response.flag > 0) {
-						SV_BufferRemoveFormat(input, "sss"
+						SV_BufferRemoveFormat(input, "sss",
 							&packet->response.u1,
 							&packet->response.u2,
 							&packet->response.u3
@@ -1578,15 +1578,6 @@ SV_PacketToBuffer (SVPacket* self)
 					);
 				} break;
 
-				case SVIncrementStatistic: {
-					SVPacketIncrementStatistic* packet = (SVPacketIncrementStatistic*) self->data;
-
-					SV_BufferAddFormat(data, "ib",
-						packet->request.id,
-						packet->request.amount
-					);
-				} break;
-
 				case SVListPing: {
 					
 				} break;
@@ -2204,6 +2195,15 @@ SV_PacketToBuffer (SVPacket* self)
 					);
 					
 					CD_BufferAdd(data, (CDPointer) packet->response.text, packet->response.textLength * SVByteSize);
+				} break;
+				
+				case SVIncrementStatistic: {
+					SVPacketIncrementStatistic* packet = (SVPacketIncrementStatistic*) self->data;
+
+					SV_BufferAddFormat(data, "ib",
+						packet->response.id,
+						packet->response.amount
+					);
 				} break;
 
 				case SVPlayerListItem: {
