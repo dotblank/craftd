@@ -133,12 +133,11 @@ SV_StringIsValid (SVString self)
 	for (size_t i = 0, ie = CD_StringLength(self); i < ie; i++) {
 		bool      has = false;
 		CDString* ch  = CD_CharAt(self, i);
-		size_t chSize = CD_StringSize(ch);
 
 		for (size_t h = 0; h < SVCharsetLen; h++) {
 			const char* che = &SVCharset[SVCharsetOffset[h]];
 
-			if (strncmp(CD_StringContent(ch), che, chSize) == 0) {
+			if (strncmp(CD_StringContent(ch), che, CD_StringSize(ch)) == 0) {
 				has = true;
 				break;
 			}
@@ -165,12 +164,11 @@ SV_StringSanitize (SVString self)
 	for (size_t i = 0, ie = CD_StringLength(self); i < ie; i++) {
 		bool      has = false;
 		CDString* ch  = CD_CharAt(self, i);
-		size_t chSize = CD_StringSize(ch);
 
 		for (size_t h = 0; h < SVCharsetLen; h++) {
 			const char* che = &SVCharset[SVCharsetOffset[h]];
 			
-			if (strncmp(CD_StringContent(ch), che, chSize) == 0) {
+			if (strncmp(CD_StringContent(ch), che, CD_StringSize(ch)) == 0) {
 				has = true;
 				break;
 			}
