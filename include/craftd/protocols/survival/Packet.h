@@ -896,7 +896,11 @@ typedef union _SVPacketIncrementStatistic {
 	struct {
 		SVInteger id;
 		SVByte    amount;
-	} resposne;
+	} request;
+	struct {
+		SVInteger id;
+		SVByte    amount;
+	} response;
 } SVPacketIncrementStatistic;
 
 typedef union _SVPacketPlayerListItem {
